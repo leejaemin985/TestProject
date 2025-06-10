@@ -1,14 +1,11 @@
-# ========== Unity Default ==========
+# ================= Unity 캐시 / 임시 파일 =================
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
 [Bb]uild/
 [Bb]uilds/
 [Ll]ogs/
-[Mm]emoryCaptures/
-[Rr]ecordings/
 [Uu]ser[Ss]ettings/
-
 *.log
 *.tmp
 *.pidb
@@ -18,61 +15,54 @@
 *.mdb
 *.opendb
 *.VC.db
-*.blend1
-*.blend1.meta
-*.csproj
-*.unityproj
-*.sln
 *.suo
 *.user
 *.userprefs
+*.csproj
+*.sln
+*.unityproj
 
-# Unity crash reports
+# ✅ 추가된 항목 (요청 기반)
+Library/ArtifactDB
+Library/SourceAssetDB
+Library/ilpp.pid
+Library/Bee/
+Library/ShaderCache/
+Library/PackageCache/
+EditorInstance.json
+UnityLockfile
+workerlic
+FSTimeGet*
+Logs/*.log
+Logs/*.prev.log
+.utmp/
+
+# Unity crash and temp
 sysinfo.txt
 
-# Unity Addressables (Packed)
-Assets/AddressableAssetsData/*/*.bin*
+# Visual Scripting
+Assets/Unity.VisualScripting.Generated/**
 
-# Unity StreamingAssets temporary data
+# StreamingAssets
+Assets/StreamingAssets/aa*
 Assets/StreamingAssets/aa.meta
-Assets/StreamingAssets/aa/*
 
-# Visual Scripting generated files
-Assets/Unity.VisualScripting.Generated/VisualScripting.Flow/UnitOptions.db
-Assets/Unity.VisualScripting.Generated/VisualScripting.Flow/UnitOptions.db.meta
-Assets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers
-Assets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers.meta
+# Addressables
+Assets/AddressableAssetsData/**.bin*
 
-# ========== IDEs / Tools ==========
-# VS, JetBrains Rider, MonoDevelop
+# JetBrains Rider, VS, Consulo
 .vs/
 .idea/
-ExportedObj/
-.consulo/
 .gradle/
-.DS_Store
-Thumbs.db
+.consulo/
 
-# JetBrains plugin
-Assets/Plugins/Editor/JetBrains*
-
-# ========== Platform-specific ==========
-# Android
+# Android/iOS 빌드 관련
 *.apk
 *.aab
-crashlytics-build.properties
-
-# iOS
 Pods/
 xcuserdata/
+crashlytics-build.properties
 
-# ========== Optional ==========
-# Asset Store Tools (Uncomment if used)
-/Assets/AssetStoreTools*
-
-# Unity packages
-*.unitypackage
-*.unitypackage.meta
-
-# Unity temporary file
-.utmp/
+# 기타
+.DS_Store
+Thumbs.db
