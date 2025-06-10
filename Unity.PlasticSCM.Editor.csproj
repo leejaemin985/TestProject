@@ -10,7 +10,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{DFD9220E-7A90-B65F-5CC2-BE8F602F78BE}</ProjectGuid>
+    <ProjectGuid>{D0D4AAC4-4488-4AFF-607A-C39FBB943C41}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Unity.PlasticSCM.Editor</AssemblyName>
@@ -62,8 +62,8 @@
   <ItemGroup>
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\Gluon\UpdateProgress.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\Views\Branch\BranchesViewMenu.cs" />
-    <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\Views\Merge\Developer\DirectoryConflicts\AddMoveMenu.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\UI\Tree\PlasticTreeView.cs" />
+    <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\Views\Merge\Developer\DirectoryConflicts\AddMoveMenu.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\WebApi\ErrorResponse.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\WebApi\SubscriptionDetailsResponse.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\UI\DropDownTextField.cs" />
@@ -151,8 +151,8 @@
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\Developer\ProgressOperationHandler.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\_Deprecated\CollabPlugin.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\Views\CreateWorkspace\DrawCreateWorkspaceView.cs" />
-    <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\Tool\FindTool.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\Views\Shelves\ShelvesListView.cs" />
+    <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\Tool\FindTool.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\Configuration\CloudEdition\Welcome\OrganizationPanel.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\Views\PendingChanges\Dialogs\LaunchCheckinConflictsDialog.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\Views\Locks\LocksListView.cs" />
@@ -235,8 +235,8 @@
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\Configuration\ChannelCertificateUiImpl.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\UI\Images.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\Views\PendingChanges\DrawOperationSuccess.cs" />
-    <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\UI\TabButton.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\UI\StatusBar\GUIContentNotification.cs" />
+    <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\UI\TabButton.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\Gluon\ProgressOperationHandler.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\OrganizationsInformation.cs" />
     <Compile Include="Library\PackageCache\com.unity.collab-proxy@2.8.2\Editor\AssetMenu\AssetCopyPathOperation.cs" />
@@ -1291,19 +1291,19 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="UnityEditor.UI.csproj">
-      <Project>{807E8D70-5757-B894-681C-14BE05FFCE8B}</Project>
+      <Project>{D2EB4226-E75C-6C2F-EC26-A777BBEB4A45}</Project>
       <Name>UnityEditor.UI</Name>
     </ProjectReference>
     <ProjectReference Include="UnityEngine.UI.csproj">
-      <Project>{A756AAA7-DC0D-F335-E1B6-B3DFCEB9C8A6}</Project>
+      <Project>{DB51F38D-6368-329C-0775-B0BBAF21E477}</Project>
       <Name>UnityEngine.UI</Name>
     </ProjectReference>
     <ProjectReference Include="UnityEngine.TestRunner.csproj">
-      <Project>{D34CA44D-A573-46C5-05FC-350B23D7EEF1}</Project>
+      <Project>{10328E0E-9F02-4230-DCC1-BEDF2892B6D2}</Project>
       <Name>UnityEngine.TestRunner</Name>
     </ProjectReference>
     <ProjectReference Include="UnityEditor.TestRunner.csproj">
-      <Project>{DED1D101-BFAB-A5D5-D4DD-A6BA0669877C}</Project>
+      <Project>{EF7AAB72-DFE4-4284-FC47-5FDBA0B55F2E}</Project>
       <Name>UnityEditor.TestRunner</Name>
     </ProjectReference>
   </ItemGroup>
