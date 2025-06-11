@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using static OBBCollisionDetecter;
+using Physics;
 
 [RequireComponent(typeof(BoxCollider))]
 public class SweptOBBGenerator : MonoBehaviour
@@ -15,13 +15,13 @@ public class SweptOBBGenerator : MonoBehaviour
 
     private bool isFirstUpdate = true;
     private int frameCounter = 0;
-    private int updateInterval = Mathf.Clamp(Application.targetFrameRate / 20, 1, 10);
+    private int updateInterval => 1;
 
     void Awake()
     {
         boxCollider = GetComponent<BoxCollider>();
         CacheInitialState();
-        Application.targetFrameRate = 20; // 15 FPS·Î Á¦ÇÑ
+        Application.targetFrameRate = 60;
     }
 
     void OnEnable()

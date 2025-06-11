@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-using static OBBCollisionDetecter;
+using Physics;
 
 public class TestCode : MonoBehaviour
 {
@@ -18,8 +18,8 @@ public class TestCode : MonoBehaviour
     {
         List<Vector3> allPoints = new();
 
-        OBBCollisionDetecter.OBB obbA = new(box1);
-        OBBCollisionDetecter.OBB obbB = new(box2);
+        OBB obbA = new(box1);
+        OBB obbB = new(box2);
 
         allPoints.AddRange(obbA.GetVertices());
         allPoints.AddRange(obbB.GetVertices());
@@ -67,7 +67,7 @@ public class TestCode : MonoBehaviour
             + axis2 * ((maxZ + minZ) * 0.5f);
 
         var rotation = Quaternion.LookRotation(axis2, axis1);
-        var sweptOBB = new OBBCollisionDetecter.OBB(
+        var sweptOBB = new OBB(
             obbCenter,
             rotation.eulerAngles,
             halfSize * 2f // OBB 생성자는 full size 기준
