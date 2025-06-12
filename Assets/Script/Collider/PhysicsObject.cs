@@ -2,6 +2,30 @@ using UnityEngine;
 
 namespace Physics
 {
+    public struct Sphere
+    {
+        public Vector3 center;
+        public float radius;
+
+        public Sphere(Transform transform)
+        {
+            center = transform.position;
+            Vector3 scale = transform.lossyScale;
+            radius = Mathf.Max(scale.x, scale.y, scale.z) * .5f;
+        }
+
+        public Sphere(Vector3 center, float radius)
+        {
+            this.center = center;
+            this.radius = radius;
+        }
+
+        public bool ContainsPoint(Vector3 point)
+        {
+            return Vector3.SqrMagnitude(point - center) <= radius * radius;
+        }
+    }
+
     public struct OBB
     {
         public Vector3 center;

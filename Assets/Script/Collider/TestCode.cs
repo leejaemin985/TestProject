@@ -1,103 +1,114 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using Physics;
 
 public class TestCode : MonoBehaviour
 {
+    public enum CollisionMode { OBB, Sphere }
+    public CollisionMode collisionMode = CollisionMode.OBB;
+
     public Transform box1;
     public Transform box2;
 
-    private Vector3[] boxVert = new Vector3[8];
-    
     private bool collision = false;
+    private CollisionInfo collisionInfo;
 
-    // Update is called once per frame
-    void Update()
+    private OBB obbA;
+    private OBB obbB;
+
+    private Sphere sphereA;
+    private Sphere sphereB;
+
+    private void Update()
     {
-        List<Vector3> allPoints = new();
+        if (box1 == null || box2 == null) return;
 
-        OBB obbA = new(box1);
-        OBB obbB = new(box2);
-
-        allPoints.AddRange(obbA.GetVertices());
-        allPoints.AddRange(obbB.GetVertices());
-
-        Vector3 centroid = Vector3.zero;
-        foreach (var p in allPoints)
-            centroid += p;
-        centroid /= allPoints.Count;
-
-        // axis0: 가장 긴 방향
-        Vector3 axis0 = (obbB.center - obbA.center).normalized;
-        // axis1, axis2: cross product로 직교 축 만들기
-        Vector3 arbitrary = Vector3.up;
-        if (Mathf.Abs(Vector3.Dot(axis0, arbitrary)) > 0.99f) arbitrary = Vector3.right;
-        Vector3 axis1 = Vector3.Cross(axis0, arbitrary).normalized;
-        Vector3 axis2 = Vector3.Cross(axis0, axis1).normalized;
-
-        float minX = float.MaxValue, maxX = float.MinValue;
-        float minY = float.MaxValue, maxY = float.MinValue;
-        float minZ = float.MaxValue, maxZ = float.MinValue;
-
-        foreach (var p in allPoints)
+        switch (collisionMode)
         {
-            Vector3 local = new Vector3(
-                Vector3.Dot(p - centroid, axis0),
-                Vector3.Dot(p - centroid, axis1),
-                Vector3.Dot(p - centroid, axis2)
-            );
+            case CollisionMode.OBB:
+                obbA = new OBB(box1);
+                obbB = new OBB(box2);
 
-            minX = Mathf.Min(minX, local.x);
-            maxX = Mathf.Max(maxX, local.x);
-            minY = Mathf.Min(minY, local.y);
-            maxY = Mathf.Max(maxY, local.y);
-            minZ = Mathf.Min(minZ, local.z);
-            maxZ = Mathf.Max(maxZ, local.z);
+                collision = CollisionDetecter.CheckOBBCollision(obbA, obbB, out collisionInfo);
+                break;
+
+            case CollisionMode.Sphere:
+                sphereA = new Sphere(box1.position, GetRadiusFromTransform(box1));
+                sphereB = new Sphere(box2.position, GetRadiusFromTransform(box2));
+
+                collision = SphereCollisionDetector.CheckSphereCollision(sphereA, sphereB, out collisionInfo);
+                break;
         }
-        Vector3 halfSize = new Vector3(
-            (maxX - minX) * 0.5f,
-            (maxY - minY) * 0.5f,
-            (maxZ - minZ) * 0.5f);
-
-        Vector3 obbCenter = centroid
-            + axis0 * ((maxX + minX) * 0.5f)
-            + axis1 * ((maxY + minY) * 0.5f)
-            + axis2 * ((maxZ + minZ) * 0.5f);
-
-        var rotation = Quaternion.LookRotation(axis2, axis1);
-        var sweptOBB = new OBB(
-            obbCenter,
-            rotation.eulerAngles,
-            halfSize * 2f // OBB 생성자는 full size 기준
-        );
-
-        boxVert = sweptOBB.GetVertices();
     }
 
     private void OnDrawGizmos()
     {
+        if (box1 == null || box2 == null)
+            return;
 
-        Gizmos.color = Color.cyan;
+        switch (collisionMode)
+        {
+            case CollisionMode.OBB:
+                OBB a = new OBB(box1);
+                OBB b = new OBB(box2);
 
-        // 윗면 4개
-        Gizmos.DrawLine(boxVert[0], boxVert[1]);
-        Gizmos.DrawLine(boxVert[1], boxVert[3]);
-        Gizmos.DrawLine(boxVert[3], boxVert[2]);
-        Gizmos.DrawLine(boxVert[2], boxVert[0]);
+                DrawOBB(a, Color.cyan);
+                DrawOBB(b, Color.cyan);
+                break;
 
-        // 아랫면 4개
-        Gizmos.DrawLine(boxVert[4], boxVert[5]);
-        Gizmos.DrawLine(boxVert[5], boxVert[7]);
-        Gizmos.DrawLine(boxVert[7], boxVert[6]);
-        Gizmos.DrawLine(boxVert[6], boxVert[4]);
+            case CollisionMode.Sphere:
+                Sphere sA = new Sphere(box1.position, GetRadiusFromTransform(box1));
+                Sphere sB = new Sphere(box2.position, GetRadiusFromTransform(box2));
 
-        // 수직 연결
-        Gizmos.DrawLine(boxVert[0], boxVert[4]);
-        Gizmos.DrawLine(boxVert[1], boxVert[5]);
-        Gizmos.DrawLine(boxVert[2], boxVert[6]);
-        Gizmos.DrawLine(boxVert[3], boxVert[7]);
+                DrawSphere(sA, Color.cyan);
+                DrawSphere(sB, Color.cyan);
+                break;
+        }
+
+        if (collision)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawCube(collisionInfo.contactPointA, Vector3.one * 0.1f);
+            Gizmos.DrawCube(collisionInfo.contactPointB, Vector3.one * 0.1f);
+        }
+    }
+
+    private void DrawOBB(OBB obb, Color color)
+    {
+        Vector3[] v = obb.GetVertices();
+        Gizmos.color = color;
+
+        // 앞면 사각형 (0,1,3,2)
+        Gizmos.DrawLine(v[0], v[1]);
+        Gizmos.DrawLine(v[1], v[3]);
+        Gizmos.DrawLine(v[3], v[2]);
+        Gizmos.DrawLine(v[2], v[0]);
+
+        // 뒷면 사각형 (4,5,7,6)
+        Gizmos.DrawLine(v[4], v[5]);
+        Gizmos.DrawLine(v[5], v[7]);
+        Gizmos.DrawLine(v[7], v[6]);
+        Gizmos.DrawLine(v[6], v[4]);
+
+        // 옆면 연결
+        Gizmos.DrawLine(v[0], v[4]);
+        Gizmos.DrawLine(v[1], v[5]);
+        Gizmos.DrawLine(v[2], v[6]);
+        Gizmos.DrawLine(v[3], v[7]);
+    }
+
+    private void DrawSphere(Sphere sphere, Color color)
+    {
+        Gizmos.color = color;
+        Gizmos.DrawWireSphere(sphere.center, sphere.radius);
+    }
+
+    private float GetRadiusFromTransform(Transform t)
+    {
+        // 단순하게 x,y,z 스케일 평균값의 절반을 반지름으로 사용
+        Vector3 scale = t.lossyScale;
+        float averageScale = (scale.x + scale.y + scale.z) / 3f;
+        return averageScale * 0.5f; // 원하는 크기 조절 가능
     }
 }
-

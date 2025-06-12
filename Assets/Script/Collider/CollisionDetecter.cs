@@ -1,14 +1,29 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 using System.Linq.Expressions;
 using UnityEngine;
 
 namespace Physics
 {
-    public class OBBCollisionDetecter
+    [Serializable]
+    public struct CollisionInfo
     {
-        public static bool CheckOBBCollision(OBB a, OBB b, out Vector3 contactPoint)
+        public Vector3 contactPointA;
+        public Vector3 contactPointB;
+
+        public CollisionInfo(Vector3 contactPointA, Vector3 contactPointB)
+        {
+            this.contactPointA = contactPointA;
+            this.contactPointB = contactPointB;
+        }
+    }
+
+    public class CollisionDetecter
+    {
+        public static bool CheckOBBCollision(OBB a, OBB b, out CollisionInfo collisionInfo)
         {
             const float epsilon = 1e-6f;
 
@@ -21,7 +36,7 @@ namespace Physics
             Matrix4x4 R = Matrix4x4.zero;
             Matrix4x4 AbsR = Matrix4x4.zero;
 
-            contactPoint = default;
+            collisionInfo = default;
 
             // R[i,j] = Ai dot Bj
             for (int i = 0; i < 3; i++)
@@ -66,47 +81,42 @@ namespace Physics
                         return false;
                 }
             }
-            contactPoint = GetOBBCollisionInfo(a, b);
+            collisionInfo = GetOBBCollisionInfo(a, b);
 
             return true; // 모든 축에서 분리가 안 됐으면 충돌
         }
 
         #region Calculate CollisionInfo
 
-        private static Vector3 GetOBBCollisionInfo(OBB a, OBB b)
+        private static CollisionInfo GetOBBCollisionInfo(OBB a, OBB b)
         {
-            List<Vector3> contactPoints = new List<Vector3>();
+            List<Vector3> aPointsInB = new();
+            List<Vector3> bPointsInA = new();
 
-            // 꼭짓점 배열을 미리 만들어 재사용
             Vector3[] aVerts = a.GetVertices();
             Vector3[] bVerts = b.GetVertices();
 
             foreach (var v in aVerts)
             {
                 if (IsPointInsideOBB(v, b))
-                    contactPoints.Add(v);
+                    aPointsInB.Add(v);
             }
+
             foreach (var v in bVerts)
             {
                 if (IsPointInsideOBB(v, a))
-                    contactPoints.Add(v);
+                    bPointsInA.Add(v);
             }
 
-            if (contactPoints.Count == 0)
-            {
-                // 후보점이 없으면 두 중심점 중간 지점을 기본값으로
-                Vector3 midPoint = (a.center + b.center) * 0.5f;
-                return midPoint;
-            }
-            else
-            {
-                // 후보점들의 평균으로 접촉점 반환
-                Vector3 avg = Vector3.zero;
-                foreach (var p in contactPoints)
-                    avg += p;
-                avg /= contactPoints.Count;
-                return avg;
-            }
+            Vector3 contactA = (aPointsInB.Count == 0)
+                ? a.center
+                : aPointsInB.Aggregate(Vector3.zero, (sum, p) => sum + p) / aPointsInB.Count;
+
+            Vector3 contactB = (bPointsInA.Count == 0)
+                ? b.center
+                : bPointsInA.Aggregate(Vector3.zero, (sum, p) => sum + p) / bPointsInA.Count;
+
+            return new CollisionInfo(contactA, contactB);
         }
 
         // OBB 내부 점 판정 함수
@@ -123,6 +133,43 @@ namespace Physics
         }
 
         #endregion
+    }
 
+    public class SphereCollisionDetector
+    {
+        public static bool CheckSphereCollision(Sphere a, Sphere b, out CollisionInfo collisionInfo)
+        {
+            collisionInfo = default;
+
+            Vector3 direction = b.center - a.center;
+            float distanceSq = direction.sqrMagnitude;
+            float radiusSum = a.radius + b.radius;
+
+            if (distanceSq > radiusSum * radiusSum)
+                return false;
+
+            collisionInfo = GetSphereCollisionInfo(a, b);
+            return true;
+        }
+
+        private static CollisionInfo GetSphereCollisionInfo(Sphere a, Sphere b)
+        {
+            Vector3 dir = b.center - a.center;
+            float dist = dir.magnitude;
+
+            // 중심이 거의 같을 경우 처리
+            if (dist < 1e-6f)
+            {
+                // 겹쳐있다고 보고, 중심 자체를 접촉점으로 처리
+                return new CollisionInfo(a.center, b.center);
+            }
+
+            Vector3 dirNorm = dir / dist;
+
+            Vector3 contactPointA = a.center + dirNorm * a.radius;
+            Vector3 contactPointB = b.center - dirNorm * b.radius;
+
+            return new CollisionInfo(contactPointA, contactPointB);
+        }
     }
 }
