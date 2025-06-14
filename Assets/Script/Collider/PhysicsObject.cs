@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace Physics
@@ -84,20 +87,170 @@ namespace Physics
 
     public abstract class PhysicsObject : MonoBehaviour
     {
+        public Guid uid { get; private set; } = Guid.NewGuid();
+
+        public HashSet<Guid> collisionCheckedUIDs { get; private set; }
+
+        public enum PhysicsShapeType
+        {
+            OBB,
+            SPHERE
+        }
+
         public enum PhysicsType
         {
             ATTACK,
-            HITABLE,
-            ALL
+            HITABLE
         }
 
         public abstract PhysicsType physicsType { get; }
+
+        public PhysicsShapeType physicsShapeType;
 
         private void Start() => Initialized();
 
         protected virtual void Initialized()
         {
             PhysicsGenerator.Instance.RegisterPhysicsObject(this);
+        }
+
+        #region Gizmo
+        private void OnDrawGizmos()
+        {
+            if (!PhysicsGizmoToggleWindow.IsShowingGizmos()) return;
+
+            switch (physicsShapeType)
+            {
+                case PhysicsShapeType.SPHERE:
+                    OnDrawGizmoSphere();
+                    break;
+                case PhysicsShapeType.OBB:
+                    OnDrawGizmoOBB();
+                    break;
+            }
+        }
+
+        private void OnDrawGizmoSphere()
+        {
+            Gizmos.color = PhysicsGizmoToggleWindow.GetPhysicsGizmoColor();
+
+            Vector3 scale = transform.lossyScale;
+            float radius = Mathf.Max(scale.x, scale.y, scale.z) * 0.5f;
+
+            Gizmos.DrawWireSphere(transform.position, radius);
+        }
+
+        private void OnDrawGizmoOBB()
+        {
+            Gizmos.color = PhysicsGizmoToggleWindow.GetPhysicsGizmoColor();
+
+            Vector3 center = transform.position;
+            Vector3 halfSize = transform.lossyScale * 0.5f;
+
+            Vector3 right = transform.right.normalized;
+            Vector3 up = transform.up.normalized;
+            Vector3 forward = transform.forward.normalized;
+
+            Vector3[] vertices = new Vector3[8];
+
+            vertices[0] = center + right * halfSize.x + up * halfSize.y + forward * halfSize.z;
+            vertices[1] = center + right * halfSize.x + up * halfSize.y - forward * halfSize.z;
+            vertices[2] = center + right * halfSize.x - up * halfSize.y + forward * halfSize.z;
+            vertices[3] = center + right * halfSize.x - up * halfSize.y - forward * halfSize.z;
+            vertices[4] = center - right * halfSize.x + up * halfSize.y + forward * halfSize.z;
+            vertices[5] = center - right * halfSize.x + up * halfSize.y - forward * halfSize.z;
+            vertices[6] = center - right * halfSize.x - up * halfSize.y + forward * halfSize.z;
+            vertices[7] = center - right * halfSize.x - up * halfSize.y - forward * halfSize.z;
+
+            // 상단면
+            Gizmos.DrawLine(vertices[0], vertices[1]);
+            Gizmos.DrawLine(vertices[1], vertices[3]);
+            Gizmos.DrawLine(vertices[3], vertices[2]);
+            Gizmos.DrawLine(vertices[2], vertices[0]);
+
+            // 하단면
+            Gizmos.DrawLine(vertices[4], vertices[5]);
+            Gizmos.DrawLine(vertices[5], vertices[7]);
+            Gizmos.DrawLine(vertices[7], vertices[6]);
+            Gizmos.DrawLine(vertices[6], vertices[4]);
+
+            // 수직 연결
+            Gizmos.DrawLine(vertices[0], vertices[4]);
+            Gizmos.DrawLine(vertices[1], vertices[5]);
+            Gizmos.DrawLine(vertices[2], vertices[6]);
+            Gizmos.DrawLine(vertices[3], vertices[7]);
+        }
+
+        #endregion
+    }
+
+    public class PhysicsGizmoToggleWindow : EditorWindow
+    {
+        private static bool showPhysicsGizmos = true;
+        private static Color physicsColor = Color.cyan;
+
+        private const string ShowGizmoKey = "ShowPhysicsGizmos";
+        private const string GizmoColorR = "PhysicsGizmoColorR";
+        private const string GizmoColorG = "PhysicsGizmoColorG";
+        private const string GizmoColorB = "PhysicsGizmoColorB";
+        private const string GizmoColorA = "PhysicsGizmoColorA";
+
+        [MenuItem("Tools/Physics Gizmo Toggle")]
+        public static void ShowWindow()
+        {
+            GetWindow<PhysicsGizmoToggleWindow>("Physics Gizmo Toggle");
+        }
+
+        private void OnEnable()
+        {
+            LoadPrefs();
+        }
+
+        private void OnGUI()
+        {
+            EditorGUI.BeginChangeCheck();
+
+            showPhysicsGizmos = EditorGUILayout.Toggle("Show Physics Gizmos", showPhysicsGizmos);
+            physicsColor = EditorGUILayout.ColorField("Physics Range Color", physicsColor);
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                SavePrefs();
+            }
+        }
+
+        private static void SavePrefs()
+        {
+            EditorPrefs.SetBool(ShowGizmoKey, showPhysicsGizmos);
+            EditorPrefs.SetFloat(GizmoColorR, physicsColor.r);
+            EditorPrefs.SetFloat(GizmoColorG, physicsColor.g);
+            EditorPrefs.SetFloat(GizmoColorB, physicsColor.b);
+            EditorPrefs.SetFloat(GizmoColorA, physicsColor.a);
+        }
+
+        private static void LoadPrefs()
+        {
+            showPhysicsGizmos = EditorPrefs.GetBool(ShowGizmoKey, true);
+
+            float r = EditorPrefs.GetFloat(GizmoColorR, physicsColor.r);
+            float g = EditorPrefs.GetFloat(GizmoColorG, physicsColor.g);
+            float b = EditorPrefs.GetFloat(GizmoColorB, physicsColor.b);
+            float a = EditorPrefs.GetFloat(GizmoColorA, physicsColor.a);
+            physicsColor = new Color(r, g, b, a);
+        }
+
+        public static bool IsShowingGizmos()
+        {
+            return EditorPrefs.GetBool(ShowGizmoKey, true);
+        }
+
+        public static Color GetPhysicsGizmoColor()
+        {
+            float r = EditorPrefs.GetFloat(GizmoColorR, Color.cyan.r);
+            float g = EditorPrefs.GetFloat(GizmoColorG, Color.cyan.g);
+            float b = EditorPrefs.GetFloat(GizmoColorB, Color.cyan.b);
+            float a = EditorPrefs.GetFloat(GizmoColorA, Color.cyan.a);
+            return new Color(r, g, b, a);
         }
     }
 }

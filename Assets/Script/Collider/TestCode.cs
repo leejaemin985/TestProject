@@ -5,7 +5,7 @@ using Physics;
 
 public class TestCode : MonoBehaviour
 {
-    public enum CollisionMode { OBB, Sphere }
+    public enum CollisionMode { OBB, Sphere, OBB_Sphere }
     public CollisionMode collisionMode = CollisionMode.OBB;
 
     public Transform box1;
@@ -29,15 +29,19 @@ public class TestCode : MonoBehaviour
             case CollisionMode.OBB:
                 obbA = new OBB(box1);
                 obbB = new OBB(box2);
-
-                collision = CollisionDetecter.CheckOBBCollision(obbA, obbB, out collisionInfo);
+                collision = CollisionDetecter.CheckCollision(obbA, obbB, out collisionInfo);
                 break;
 
             case CollisionMode.Sphere:
                 sphereA = new Sphere(box1.position, GetRadiusFromTransform(box1));
                 sphereB = new Sphere(box2.position, GetRadiusFromTransform(box2));
+                collision = CollisionDetecter.CheckCollision(sphereA, sphereB, out collisionInfo);
+                break;
 
-                collision = SphereCollisionDetector.CheckSphereCollision(sphereA, sphereB, out collisionInfo);
+            case CollisionMode.OBB_Sphere:
+                obbA = new OBB(box1);
+                sphereB = new Sphere(box2.position, GetRadiusFromTransform(box2));
+                collision = CollisionDetecter.CheckCollision(obbA, sphereB, out collisionInfo);
                 break;
         }
     }
@@ -52,24 +56,30 @@ public class TestCode : MonoBehaviour
             case CollisionMode.OBB:
                 OBB a = new OBB(box1);
                 OBB b = new OBB(box2);
-
-                DrawOBB(a, Color.cyan);
+                DrawOBB(a, Color.green);
                 DrawOBB(b, Color.cyan);
                 break;
 
             case CollisionMode.Sphere:
                 Sphere sA = new Sphere(box1.position, GetRadiusFromTransform(box1));
                 Sphere sB = new Sphere(box2.position, GetRadiusFromTransform(box2));
-
-                DrawSphere(sA, Color.cyan);
+                DrawSphere(sA, Color.green);
                 DrawSphere(sB, Color.cyan);
+                break;
+
+            case CollisionMode.OBB_Sphere:
+                OBB o = new OBB(box1);
+                Sphere s = new Sphere(box2.position, GetRadiusFromTransform(box2));
+                DrawOBB(o, Color.green);
+                DrawSphere(s, Color.cyan);
                 break;
         }
 
         if (collision)
         {
-            Gizmos.color = Color.red;
+            Gizmos.color = Color.cyan;
             Gizmos.DrawCube(collisionInfo.contactPointA, Vector3.one * 0.1f);
+            Gizmos.color = Color.green;
             Gizmos.DrawCube(collisionInfo.contactPointB, Vector3.one * 0.1f);
         }
     }
@@ -79,19 +89,19 @@ public class TestCode : MonoBehaviour
         Vector3[] v = obb.GetVertices();
         Gizmos.color = color;
 
-        // 앞면 사각형 (0,1,3,2)
+        // 앞면
         Gizmos.DrawLine(v[0], v[1]);
         Gizmos.DrawLine(v[1], v[3]);
         Gizmos.DrawLine(v[3], v[2]);
         Gizmos.DrawLine(v[2], v[0]);
 
-        // 뒷면 사각형 (4,5,7,6)
+        // 뒷면
         Gizmos.DrawLine(v[4], v[5]);
         Gizmos.DrawLine(v[5], v[7]);
         Gizmos.DrawLine(v[7], v[6]);
         Gizmos.DrawLine(v[6], v[4]);
 
-        // 옆면 연결
+        // 연결선
         Gizmos.DrawLine(v[0], v[4]);
         Gizmos.DrawLine(v[1], v[5]);
         Gizmos.DrawLine(v[2], v[6]);
@@ -106,9 +116,8 @@ public class TestCode : MonoBehaviour
 
     private float GetRadiusFromTransform(Transform t)
     {
-        // 단순하게 x,y,z 스케일 평균값의 절반을 반지름으로 사용
         Vector3 scale = t.lossyScale;
         float averageScale = (scale.x + scale.y + scale.z) / 3f;
-        return averageScale * 0.5f; // 원하는 크기 조절 가능
+        return averageScale * 0.5f;
     }
 }

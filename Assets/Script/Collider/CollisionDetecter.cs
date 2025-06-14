@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
-using System.Linq.Expressions;
+using System.Collections.Generic;
+
 using UnityEngine;
 
 namespace Physics
@@ -23,7 +21,26 @@ namespace Physics
 
     public class CollisionDetecter
     {
-        public static bool CheckOBBCollision(OBB a, OBB b, out CollisionInfo collisionInfo)
+        public static bool CheckCollision(OBB box1, OBB box2, out CollisionInfo collisionInfo)
+            => CheckOBBCollision(box1, box2, out collisionInfo);
+
+        public static bool CheckCollision(Sphere sphere1, Sphere sphere2, out CollisionInfo collisionInfo)
+            => CheckSphereCollision(sphere1, sphere2, out collisionInfo);
+
+        public static bool CheckCollision(OBB box, Sphere sphere, out CollisionInfo collisionInfo)
+            => CheckOBBSphereCollision(box, sphere, out collisionInfo);
+
+        public static bool CheckCollision(Sphere sphere, OBB box, out CollisionInfo collisionInfo)
+        {
+            bool ret = CheckOBBSphereCollision(box, sphere, out collisionInfo);
+            var temp = collisionInfo.contactPointB;
+            collisionInfo.contactPointB = collisionInfo.contactPointA;
+            collisionInfo.contactPointA = temp;
+            return ret;
+        }
+
+        #region OBB
+        private static bool CheckOBBCollision(OBB a, OBB b, out CollisionInfo collisionInfo)
         {
             const float epsilon = 1e-6f;
 
@@ -86,8 +103,6 @@ namespace Physics
             return true; // 모든 축에서 분리가 안 됐으면 충돌
         }
 
-        #region Calculate CollisionInfo
-
         private static CollisionInfo GetOBBCollisionInfo(OBB a, OBB b)
         {
             List<Vector3> aPointsInB = new();
@@ -119,7 +134,6 @@ namespace Physics
             return new CollisionInfo(contactA, contactB);
         }
 
-        // OBB 내부 점 판정 함수
         static bool IsPointInsideOBB(Vector3 point, OBB obb)
         {
             Vector3 dir = point - obb.center;
@@ -131,13 +145,10 @@ namespace Physics
             }
             return true;
         }
-
         #endregion
-    }
 
-    public class SphereCollisionDetector
-    {
-        public static bool CheckSphereCollision(Sphere a, Sphere b, out CollisionInfo collisionInfo)
+        #region Sphere
+        private static bool CheckSphereCollision(Sphere a, Sphere b, out CollisionInfo collisionInfo)
         {
             collisionInfo = default;
 
@@ -171,5 +182,39 @@ namespace Physics
 
             return new CollisionInfo(contactPointA, contactPointB);
         }
+        #endregion
+
+        #region Both
+        private static bool CheckOBBSphereCollision(OBB obb, Sphere sphere, out CollisionInfo collisionInfo)
+        {
+            collisionInfo = default;
+
+            Vector3 dir = sphere.center - obb.center;
+            Vector3 closestPoint = obb.center;
+
+            // 각 축에 대해 투영 후 clamp
+            for (int i = 0; i < 3; i++)
+            {
+                float dist = Vector3.Dot(dir, obb.axis[i]);
+                dist = Mathf.Clamp(dist, -obb.halfSize[i], obb.halfSize[i]);
+                closestPoint += obb.axis[i] * dist;
+            }
+
+            Vector3 difference = sphere.center - closestPoint;
+            float distanceSqr = difference.sqrMagnitude;
+            float radius = sphere.radius;
+
+            if (distanceSqr > radius * radius)
+                return false;
+
+            // 접촉 지점 계산
+            Vector3 normal = difference.normalized;
+            Vector3 contactPointA = closestPoint;
+            Vector3 contactPointB = sphere.center - normal * radius;
+
+            collisionInfo = new CollisionInfo(contactPointA, contactPointB);
+            return true;
+        }
+        #endregion
     }
 }
