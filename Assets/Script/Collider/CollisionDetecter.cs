@@ -19,7 +19,7 @@ namespace Physics
         }
     }
 
-    public class CollisionDetecter
+    public static class CollisionDetecter
     {
         public static bool CheckCollision(OBB box1, OBB box2, out CollisionInfo collisionInfo)
             => CheckOBBCollision(box1, box2, out collisionInfo);

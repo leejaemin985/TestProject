@@ -66,7 +66,7 @@ namespace Physics
             UpdateVertices();
         }
 
-        private void UpdateVertices()
+        public void UpdateVertices()
         {
             _cachedVertices[0] = center + axis[0] * halfSize.x + axis[1] * halfSize.y + axis[2] * halfSize.z;
             _cachedVertices[1] = center + axis[0] * halfSize.x + axis[1] * halfSize.y - axis[2] * halfSize.z;
@@ -80,6 +80,7 @@ namespace Physics
 
         public Vector3[] GetVertices()
         {
+            if (_cachedVertices == null) _cachedVertices = new Vector3[8];
             UpdateVertices();
             return _cachedVertices;
         }
@@ -151,8 +152,6 @@ namespace Physics
         {
             PhysicsGenerator.Instance.RegisterPhysicsObject(this);
         }
-
-
 
         #region Gizmo
         private void OnDrawGizmos()
@@ -253,6 +252,32 @@ namespace Physics
             Gizmos.DrawLine(capsule.pointA - right, capsule.pointB - right);
         }
 
+        public static void DrawCapsuleGizmo(Capsule capsule)
+        {
+            Gizmos.color = PhysicsGizmoToggleWindow.GetPhysicsGizmoColor();
+
+            Vector3 dir = (capsule.pointB - capsule.pointA).normalized;
+            float height = Vector3.Distance(capsule.pointA, capsule.pointB);
+
+            // 양 끝 구체
+            Gizmos.DrawWireSphere(capsule.pointA, capsule.radius);
+            Gizmos.DrawWireSphere(capsule.pointB, capsule.radius);
+
+            // 중간 몸통 연결 (4방향에서)
+            Vector3 up = Vector3.Cross(dir, Vector3.right).normalized;
+            if (up == Vector3.zero)
+                up = Vector3.Cross(dir, Vector3.forward).normalized;
+
+            Vector3 right = Vector3.Cross(dir, up).normalized;
+
+            up *= capsule.radius;
+            right *= capsule.radius;
+
+            Gizmos.DrawLine(capsule.pointA + up, capsule.pointB + up);
+            Gizmos.DrawLine(capsule.pointA - up, capsule.pointB - up);
+            Gizmos.DrawLine(capsule.pointA + right, capsule.pointB + right);
+            Gizmos.DrawLine(capsule.pointA - right, capsule.pointB - right);
+        }
         #endregion
     }
 
