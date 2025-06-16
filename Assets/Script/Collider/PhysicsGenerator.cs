@@ -66,5 +66,10 @@ namespace Physics
 
             list.Remove(physicsObject);
         }
+
+        private void LateUpdate()
+        {
+            
+        }
     }
 }

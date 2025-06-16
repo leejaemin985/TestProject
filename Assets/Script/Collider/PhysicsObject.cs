@@ -85,16 +85,54 @@ namespace Physics
         }
     }
 
+    public struct Capsule
+    {
+        public Vector3 pointA;
+        public Vector3 pointB;
+        public float radius;
+
+        public Capsule(Vector3 pointA, Vector3 pointB, float radius)
+        {
+            this.pointA = pointA;
+            this.pointB = pointB;
+            this.radius = radius;
+        }
+
+        public Capsule(Transform capsuleTransform)
+        {
+            Vector3 center = capsuleTransform.position;
+
+            Vector3 up = capsuleTransform.up; // 방향 벡터 (Y축 기준 회전 포함)
+            float height = capsuleTransform.lossyScale.y;
+            float radius = Mathf.Max(capsuleTransform.lossyScale.x, capsuleTransform.lossyScale.z) * 0.5f;
+
+            float halfSegment = Mathf.Max(0f, (height * 0.5f) - radius);
+
+            this.pointA = center + up * halfSegment;
+            this.pointB = center - up * halfSegment;
+            this.radius = radius;
+        }
+
+        public Vector3 center => (pointA + pointB) * .5f;
+
+        public float Height => Vector3.Distance(pointA, pointB) + radius * 2;
+
+        public Vector3 Direction => (pointB - pointA).normalized;
+    }
+
     public abstract class PhysicsObject : MonoBehaviour
     {
         public Guid uid { get; private set; } = Guid.NewGuid();
+
+        public bool active;
 
         public HashSet<Guid> collisionCheckedUIDs { get; private set; }
 
         public enum PhysicsShapeType
         {
             OBB,
-            SPHERE
+            SPHERE,
+            CAPSULE
         }
 
         public enum PhysicsType
@@ -114,6 +152,8 @@ namespace Physics
             PhysicsGenerator.Instance.RegisterPhysicsObject(this);
         }
 
+
+
         #region Gizmo
         private void OnDrawGizmos()
         {
@@ -126,6 +166,9 @@ namespace Physics
                     break;
                 case PhysicsShapeType.OBB:
                     OnDrawGizmoOBB();
+                    break;
+                case PhysicsShapeType.CAPSULE:
+                    OnDrawGizmoCapsule();
                     break;
             }
         }
@@ -179,6 +222,35 @@ namespace Physics
             Gizmos.DrawLine(vertices[1], vertices[5]);
             Gizmos.DrawLine(vertices[2], vertices[6]);
             Gizmos.DrawLine(vertices[3], vertices[7]);
+        }
+
+        private void OnDrawGizmoCapsule()
+        {
+            Gizmos.color = PhysicsGizmoToggleWindow.GetPhysicsGizmoColor();
+
+            Capsule capsule = new Capsule(transform);
+
+            Vector3 dir = (capsule.pointB - capsule.pointA).normalized;
+            float height = Vector3.Distance(capsule.pointA, capsule.pointB);
+
+            // 양 끝 구체
+            Gizmos.DrawWireSphere(capsule.pointA, capsule.radius);
+            Gizmos.DrawWireSphere(capsule.pointB, capsule.radius);
+
+            // 중간 몸통 연결 (4방향에서)
+            Vector3 up = Vector3.Cross(dir, Vector3.right).normalized;
+            if (up == Vector3.zero)
+                up = Vector3.Cross(dir, Vector3.forward).normalized;
+
+            Vector3 right = Vector3.Cross(dir, up).normalized;
+
+            up *= capsule.radius;
+            right *= capsule.radius;
+
+            Gizmos.DrawLine(capsule.pointA + up, capsule.pointB + up);
+            Gizmos.DrawLine(capsule.pointA - up, capsule.pointB - up);
+            Gizmos.DrawLine(capsule.pointA + right, capsule.pointB + right);
+            Gizmos.DrawLine(capsule.pointA - right, capsule.pointB - right);
         }
 
         #endregion
