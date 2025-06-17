@@ -66,6 +66,19 @@ namespace Physics
             UpdateVertices();
         }
 
+        public OBB(Vector3 center, Vector3[] axis, Vector3 halfSize)
+        {
+            this.center = center;
+            this.axis = new Vector3[3];
+            this.axis[0] = axis[0].normalized;
+            this.axis[1] = axis[1].normalized;
+            this.axis[2] = axis[2].normalized;
+            this.halfSize = halfSize;
+
+            _cachedVertices = new Vector3[8];
+            UpdateVertices();
+        }
+
         public void UpdateVertices()
         {
             _cachedVertices[0] = center + axis[0] * halfSize.x + axis[1] * halfSize.y + axis[2] * halfSize.z;
@@ -161,37 +174,33 @@ namespace Physics
             switch (physicsShapeType)
             {
                 case PhysicsShapeType.SPHERE:
-                    OnDrawGizmoSphere();
+                    OnDrawGizmoSphere(new(transform));
                     break;
                 case PhysicsShapeType.OBB:
-                    OnDrawGizmoOBB();
+                    OnDrawGizmoOBB(new(transform));
                     break;
                 case PhysicsShapeType.CAPSULE:
-                    OnDrawGizmoCapsule();
+                    OnDrawGizmoCapsule(new(transform));
                     break;
             }
         }
 
-        private void OnDrawGizmoSphere()
+        public static void OnDrawGizmoSphere(Sphere sphere)
         {
             Gizmos.color = PhysicsGizmoToggleWindow.GetPhysicsGizmoColor();
-
-            Vector3 scale = transform.lossyScale;
-            float radius = Mathf.Max(scale.x, scale.y, scale.z) * 0.5f;
-
-            Gizmos.DrawWireSphere(transform.position, radius);
+            Gizmos.DrawWireSphere(sphere.center, sphere.radius);
         }
 
-        private void OnDrawGizmoOBB()
+        public static void OnDrawGizmoOBB(OBB oBB)
         {
             Gizmos.color = PhysicsGizmoToggleWindow.GetPhysicsGizmoColor();
 
-            Vector3 center = transform.position;
-            Vector3 halfSize = transform.lossyScale * 0.5f;
+            Vector3 center = oBB.center;
+            Vector3 halfSize = oBB.halfSize;
 
-            Vector3 right = transform.right.normalized;
-            Vector3 up = transform.up.normalized;
-            Vector3 forward = transform.forward.normalized;
+            Vector3 right = oBB.axis[0];
+            Vector3 up = oBB.axis[1];
+            Vector3 forward = oBB.axis[2];
 
             Vector3[] vertices = new Vector3[8];
 
@@ -223,36 +232,7 @@ namespace Physics
             Gizmos.DrawLine(vertices[3], vertices[7]);
         }
 
-        private void OnDrawGizmoCapsule()
-        {
-            Gizmos.color = PhysicsGizmoToggleWindow.GetPhysicsGizmoColor();
-
-            Capsule capsule = new Capsule(transform);
-
-            Vector3 dir = (capsule.pointB - capsule.pointA).normalized;
-            float height = Vector3.Distance(capsule.pointA, capsule.pointB);
-
-            // 양 끝 구체
-            Gizmos.DrawWireSphere(capsule.pointA, capsule.radius);
-            Gizmos.DrawWireSphere(capsule.pointB, capsule.radius);
-
-            // 중간 몸통 연결 (4방향에서)
-            Vector3 up = Vector3.Cross(dir, Vector3.right).normalized;
-            if (up == Vector3.zero)
-                up = Vector3.Cross(dir, Vector3.forward).normalized;
-
-            Vector3 right = Vector3.Cross(dir, up).normalized;
-
-            up *= capsule.radius;
-            right *= capsule.radius;
-
-            Gizmos.DrawLine(capsule.pointA + up, capsule.pointB + up);
-            Gizmos.DrawLine(capsule.pointA - up, capsule.pointB - up);
-            Gizmos.DrawLine(capsule.pointA + right, capsule.pointB + right);
-            Gizmos.DrawLine(capsule.pointA - right, capsule.pointB - right);
-        }
-
-        public static void DrawCapsuleGizmo(Capsule capsule)
+        public static void OnDrawGizmoCapsule(Capsule capsule)
         {
             Gizmos.color = PhysicsGizmoToggleWindow.GetPhysicsGizmoColor();
 
@@ -278,6 +258,7 @@ namespace Physics
             Gizmos.DrawLine(capsule.pointA + right, capsule.pointB + right);
             Gizmos.DrawLine(capsule.pointA - right, capsule.pointB - right);
         }
+
         #endregion
     }
 
