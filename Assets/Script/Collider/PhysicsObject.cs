@@ -2,13 +2,19 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Physics
 {
     public interface IPhysicsShape
     {
         PhysicsObject.PhysicsShapeType ShapeType { get; }
+
         Type CollisionType { get; }
+
+        IPhysicsShape ComputeSweptVolume(IPhysicsShape next);
+
+        void UpdateFromTransform(Transform transform);
     }
 
     public struct Sphere : IPhysicsShape
@@ -16,14 +22,25 @@ namespace Physics
         public PhysicsObject.PhysicsShapeType ShapeType => PhysicsObject.PhysicsShapeType.SPHERE;
         public Type CollisionType => typeof(Sphere);
 
+        public IPhysicsShape ComputeSweptVolume(IPhysicsShape next)
+        {
+            if (next is not Sphere other)
+            {
+                Debug.LogError($"[Physics] - Shape types must match for swept volume calcuation.");
+                return null;
+            }
+
+            return SweptVolumeCalculator.ComputeSweptSphere(this, other);
+        }
+
         public Vector3 center;
         public float radius;
 
         public Sphere(Transform transform)
         {
-            center = transform.position;
-            Vector3 scale = transform.lossyScale;
-            radius = Mathf.Max(scale.x, scale.y, scale.z) * .5f;
+            this.center = default;
+            this.radius = default;
+            UpdateFromTransform(transform);
         }
 
         public Sphere(Vector3 center, float radius)
@@ -36,12 +53,30 @@ namespace Physics
         {
             return Vector3.SqrMagnitude(point - center) <= radius * radius;
         }
+
+        public void UpdateFromTransform(Transform transform)
+        {
+            center = transform.position;
+            Vector3 scale = transform.lossyScale;
+            radius = Mathf.Max(scale.x, scale.y, scale.z) * .5f;
+        }
     }
 
     public struct OBB : IPhysicsShape
     {
         public PhysicsObject.PhysicsShapeType ShapeType => PhysicsObject.PhysicsShapeType.OBB;
         public Type CollisionType => typeof(OBB);
+
+        public IPhysicsShape ComputeSweptVolume(IPhysicsShape next)
+        {
+            if (next is not OBB other)
+            {
+                Debug.LogError($"[Physics] - Shape types must match for swept volume calcuation.");
+                return null;
+            }
+
+            return SweptVolumeCalculator.ComputeEncompassingOBB(this, other);
+        }
 
         public Vector3 center;
         public Vector3[] axis;
@@ -51,15 +86,12 @@ namespace Physics
 
         public OBB(Transform boxTransform)
         {
-            center = boxTransform.position;
-            axis = new Vector3[3];
-            axis[0] = boxTransform.right.normalized;
-            axis[1] = boxTransform.up.normalized;
-            axis[2] = boxTransform.forward.normalized;
-            halfSize = boxTransform.lossyScale * 0.5f;
+            this.center = default;
+            this.axis = default;
+            this.halfSize = default;
+            this._cachedVertices = default;
 
-            _cachedVertices = new Vector3[8];
-            UpdateVertices();
+            UpdateFromTransform(boxTransform);
         }
 
         public OBB(Vector3 center, Vector3 eulerRotation, Vector3 size)
@@ -109,12 +141,41 @@ namespace Physics
             UpdateVertices();
             return _cachedVertices;
         }
+
+        public void UpdateFromTransform(Transform transform)
+        {
+            center = transform.position;
+
+            if (axis == null || axis.Length != 3)
+                axis = new Vector3[3];
+
+            axis[0] = transform.right.normalized;
+            axis[1] = transform.up.normalized;
+            axis[2] = transform.forward.normalized;
+            halfSize = transform.lossyScale * 0.5f;
+
+            if (_cachedVertices == null || _cachedVertices.Length != 8)
+                _cachedVertices = new Vector3[8];
+
+            UpdateVertices();
+        }
     }
 
     public struct Capsule : IPhysicsShape
     {
         public PhysicsObject.PhysicsShapeType ShapeType => PhysicsObject.PhysicsShapeType.CAPSULE;
-        public Type CollisionType => typeof(OBB);
+        public Type CollisionType => typeof(Capsule);
+
+        public IPhysicsShape ComputeSweptVolume(IPhysicsShape next)
+        {
+            if (next is not Capsule other)
+            {
+                Debug.LogError($"[Physics] - Shape types must match for swept volume calcuation.");
+                return null;
+            }
+
+            return SweptVolumeCalculator.ComputeSweptOBBFromCapsules(this, other);
+        }
 
         public Vector3 pointA;
         public Vector3 pointB;
@@ -127,19 +188,12 @@ namespace Physics
             this.radius = radius;
         }
 
-        public Capsule(Transform capsuleTransform)
+        public Capsule(Transform transform)
         {
-            Vector3 center = capsuleTransform.position;
-
-            Vector3 up = capsuleTransform.up; // 방향 벡터 (Y축 기준 회전 포함)
-            float height = capsuleTransform.lossyScale.y;
-            float radius = Mathf.Max(capsuleTransform.lossyScale.x, capsuleTransform.lossyScale.z) * 0.5f;
-
-            float halfSegment = Mathf.Max(0f, (height * 0.5f) - radius);
-
-            this.pointA = center + up * halfSegment;
-            this.pointB = center - up * halfSegment;
-            this.radius = radius;
+            this.pointA = default;
+            this.pointB = default;
+            this.radius = default;
+            UpdateFromTransform(transform);
         }
 
         public Vector3 center => (pointA + pointB) * .5f;
@@ -147,6 +201,21 @@ namespace Physics
         public float Height => Vector3.Distance(pointA, pointB) + radius * 2;
 
         public Vector3 Direction => (pointB - pointA).normalized;
+
+        public void UpdateFromTransform(Transform transform)
+        {
+            Vector3 center = transform.position;
+
+            Vector3 up = transform.up; // 방향 벡터 (Y축 기준 회전 포함)
+            float height = transform.lossyScale.y;
+            float radius = Mathf.Max(transform.lossyScale.x, transform.lossyScale.z) * 0.5f;
+
+            float halfSegment = Mathf.Max(0f, (height * 0.5f) - radius);
+
+            this.pointA = center + up * halfSegment;
+            this.pointB = center - up * halfSegment;
+            this.radius = radius;
+        }
     }
 
     public abstract class PhysicsObject : MonoBehaviour
@@ -173,12 +242,44 @@ namespace Physics
         public abstract PhysicsType physicsType { get; }
 
         public PhysicsShapeType physicsShapeType;
+        public IPhysicsShape physicsShape { get; private set; }
+
+        private Vector3 prevPosition;
+        private Quaternion prevRotation;
+        private Vector3 prevScale;
+
+        private PhysicsShapeType prevShapeType;
 
         private void Start() => Initialized();
 
         protected virtual void Initialized()
         {
+            physicsShape = CreateShape(physicsShapeType);
             PhysicsGenerator.Instance.RegisterPhysicsObject(this);
+        }
+
+        private IPhysicsShape CreateShape(PhysicsShapeType physicsShapeType)
+        {
+            return physicsShapeType switch
+            {
+                PhysicsShapeType.SPHERE => new Sphere(transform),
+                PhysicsShapeType.OBB => new OBB(transform),
+                PhysicsShapeType.CAPSULE => new Capsule(transform)
+            };
+        }
+
+        private void CachedTransform()
+        {
+            this.prevPosition = transform.position;
+            this.prevRotation = transform.rotation;
+            this.prevScale = transform.localScale;
+        }
+
+        private bool HasTransformChanged()
+        {
+            return transform.position != prevPosition ||
+                transform.rotation != prevRotation ||
+                transform.localScale != prevScale;
         }
 
         #region Gizmo
@@ -186,92 +287,24 @@ namespace Physics
         {
             if (!PhysicsGizmoToggleWindow.IsShowingGizmos()) return;
 
-            switch (physicsShapeType)
+            bool shapeChanged = physicsShape == null || (physicsShapeType != prevShapeType);
+            bool transformChanged = HasTransformChanged();
+
+            if (shapeChanged)
             {
-                case PhysicsShapeType.SPHERE:
-                    OnDrawGizmoSphere(new(transform));
-                    break;
-                case PhysicsShapeType.OBB:
-                    OnDrawGizmoOBB(new(transform));
-                    break;
-                case PhysicsShapeType.CAPSULE:
-                    OnDrawGizmoCapsule(new(transform));
-                    break;
+                physicsShape = CreateShape(physicsShapeType);
+                prevShapeType = physicsShapeType;
+
+                CachedTransform();
+                physicsShape.UpdateFromTransform(transform);
             }
-        }
+            else if (transformChanged)
+            {
+                CachedTransform();
+                physicsShape.UpdateFromTransform(transform);
+            }
 
-        public static void OnDrawGizmoSphere(Sphere sphere)
-        {
-            Gizmos.color = PhysicsGizmoToggleWindow.GetPhysicsGizmoColor();
-            Gizmos.DrawWireSphere(sphere.center, sphere.radius);
-        }
-
-        public static void OnDrawGizmoOBB(OBB oBB)
-        {
-            Gizmos.color = PhysicsGizmoToggleWindow.GetPhysicsGizmoColor();
-
-            Vector3 center = oBB.center;
-            Vector3 halfSize = oBB.halfSize;
-
-            Vector3 right = oBB.axis[0];
-            Vector3 up = oBB.axis[1];
-            Vector3 forward = oBB.axis[2];
-
-            Vector3[] vertices = new Vector3[8];
-
-            vertices[0] = center + right * halfSize.x + up * halfSize.y + forward * halfSize.z;
-            vertices[1] = center + right * halfSize.x + up * halfSize.y - forward * halfSize.z;
-            vertices[2] = center + right * halfSize.x - up * halfSize.y + forward * halfSize.z;
-            vertices[3] = center + right * halfSize.x - up * halfSize.y - forward * halfSize.z;
-            vertices[4] = center - right * halfSize.x + up * halfSize.y + forward * halfSize.z;
-            vertices[5] = center - right * halfSize.x + up * halfSize.y - forward * halfSize.z;
-            vertices[6] = center - right * halfSize.x - up * halfSize.y + forward * halfSize.z;
-            vertices[7] = center - right * halfSize.x - up * halfSize.y - forward * halfSize.z;
-
-            // 상단면
-            Gizmos.DrawLine(vertices[0], vertices[1]);
-            Gizmos.DrawLine(vertices[1], vertices[3]);
-            Gizmos.DrawLine(vertices[3], vertices[2]);
-            Gizmos.DrawLine(vertices[2], vertices[0]);
-
-            // 하단면
-            Gizmos.DrawLine(vertices[4], vertices[5]);
-            Gizmos.DrawLine(vertices[5], vertices[7]);
-            Gizmos.DrawLine(vertices[7], vertices[6]);
-            Gizmos.DrawLine(vertices[6], vertices[4]);
-
-            // 수직 연결
-            Gizmos.DrawLine(vertices[0], vertices[4]);
-            Gizmos.DrawLine(vertices[1], vertices[5]);
-            Gizmos.DrawLine(vertices[2], vertices[6]);
-            Gizmos.DrawLine(vertices[3], vertices[7]);
-        }
-
-        public static void OnDrawGizmoCapsule(Capsule capsule)
-        {
-            Gizmos.color = PhysicsGizmoToggleWindow.GetPhysicsGizmoColor();
-
-            Vector3 dir = (capsule.pointB - capsule.pointA).normalized;
-            float height = Vector3.Distance(capsule.pointA, capsule.pointB);
-
-            // 양 끝 구체
-            Gizmos.DrawWireSphere(capsule.pointA, capsule.radius);
-            Gizmos.DrawWireSphere(capsule.pointB, capsule.radius);
-
-            // 중간 몸통 연결 (4방향에서)
-            Vector3 up = Vector3.Cross(dir, Vector3.right).normalized;
-            if (up == Vector3.zero)
-                up = Vector3.Cross(dir, Vector3.forward).normalized;
-
-            Vector3 right = Vector3.Cross(dir, up).normalized;
-
-            up *= capsule.radius;
-            right *= capsule.radius;
-
-            Gizmos.DrawLine(capsule.pointA + up, capsule.pointB + up);
-            Gizmos.DrawLine(capsule.pointA - up, capsule.pointB - up);
-            Gizmos.DrawLine(capsule.pointA + right, capsule.pointB + right);
-            Gizmos.DrawLine(capsule.pointA - right, capsule.pointB - right);
+            PhysicsGizmoDrawer.OnDrawGizmoPhysicsShape(physicsShape);
         }
 
         #endregion
@@ -344,6 +377,101 @@ namespace Physics
             float b = EditorPrefs.GetFloat(GizmoColorB, Color.cyan.b);
             float a = EditorPrefs.GetFloat(GizmoColorA, Color.cyan.a);
             return new Color(r, g, b, a);
+        }
+    }
+
+    public class PhysicsGizmoDrawer
+    {
+        public static void OnDrawGizmoPhysicsShape(IPhysicsShape physicsShape)
+        {
+            switch (true)
+            {
+                case true when physicsShape is Sphere:
+                    OnDrawGizmoSphere((Sphere)physicsShape);
+                    break;
+
+                case true when physicsShape is OBB:
+                    OnDrawGizmoOBB((OBB)physicsShape);
+                    break;
+
+                case true when physicsShape is Capsule:
+                    OnDrawGizmoCapsule((Capsule)physicsShape);
+                    break;
+            }
+        }
+
+        private static void OnDrawGizmoSphere(Sphere sphere)
+        {
+            Gizmos.color = PhysicsGizmoToggleWindow.GetPhysicsGizmoColor();
+            Gizmos.DrawWireSphere(sphere.center, sphere.radius);
+        }
+
+        private static void OnDrawGizmoOBB(OBB oBB)
+        {
+            Gizmos.color = PhysicsGizmoToggleWindow.GetPhysicsGizmoColor();
+
+            Vector3 center = oBB.center;
+            Vector3 halfSize = oBB.halfSize;
+
+            Vector3 right = oBB.axis[0];
+            Vector3 up = oBB.axis[1];
+            Vector3 forward = oBB.axis[2];
+
+            Vector3[] vertices = new Vector3[8];
+
+            vertices[0] = center + right * halfSize.x + up * halfSize.y + forward * halfSize.z;
+            vertices[1] = center + right * halfSize.x + up * halfSize.y - forward * halfSize.z;
+            vertices[2] = center + right * halfSize.x - up * halfSize.y + forward * halfSize.z;
+            vertices[3] = center + right * halfSize.x - up * halfSize.y - forward * halfSize.z;
+            vertices[4] = center - right * halfSize.x + up * halfSize.y + forward * halfSize.z;
+            vertices[5] = center - right * halfSize.x + up * halfSize.y - forward * halfSize.z;
+            vertices[6] = center - right * halfSize.x - up * halfSize.y + forward * halfSize.z;
+            vertices[7] = center - right * halfSize.x - up * halfSize.y - forward * halfSize.z;
+
+            // 상단면
+            Gizmos.DrawLine(vertices[0], vertices[1]);
+            Gizmos.DrawLine(vertices[1], vertices[3]);
+            Gizmos.DrawLine(vertices[3], vertices[2]);
+            Gizmos.DrawLine(vertices[2], vertices[0]);
+
+            // 하단면
+            Gizmos.DrawLine(vertices[4], vertices[5]);
+            Gizmos.DrawLine(vertices[5], vertices[7]);
+            Gizmos.DrawLine(vertices[7], vertices[6]);
+            Gizmos.DrawLine(vertices[6], vertices[4]);
+
+            // 수직 연결
+            Gizmos.DrawLine(vertices[0], vertices[4]);
+            Gizmos.DrawLine(vertices[1], vertices[5]);
+            Gizmos.DrawLine(vertices[2], vertices[6]);
+            Gizmos.DrawLine(vertices[3], vertices[7]);
+        }
+
+        private static void OnDrawGizmoCapsule(Capsule capsule)
+        {
+            Gizmos.color = PhysicsGizmoToggleWindow.GetPhysicsGizmoColor();
+
+            Vector3 dir = (capsule.pointB - capsule.pointA).normalized;
+            float height = Vector3.Distance(capsule.pointA, capsule.pointB);
+
+            // 양 끝 구체
+            Gizmos.DrawWireSphere(capsule.pointA, capsule.radius);
+            Gizmos.DrawWireSphere(capsule.pointB, capsule.radius);
+
+            // 중간 몸통 연결 (4방향에서)
+            Vector3 up = Vector3.Cross(dir, Vector3.right).normalized;
+            if (up == Vector3.zero)
+                up = Vector3.Cross(dir, Vector3.forward).normalized;
+
+            Vector3 right = Vector3.Cross(dir, up).normalized;
+
+            up *= capsule.radius;
+            right *= capsule.radius;
+
+            Gizmos.DrawLine(capsule.pointA + up, capsule.pointB + up);
+            Gizmos.DrawLine(capsule.pointA - up, capsule.pointB - up);
+            Gizmos.DrawLine(capsule.pointA + right, capsule.pointB + right);
+            Gizmos.DrawLine(capsule.pointA - right, capsule.pointB - right);
         }
     }
 }
