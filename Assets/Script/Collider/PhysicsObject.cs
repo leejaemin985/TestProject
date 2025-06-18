@@ -5,8 +5,17 @@ using UnityEngine;
 
 namespace Physics
 {
-    public struct Sphere
+    public interface IPhysicsShape
     {
+        PhysicsObject.PhysicsShapeType ShapeType { get; }
+        Type CollisionType { get; }
+    }
+
+    public struct Sphere : IPhysicsShape
+    {
+        public PhysicsObject.PhysicsShapeType ShapeType => PhysicsObject.PhysicsShapeType.SPHERE;
+        public Type CollisionType => typeof(Sphere);
+
         public Vector3 center;
         public float radius;
 
@@ -29,8 +38,11 @@ namespace Physics
         }
     }
 
-    public struct OBB
+    public struct OBB : IPhysicsShape
     {
+        public PhysicsObject.PhysicsShapeType ShapeType => PhysicsObject.PhysicsShapeType.OBB;
+        public Type CollisionType => typeof(OBB);
+
         public Vector3 center;
         public Vector3[] axis;
         public Vector3 halfSize;
@@ -99,8 +111,11 @@ namespace Physics
         }
     }
 
-    public struct Capsule
+    public struct Capsule : IPhysicsShape
     {
+        public PhysicsObject.PhysicsShapeType ShapeType => PhysicsObject.PhysicsShapeType.CAPSULE;
+        public Type CollisionType => typeof(OBB);
+
         public Vector3 pointA;
         public Vector3 pointB;
         public float radius;

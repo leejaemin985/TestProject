@@ -9,68 +9,102 @@ namespace Physics
     [Serializable]
     public struct CollisionInfo
     {
+        public bool hasCollision;
         public Vector3 contactPointA;
         public Vector3 contactPointB;
 
-        public CollisionInfo(Vector3 contactPointA, Vector3 contactPointB)
+        public static CollisionInfo None => new CollisionInfo { hasCollision = false };
+
+        public CollisionInfo(bool hasCollision, Vector3 contactPointA, Vector3 contactPointB)
         {
+            this.hasCollision = hasCollision;
             this.contactPointA = contactPointA;
             this.contactPointB = contactPointB;
+        }
+
+        public CollisionInfo SwapPoint()
+        {
+            return new CollisionInfo(hasCollision, contactPointB, contactPointA);
         }
     }
 
     public static class CollisionDetecter
     {
-        public static bool CheckCollision(OBB box1, OBB box2, out CollisionInfo collisionInfo)
-            => CheckOBBCollision(box1, box2, out collisionInfo);
-
-        public static bool CheckCollision(Sphere sphere1, Sphere sphere2, out CollisionInfo collisionInfo)
-            => CheckSphereCollision(sphere1, sphere2, out collisionInfo);
-        
-        public static bool CheckCollision(Capsule capsule1, Capsule capsule2, out CollisionInfo collisionInfo)
-            => CheckCapsuleCollision(capsule1, capsule2, out collisionInfo);
-
-
-        public static bool CheckCollision(OBB box, Sphere sphere, out CollisionInfo collisionInfo)
-            => CheckOBBSphereCollision(box, sphere, out collisionInfo);
-        
-        public static bool CheckCollision(Capsule capsule, Sphere sphere, out CollisionInfo collisionInfo)
-            => CheckCapsuleSphereCollision(capsule, sphere, out collisionInfo);
-
-        public static bool CheckCollision(Sphere sphere, OBB box, out CollisionInfo collisionInfo)
+        public static CollisionInfo CheckCollisionInfo(IPhysicsShape s1, IPhysicsShape s2)
         {
-            bool ret = CheckOBBSphereCollision(box, sphere, out collisionInfo);
-            var temp = collisionInfo.contactPointB;
-            collisionInfo.contactPointB = collisionInfo.contactPointA;
-            collisionInfo.contactPointA = temp;
-            return ret;
+            if (s1.CollisionType == null || s2.CollisionType == null)
+            {
+                Debug.LogError("[Physics] - One or both shapes have null CollisionType");
+                return CollisionInfo.None;
+            }
+
+            if (TryGetCollisionHandler(s1.CollisionType, s2.CollisionType, out var handler, out bool swap))
+                return swap ? handler(s2, s1).SwapPoint() : handler(s1, s2);
+
+            Debug.LogError($"[Physics] - Not Found CollisionCheckHandler ({s1.GetType().Name}, {s2.GetType().Name})");
+            return CollisionInfo.None;
         }
 
-        public static bool CheckCollision(Sphere sphere, Capsule capsule, out CollisionInfo collisionInfo)
+        private static bool TryGetCollisionHandler(Type s1, Type s2, out CollisionCheckHandler handler, out bool swap)
         {
-            bool ret = CheckCapsuleSphereCollision(capsule, sphere, out collisionInfo);
+            if (collisionCheckHandlerMap.TryGetValue((s1, s2), out handler))
+            {
+                swap = false;
+                return true;
+            }
 
-            var temp = collisionInfo.contactPointB;
-            collisionInfo.contactPointB = collisionInfo.contactPointA;
-            collisionInfo.contactPointA = temp;
+            if (collisionCheckHandlerMap.TryGetValue((s2, s1), out handler))
+            {
+                swap = true;
+                return true;
+            }
 
-            return ret;
+            swap = false;
+            handler = null;
+            return false;
         }
 
-        public static bool CheckCollision(Capsule capsule, OBB box, out CollisionInfo collisionInfo)
-            => CheckCapsuleOBBCollision(capsule, box, out collisionInfo);
 
-        public static bool CheckCollision(OBB box, Capsule capsule, out CollisionInfo collisionInfo)
+
+        private delegate CollisionInfo CollisionCheckHandler(IPhysicsShape shapeType1, IPhysicsShape shapeType2);
+
+        private static readonly Dictionary<(Type, Type), CollisionCheckHandler> collisionCheckHandlerMap = new()
         {
-            bool ret = CheckCapsuleOBBCollision(capsule, box, out collisionInfo);
-            var temp = collisionInfo.contactPointB;
-            collisionInfo.contactPointB = collisionInfo.contactPointA;
-            collisionInfo.contactPointA = temp;
-            return ret;
-        }
+            { (typeof(OBB), typeof(OBB)), (s1, s2) => CheckCollision_OBB_OBB((OBB)s1, (OBB)s2) },
+            { (typeof(Sphere), typeof(Sphere)), (s1, s2) => CheckCollision_Sphere_Sphere((Sphere)s1, (Sphere)s2) },
+            { (typeof(Capsule), typeof(Capsule)), (s1, s2) => CheckCollision_Capsule_Capsule((Capsule)s1, (Capsule)s2) },
+
+            { (typeof(OBB), typeof(Sphere)), (s1, s2) => CheckCollision_OBB_Sphere((OBB)s1, (Sphere)s2) },
+            { (typeof(OBB), typeof(Capsule)), (s1, s2) => CheckCollision_OBB_Capsule((OBB)s1, (Capsule)s2) },
+
+            { (typeof(Sphere), typeof(OBB)), (s1, s2) => CheckCollision_Sphere_OBB((Sphere)s1, (OBB)s2) },
+            { (typeof(Sphere), typeof(Capsule)), (s1, s2) => CheckCollision_Sphere_Capsule((Sphere)s1, (Capsule)s2) },
+
+            { (typeof(Capsule), typeof(OBB)), (s1, s2) => CheckCollision_Capsule_OBB((Capsule)s1, (OBB)s2) },
+            { (typeof(Capsule), typeof(Sphere)), (s1, s2) => CheckCollision_Capsule_Sphere((Capsule)s1, (Sphere)s2) },
+        };
+
+        private static CollisionInfo CheckCollision_OBB_OBB(OBB box1, OBB box2)
+            => CheckOBBCollision(box1, box2);
+        private static CollisionInfo CheckCollision_Sphere_Sphere(Sphere sphere1, Sphere sphere2)
+            => CheckSphereCollision(sphere1, sphere2);
+        private static CollisionInfo CheckCollision_Capsule_Capsule(Capsule capsule1, Capsule capsule2)
+            => CheckCapsuleCollision(capsule1, capsule2);
+        private static CollisionInfo CheckCollision_OBB_Sphere(OBB box, Sphere sphere)
+            => CheckOBBSphereCollision(box, sphere);
+        private static CollisionInfo CheckCollision_Capsule_Sphere(Capsule capsule, Sphere sphere)
+            => CheckCapsuleSphereCollision(capsule, sphere);
+        private static CollisionInfo CheckCollision_Sphere_OBB(Sphere sphere, OBB box)
+            => CheckOBBSphereCollision(box, sphere).SwapPoint();
+        private static CollisionInfo CheckCollision_Sphere_Capsule(Sphere sphere, Capsule capsule)
+            => CheckCapsuleSphereCollision(capsule, sphere).SwapPoint();
+        private static CollisionInfo CheckCollision_Capsule_OBB(Capsule capsule, OBB box)
+            => CheckCapsuleOBBCollision(capsule, box);
+        private static CollisionInfo CheckCollision_OBB_Capsule(OBB box, Capsule capsule)
+            => CheckCapsuleOBBCollision(capsule, box).SwapPoint();
 
         #region OBB
-        private static bool CheckOBBCollision(OBB a, OBB b, out CollisionInfo collisionInfo)
+        private static CollisionInfo CheckOBBCollision(OBB a, OBB b)
         {
             const float epsilon = 1e-6f;
 
@@ -82,8 +116,6 @@ namespace Physics
 
             Matrix4x4 R = Matrix4x4.zero;
             Matrix4x4 AbsR = Matrix4x4.zero;
-
-            collisionInfo = default;
 
             // R[i,j] = Ai dot Bj
             for (int i = 0; i < 3; i++)
@@ -104,7 +136,7 @@ namespace Physics
                 float ra = aExtents[i];
                 float rb = bExtents[0] * AbsR[i, 0] + bExtents[1] * AbsR[i, 1] + bExtents[2] * AbsR[i, 2];
                 if (Mathf.Abs(t[i]) > ra + rb)
-                    return false;
+                    return CollisionInfo.None;
             }
 
             for (int i = 0; i < 3; i++)
@@ -113,7 +145,7 @@ namespace Physics
                 float rb = bExtents[i];
                 float tval = Mathf.Abs(t[0] * R[0, i] + t[1] * R[1, i] + t[2] * R[2, i]);
                 if (tval > ra + rb)
-                    return false;
+                    return CollisionInfo.None;
             }
 
             // 9 cross product axes (Ai x Bj)
@@ -125,12 +157,10 @@ namespace Physics
                     float rb = bExtents[(j + 1) % 3] * AbsR[i, (j + 2) % 3] + bExtents[(j + 2) % 3] * AbsR[i, (j + 1) % 3];
                     float tval = Mathf.Abs(t[(i + 2) % 3] * R[(i + 1) % 3, j] - t[(i + 1) % 3] * R[(i + 2) % 3, j]);
                     if (tval > ra + rb)
-                        return false;
+                        return CollisionInfo.None;
                 }
             }
-            collisionInfo = GetOBBCollisionInfo(a, b);
-
-            return true; // 모든 축에서 분리가 안 됐으면 충돌
+            return GetOBBCollisionInfo(a, b);
         }
 
         private static CollisionInfo GetOBBCollisionInfo(OBB a, OBB b)
@@ -161,7 +191,7 @@ namespace Physics
                 ? b.center
                 : bPointsInA.Aggregate(Vector3.zero, (sum, p) => sum + p) / bPointsInA.Count;
 
-            return new CollisionInfo(contactA, contactB);
+            return new CollisionInfo(true, contactA, contactB);
         }
 
         static bool IsPointInsideOBB(Vector3 point, OBB obb)
@@ -178,19 +208,16 @@ namespace Physics
         #endregion
 
         #region Sphere
-        private static bool CheckSphereCollision(Sphere a, Sphere b, out CollisionInfo collisionInfo)
+        private static CollisionInfo CheckSphereCollision(Sphere a, Sphere b)
         {
-            collisionInfo = default;
-
             Vector3 direction = b.center - a.center;
             float distanceSq = direction.sqrMagnitude;
             float radiusSum = a.radius + b.radius;
 
             if (distanceSq > radiusSum * radiusSum)
-                return false;
+                return CollisionInfo.None;
 
-            collisionInfo = GetSphereCollisionInfo(a, b);
-            return true;
+            return GetSphereCollisionInfo(a, b);
         }
 
         private static CollisionInfo GetSphereCollisionInfo(Sphere a, Sphere b)
@@ -198,90 +225,81 @@ namespace Physics
             Vector3 dir = b.center - a.center;
             float dist = dir.magnitude;
 
-            // 중심이 거의 같을 경우 처리
             if (dist < 1e-6f)
             {
-                // 겹쳐있다고 보고, 중심 자체를 접촉점으로 처리
-                return new CollisionInfo(a.center, b.center);
+                // 완전 겹쳐있는 경우, 임의 접촉점으로 센터 지정
+                return new CollisionInfo(true, a.center, b.center);
             }
 
             Vector3 dirNorm = dir / dist;
-
             Vector3 contactPointA = a.center + dirNorm * a.radius;
             Vector3 contactPointB = b.center - dirNorm * b.radius;
 
-            return new CollisionInfo(contactPointA, contactPointB);
+            return new CollisionInfo(true, contactPointA, contactPointB);
         }
         #endregion
 
         #region Capsule
-        private static bool CheckCapsuleCollision(Capsule a, Capsule b, out CollisionInfo collisionInfo)
+        private static CollisionInfo CheckCapsuleCollision(Capsule a, Capsule b)
         {
-            collisionInfo = default;
-
             void ClosestPointsBetweenSegments(
-            Vector3 p1, Vector3 q1,
-            Vector3 p2, Vector3 q2,
-            out Vector3 closestPoint1,
-            out Vector3 closestPoint2)
+                Vector3 p1, Vector3 q1,
+                Vector3 p2, Vector3 q2,
+                out Vector3 closestPoint1,
+                out Vector3 closestPoint2)
             {
-                Vector3 d1 = q1 - p1; // 방향1
-                Vector3 d2 = q2 - p2; // 방향2
+                Vector3 d1 = q1 - p1;
+                Vector3 d2 = q2 - p2;
                 Vector3 r = p1 - p2;
 
-                float a = Vector3.Dot(d1, d1); // 제곱 길이1
-                float e = Vector3.Dot(d2, d2); // 제곱 길이2
+                float a_len = Vector3.Dot(d1, d1);
+                float e_len = Vector3.Dot(d2, d2);
                 float f = Vector3.Dot(d2, r);
 
                 float s, t;
 
-                if (a <= Mathf.Epsilon && e <= Mathf.Epsilon)
+                if (a_len <= Mathf.Epsilon && e_len <= Mathf.Epsilon)
                 {
-                    // 둘 다 점
                     s = t = 0f;
                     closestPoint1 = p1;
                     closestPoint2 = p2;
                     return;
                 }
 
-                if (a <= Mathf.Epsilon)
+                if (a_len <= Mathf.Epsilon)
                 {
                     s = 0f;
-                    t = Mathf.Clamp01(f / e);
+                    t = Mathf.Clamp01(f / e_len);
                 }
                 else
                 {
                     float c = Vector3.Dot(d1, r);
-                    if (e <= Mathf.Epsilon)
+                    if (e_len <= Mathf.Epsilon)
                     {
                         t = 0f;
-                        s = Mathf.Clamp01(-c / a);
+                        s = Mathf.Clamp01(-c / a_len);
                     }
                     else
                     {
                         float b = Vector3.Dot(d1, d2);
-                        float denom = a * e - b * b;
+                        float denom = a_len * e_len - b * b;
 
                         if (denom != 0f)
-                        {
-                            s = Mathf.Clamp01((b * f - c * e) / denom);
-                        }
+                            s = Mathf.Clamp01((b * f - c * e_len) / denom);
                         else
-                        {
                             s = 0f;
-                        }
 
-                        t = (b * s + f) / e;
+                        t = (b * s + f) / e_len;
 
                         if (t < 0f)
                         {
                             t = 0f;
-                            s = Mathf.Clamp01(-c / a);
+                            s = Mathf.Clamp01(-c / a_len);
                         }
                         else if (t > 1f)
                         {
                             t = 1f;
-                            s = Mathf.Clamp01((b - c) / a);
+                            s = Mathf.Clamp01((b - c) / a_len);
                         }
                     }
                 }
@@ -290,32 +308,36 @@ namespace Physics
                 closestPoint2 = p2 + d2 * t;
             }
 
-            ClosestPointsBetweenSegments(
-                a.pointA, a.pointB,
-                b.pointA, b.pointB,
-                out Vector3 pointA,
-                out Vector3 pointB
-            );
+            ClosestPointsBetweenSegments(a.pointA, a.pointB, b.pointA, b.pointB, out Vector3 pointA, out Vector3 pointB);
 
             float sqDist = (pointA - pointB).sqrMagnitude;
             float radiusSum = a.radius + b.radius;
 
             if (sqDist > radiusSum * radiusSum)
-                return false;
+                return CollisionInfo.None;
 
-            Vector3 normal = (pointB - pointA).normalized;
+            Vector3 normal;
+            if (sqDist < 1e-12f)
+            {
+                // 거의 같은 위치: 임의 노멀 설정 (예: y축)
+                normal = Vector3.up;
+            }
+            else
+            {
+                normal = (pointB - pointA).normalized;
+            }
+
             Vector3 contactA = pointA + normal * a.radius;
             Vector3 contactB = pointB - normal * b.radius;
 
-            collisionInfo = new CollisionInfo(contactA, contactB);
-            return true;
+            return new CollisionInfo(true, contactA, contactB);
         }
         #endregion
 
         #region Both
-        private static bool CheckOBBSphereCollision(OBB obb, Sphere sphere, out CollisionInfo collisionInfo)
+        private static CollisionInfo CheckOBBSphereCollision(OBB obb, Sphere sphere)
         {
-            collisionInfo = default;
+            const float epsilon = 1e-6f;
 
             Vector3 dir = sphere.center - obb.center;
             Vector3 closestPoint = obb.center;
@@ -323,63 +345,61 @@ namespace Physics
             // 각 축에 대해 투영 후 clamp
             for (int i = 0; i < 3; i++)
             {
-                float dist = Vector3.Dot(dir, obb.axis[i]);
-                dist = Mathf.Clamp(dist, -obb.halfSize[i], obb.halfSize[i]);
-                closestPoint += obb.axis[i] * dist;
+                float projection = Vector3.Dot(dir, obb.axis[i]);
+                projection = Mathf.Clamp(projection, -obb.halfSize[i], obb.halfSize[i]);
+                closestPoint += obb.axis[i] * projection;
             }
 
             Vector3 difference = sphere.center - closestPoint;
-            float distanceSqr = difference.sqrMagnitude;
-            float radius = sphere.radius;
+            float distSqr = difference.sqrMagnitude;
+            float radiusSq = sphere.radius * sphere.radius;
 
-            if (distanceSqr > radius * radius)
-                return false;
+            if (distSqr > radiusSq)
+                return CollisionInfo.None;
 
-            // 접촉 지점 계산
-            Vector3 normal = difference.normalized;
+            Vector3 normal = distSqr > epsilon ? difference.normalized : obb.axis[1]; // 작은 거리일 경우 기본 방향
+
             Vector3 contactPointA = closestPoint;
-            Vector3 contactPointB = sphere.center - normal * radius;
+            Vector3 contactPointB = sphere.center - normal * sphere.radius;
 
-            collisionInfo = new CollisionInfo(contactPointA, contactPointB);
-            return true;
+            return new CollisionInfo(true, contactPointA, contactPointB);
         }
 
-        private static bool CheckCapsuleSphereCollision(Capsule capsule, Sphere sphere, out CollisionInfo collisionInfo)
+        private static CollisionInfo CheckCapsuleSphereCollision(Capsule capsule, Sphere sphere)
         {
-            collisionInfo = default;
+            const float epsilon = 1e-6f;
 
             Vector3 ClosestPointOnSegment(Vector3 a, Vector3 b, Vector3 point)
             {
                 Vector3 ab = b - a;
-                float t = Vector3.Dot(point - a, ab) / Vector3.Dot(ab, ab);
+                float abSqrLen = Vector3.Dot(ab, ab);
+                if (abSqrLen < epsilon) return a; // 선분이 거의 점일 경우
+
+                float t = Vector3.Dot(point - a, ab) / abSqrLen;
                 t = Mathf.Clamp01(t);
                 return a + t * ab;
             }
 
-            // 캡슐의 선분에서 구 중심까지의 최근접점
             Vector3 closestPoint = ClosestPointOnSegment(capsule.pointA, capsule.pointB, sphere.center);
-
             Vector3 dir = sphere.center - closestPoint;
-            float distanceSqr = dir.sqrMagnitude;
+            float distSqr = dir.sqrMagnitude;
             float radiusSum = capsule.radius + sphere.radius;
+            float radiusSumSqr = radiusSum * radiusSum;
 
-            if (distanceSqr > radiusSum * radiusSum)
-                return false;
+            if (distSqr > radiusSumSqr)
+                return CollisionInfo.None;
 
-            // 정규화된 법선 방향 (충돌 시)
-            Vector3 normal = dir.normalized;
+            Vector3 normal = distSqr > epsilon ? dir.normalized : Vector3.up; // 거리가 너무 작으면 기본법선
 
-            // 접촉 지점 계산
             Vector3 contactPointA = closestPoint + normal * capsule.radius;
             Vector3 contactPointB = sphere.center - normal * sphere.radius;
 
-            collisionInfo = new CollisionInfo(contactPointA, contactPointB);
-            return true;
+            return new CollisionInfo(true, contactPointA, contactPointB);
         }
 
-        private static bool CheckCapsuleOBBCollision(Capsule capsule, OBB obb, out CollisionInfo collisionInfo)
+        private static CollisionInfo CheckCapsuleOBBCollision(Capsule capsule, OBB obb)
         {
-            collisionInfo = default;
+            const float epsilon = 1e-6f;
 
             Vector3 ClosestPointOnOBB(Vector3 point, OBB obb)
             {
@@ -400,9 +420,9 @@ namespace Physics
             {
                 Vector3 segDir = segB - segA;
                 float segLength = segDir.magnitude;
-                if (segLength < 1e-6f)
+                if (segLength < epsilon)
                 {
-                    // 퇴화된 캡슐, 그냥 점 vs OBB
+                    // 퇴화된 캡슐, 점 vs OBB 처리
                     closestSegPoint = segA;
                     closestOBBPoint = ClosestPointOnOBB(segA, obb);
                     return;
@@ -410,10 +430,7 @@ namespace Physics
 
                 segDir /= segLength;
 
-                float bestT = 0f;
                 float minDistSqr = float.MaxValue;
-
-                // 초기값으로 segA 기준 할당 (for문에서 갱신 실패 시도 방지)
                 closestSegPoint = segA;
                 closestOBBPoint = ClosestPointOnOBB(segA, obb);
 
@@ -428,28 +445,27 @@ namespace Physics
                     if (distSqr < minDistSqr)
                     {
                         minDistSqr = distSqr;
-                        bestT = t;
                         closestSegPoint = pt;
                         closestOBBPoint = obbPt;
                     }
                 }
             }
 
-            // 캡슐의 중심 선분에 대해 OBB와 가장 가까운 점을 찾음
             ClosestPtSegmentOBB(capsule.pointA, capsule.pointB, obb, out Vector3 pointOnCapsule, out Vector3 pointOnOBB);
 
             Vector3 delta = pointOnOBB - pointOnCapsule;
             float distSqr = delta.sqrMagnitude;
+            float radiusSqr = capsule.radius * capsule.radius;
 
-            if (distSqr > capsule.radius * capsule.radius)
-                return false;
+            if (distSqr > radiusSqr)
+                return CollisionInfo.None;
 
-            Vector3 normal = distSqr > 1e-6f ? delta.normalized : Vector3.up;
+            Vector3 normal = distSqr > epsilon ? delta.normalized : Vector3.up;
+
             Vector3 contactPointA = pointOnOBB;
             Vector3 contactPointB = pointOnCapsule + normal * capsule.radius;
 
-            collisionInfo = new CollisionInfo(contactPointA, contactPointB);
-            return true;
+            return new CollisionInfo(true, contactPointA, contactPointB);
         }
         #endregion
     }
