@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using Unity.Mathematics;
 
 using UnityEngine;
 
@@ -34,14 +35,18 @@ namespace Physics
         {
             if (s1.CollisionType == null || s2.CollisionType == null)
             {
+#if UNITY_EDITOR
                 Debug.LogError("[Physics] - One or both shapes have null CollisionType");
+#endif
                 return CollisionInfo.None;
             }
 
             if (TryGetCollisionHandler(s1.CollisionType, s2.CollisionType, out var handler, out bool swap))
                 return swap ? handler(s2, s1).SwapPoint() : handler(s1, s2);
 
+#if UNITY_EDITOR
             Debug.LogError($"[Physics] - Not Found CollisionCheckHandler ({s1.GetType().Name}, {s2.GetType().Name})");
+#endif
             return CollisionInfo.None;
         }
 
@@ -107,43 +112,47 @@ namespace Physics
         private static CollisionInfo CheckOBBCollision(OBB a, OBB b)
         {
             const float epsilon = 1e-6f;
-
-            Vector3[] A = a.axis;
-            Vector3[] B = b.axis;
+            
+            float3[] A = a.axis;
+            float3[] B = b.axis;
 
             float[] aExtents = { a.halfSize.x, a.halfSize.y, a.halfSize.z };
             float[] bExtents = { b.halfSize.x, b.halfSize.y, b.halfSize.z };
 
-            Matrix4x4 R = Matrix4x4.zero;
-            Matrix4x4 AbsR = Matrix4x4.zero;
+            float3x3 R = float3x3.zero;
+            float3x3 AbsR = float3x3.zero;
 
-            // R[i,j] = Ai dot Bj
+            float GetElement(float3x3 m, int row, int col)
+            {
+                return m[col][row];
+            }
+
             for (int i = 0; i < 3; i++)
             {
                 for (int j = 0; j < 3; j++)
                 {
-                    R[i, j] = Vector3.Dot(A[i], B[j]);
-                    AbsR[i, j] = Mathf.Abs(R[i, j]) + epsilon;
+                    R[j][i] = math.dot(A[i], B[j]);
+                    AbsR[j][i] = math.abs(R[j][i]) + epsilon;
                 }
             }
 
-            Vector3 t = b.center - a.center;
+            float3 t = b.center - a.center;
             // 좌표를 A 기준으로 변환
-            t = new Vector3(Vector3.Dot(t, A[0]), Vector3.Dot(t, A[1]), Vector3.Dot(t, A[2]));
+            t = new float3(math.dot(t, A[0]), math.dot(t, A[1]), math.dot(t, A[2]));
 
             for (int i = 0; i < 3; i++)
             {
                 float ra = aExtents[i];
-                float rb = bExtents[0] * AbsR[i, 0] + bExtents[1] * AbsR[i, 1] + bExtents[2] * AbsR[i, 2];
-                if (Mathf.Abs(t[i]) > ra + rb)
+                float rb = bExtents[0] * GetElement(AbsR, i, 0) + bExtents[1] * GetElement(AbsR, i, 1) + bExtents[2] * GetElement(AbsR, i, 2);
+                if (math.abs(t[i]) > ra + rb)
                     return CollisionInfo.None;
             }
 
             for (int i = 0; i < 3; i++)
             {
-                float ra = aExtents[0] * AbsR[0, i] + aExtents[1] * AbsR[1, i] + aExtents[2] * AbsR[2, i];
+                float ra = aExtents[0] * GetElement(AbsR, 0, i) + aExtents[1] * GetElement(AbsR, 1, i) + aExtents[2] * GetElement(AbsR, 2, i);
                 float rb = bExtents[i];
-                float tval = Mathf.Abs(t[0] * R[0, i] + t[1] * R[1, i] + t[2] * R[2, i]);
+                float tval = math.abs(t[0] * GetElement(R, 0, i) + t[1] * GetElement(R, 1, i) + t[2] * GetElement(R, 2, i));
                 if (tval > ra + rb)
                     return CollisionInfo.None;
             }
@@ -153,9 +162,9 @@ namespace Physics
             {
                 for (int j = 0; j < 3; j++)
                 {
-                    float ra = aExtents[(i + 1) % 3] * AbsR[(i + 2) % 3, j] + aExtents[(i + 2) % 3] * AbsR[(i + 1) % 3, j];
-                    float rb = bExtents[(j + 1) % 3] * AbsR[i, (j + 2) % 3] + bExtents[(j + 2) % 3] * AbsR[i, (j + 1) % 3];
-                    float tval = Mathf.Abs(t[(i + 2) % 3] * R[(i + 1) % 3, j] - t[(i + 1) % 3] * R[(i + 2) % 3, j]);
+                    float ra = aExtents[(i + 1) % 3] * GetElement(AbsR, (i + 2) % 3, j) + aExtents[(i + 2) % 3] * GetElement(AbsR, (i + 1) % 3, j);
+                    float rb = bExtents[(j + 1) % 3] * GetElement(AbsR, i, (j + 2) % 3) + bExtents[(j + 2) % 3] * GetElement(AbsR, i, (j + 1) % 3);
+                    float tval = math.abs(t[(i + 2) % 3] * GetElement(R, (i + 1) % 3, j) - t[(i + 1) % 3] * GetElement(R, (i + 2) % 3, j));
                     if (tval > ra + rb)
                         return CollisionInfo.None;
                 }
@@ -165,41 +174,69 @@ namespace Physics
 
         private static CollisionInfo GetOBBCollisionInfo(OBB a, OBB b)
         {
-            List<Vector3> aPointsInB = new();
-            List<Vector3> bPointsInA = new();
+            const int maxPoints = 8;  // 최대 충돌점 예상 개수
+            float3[] aPointsInB = new float3[maxPoints];
+            int aCount = 0;
 
-            Vector3[] aVerts = a.GetVertices();
-            Vector3[] bVerts = b.GetVertices();
+            float3[] bPointsInA = new float3[maxPoints];
+            int bCount = 0;
 
-            foreach (var v in aVerts)
+            float3[] aVerts = a.GetVertices();
+            float3[] bVerts = b.GetVertices();
+
+            for (int i = 0; i < aVerts.Length; i++)
             {
-                if (IsPointInsideOBB(v, b))
-                    aPointsInB.Add(v);
+                if (IsPointInsideOBB(aVerts[i], b))
+                {
+                    if (aCount < maxPoints)
+                        aPointsInB[aCount++] = aVerts[i];
+                }
             }
 
-            foreach (var v in bVerts)
+            for (int i = 0; i < bVerts.Length; i++)
             {
-                if (IsPointInsideOBB(v, a))
-                    bPointsInA.Add(v);
+                if (IsPointInsideOBB(bVerts[i], a))
+                {
+                    if (bCount < maxPoints)
+                        bPointsInA[bCount++] = bVerts[i];
+                }
             }
 
-            Vector3 contactA = (aPointsInB.Count == 0)
-                ? a.center
-                : aPointsInB.Aggregate(Vector3.zero, (sum, p) => sum + p) / aPointsInB.Count;
+            float3 contactA;
+            if (aCount == 0)
+            {
+                contactA = a.center;
+            }
+            else
+            {
+                contactA = float3.zero;
+                for (int i = 0; i < aCount; i++)
+                    contactA += aPointsInB[i];
+                contactA /= aCount;
+            }
 
-            Vector3 contactB = (bPointsInA.Count == 0)
-                ? b.center
-                : bPointsInA.Aggregate(Vector3.zero, (sum, p) => sum + p) / bPointsInA.Count;
+            float3 contactB;
+            if (bCount == 0)
+            {
+                contactB = b.center;
+            }
+            else
+            {
+                contactB = float3.zero;
+                for (int i = 0; i < bCount; i++)
+                    contactB += bPointsInA[i];
+                contactB /= bCount;
+            }
 
             return new CollisionInfo(true, contactA, contactB);
         }
 
-        static bool IsPointInsideOBB(Vector3 point, OBB obb)
+        static bool IsPointInsideOBB(float3 point, OBB obb)
         {
-            Vector3 dir = point - obb.center;
+            float3 dir = point - obb.center;
             for (int i = 0; i < 3; i++)
             {
-                float dist = Vector3.Dot(dir, obb.axis[i]);
+                float dist = math.dot(dir, obb.axis[i]);
                 if (dist > obb.halfSize[i] || dist < -obb.halfSize[i])
                     return false;
             }
@@ -210,8 +247,8 @@ namespace Physics
         #region Sphere
         private static CollisionInfo CheckSphereCollision(Sphere a, Sphere b)
         {
-            Vector3 direction = b.center - a.center;
-            float distanceSq = direction.sqrMagnitude;
+            float3 direction = b.center - a.center;
+            float distanceSq = math.lengthsq(direction);
             float radiusSum = a.radius + b.radius;
 
             if (distanceSq > radiusSum * radiusSum)
@@ -222,8 +259,8 @@ namespace Physics
 
         private static CollisionInfo GetSphereCollisionInfo(Sphere a, Sphere b)
         {
-            Vector3 dir = b.center - a.center;
-            float dist = dir.magnitude;
+            float3 dir = b.center - a.center;
+            float dist = math.length(dir);
 
             if (dist < 1e-6f)
             {
@@ -231,9 +268,9 @@ namespace Physics
                 return new CollisionInfo(true, a.center, b.center);
             }
 
-            Vector3 dirNorm = dir / dist;
-            Vector3 contactPointA = a.center + dirNorm * a.radius;
-            Vector3 contactPointB = b.center - dirNorm * b.radius;
+            float3 dirNorm = dir / dist;
+            float3 contactPointA = a.center + dirNorm * a.radius;
+            float3 contactPointB = b.center - dirNorm * b.radius;
 
             return new CollisionInfo(true, contactPointA, contactPointB);
         }
@@ -243,22 +280,22 @@ namespace Physics
         private static CollisionInfo CheckCapsuleCollision(Capsule a, Capsule b)
         {
             void ClosestPointsBetweenSegments(
-                Vector3 p1, Vector3 q1,
-                Vector3 p2, Vector3 q2,
-                out Vector3 closestPoint1,
-                out Vector3 closestPoint2)
+                float3 p1, float3 q1,
+                float3 p2, float3 q2,
+                out float3 closestPoint1,
+                out float3 closestPoint2)
             {
-                Vector3 d1 = q1 - p1;
-                Vector3 d2 = q2 - p2;
-                Vector3 r = p1 - p2;
+                float3 d1 = q1 - p1;
+                float3 d2 = q2 - p2;
+                float3 r = p1 - p2;
 
-                float a_len = Vector3.Dot(d1, d1);
-                float e_len = Vector3.Dot(d2, d2);
-                float f = Vector3.Dot(d2, r);
+                float a_len = math.dot(d1, d1);
+                float e_len = math.dot(d2, d2);
+                float f = math.dot(d2, r);
 
                 float s, t;
 
-                if (a_len <= Mathf.Epsilon && e_len <= Mathf.Epsilon)
+                if (a_len <= math.EPSILON && e_len <= math.EPSILON)
                 {
                     s = t = 0f;
                     closestPoint1 = p1;
@@ -266,26 +303,26 @@ namespace Physics
                     return;
                 }
 
-                if (a_len <= Mathf.Epsilon)
+                if (a_len <= math.EPSILON)
                 {
                     s = 0f;
-                    t = Mathf.Clamp01(f / e_len);
+                    t = math.clamp(f / e_len, 0f, 1f);
                 }
                 else
                 {
-                    float c = Vector3.Dot(d1, r);
-                    if (e_len <= Mathf.Epsilon)
+                    float c = math.dot(d1, r);
+                    if (e_len <= math.EPSILON)
                     {
                         t = 0f;
-                        s = Mathf.Clamp01(-c / a_len);
+                        s = math.clamp(-c / a_len, 0f, 1f);
                     }
                     else
                     {
-                        float b = Vector3.Dot(d1, d2);
+                        float b = math.dot(d1, d2);
                         float denom = a_len * e_len - b * b;
 
                         if (denom != 0f)
-                            s = Mathf.Clamp01((b * f - c * e_len) / denom);
+                            s = math.clamp((b * f - c * e_len) / denom, 0f, 1f);
                         else
                             s = 0f;
 
@@ -294,12 +331,12 @@ namespace Physics
                         if (t < 0f)
                         {
                             t = 0f;
-                            s = Mathf.Clamp01(-c / a_len);
+                            s = math.clamp(-c / a_len, 0f, 1f);
                         }
                         else if (t > 1f)
                         {
                             t = 1f;
-                            s = Mathf.Clamp01((b - c) / a_len);
+                            s = math.clamp((b - c) / a_len, 0f, 1f);
                         }
                     }
                 }
@@ -308,27 +345,26 @@ namespace Physics
                 closestPoint2 = p2 + d2 * t;
             }
 
-            ClosestPointsBetweenSegments(a.pointA, a.pointB, b.pointA, b.pointB, out Vector3 pointA, out Vector3 pointB);
+            ClosestPointsBetweenSegments(a.pointA, a.pointB, b.pointA, b.pointB, out float3 pointA, out float3 pointB);
 
-            float sqDist = (pointA - pointB).sqrMagnitude;
+            float sqDist = math.lengthsq(pointA - pointB);
             float radiusSum = a.radius + b.radius;
 
             if (sqDist > radiusSum * radiusSum)
                 return CollisionInfo.None;
 
-            Vector3 normal;
+            float3 normal;
             if (sqDist < 1e-12f)
             {
-                // 거의 같은 위치: 임의 노멀 설정 (예: y축)
-                normal = Vector3.up;
+                normal = new float3(0, 1, 0);
             }
             else
             {
-                normal = (pointB - pointA).normalized;
+                normal = math.normalize(pointB - pointA);
             }
 
-            Vector3 contactA = pointA + normal * a.radius;
-            Vector3 contactB = pointB - normal * b.radius;
+            float3 contactA = pointA + normal * a.radius;
+            float3 contactB = pointB - normal * b.radius;
 
             return new CollisionInfo(true, contactA, contactB);
         }
@@ -339,28 +375,27 @@ namespace Physics
         {
             const float epsilon = 1e-6f;
 
-            Vector3 dir = sphere.center - obb.center;
-            Vector3 closestPoint = obb.center;
+            float3 dir = sphere.center - obb.center;
+            float3 closestPoint = obb.center;
 
-            // 각 축에 대해 투영 후 clamp
             for (int i = 0; i < 3; i++)
             {
-                float projection = Vector3.Dot(dir, obb.axis[i]);
-                projection = Mathf.Clamp(projection, -obb.halfSize[i], obb.halfSize[i]);
+                float projection = math.dot(dir, obb.axis[i]);
+                projection = math.clamp(projection, -obb.halfSize[i], obb.halfSize[i]);
                 closestPoint += obb.axis[i] * projection;
             }
 
-            Vector3 difference = sphere.center - closestPoint;
-            float distSqr = difference.sqrMagnitude;
+            float3 difference = sphere.center - closestPoint;
+            float distSqr = math.lengthsq(difference);
             float radiusSq = sphere.radius * sphere.radius;
 
             if (distSqr > radiusSq)
                 return CollisionInfo.None;
 
-            Vector3 normal = distSqr > epsilon ? difference.normalized : obb.axis[1]; // 작은 거리일 경우 기본 방향
+            float3 normal = distSqr > epsilon ? math.normalize(difference) : obb.axis[1];
 
-            Vector3 contactPointA = closestPoint;
-            Vector3 contactPointB = sphere.center - normal * sphere.radius;
+            float3 contactPointA = closestPoint;
+            float3 contactPointB = sphere.center - normal * sphere.radius;
 
             return new CollisionInfo(true, contactPointA, contactPointB);
         }
@@ -369,30 +404,30 @@ namespace Physics
         {
             const float epsilon = 1e-6f;
 
-            Vector3 ClosestPointOnSegment(Vector3 a, Vector3 b, Vector3 point)
+            float3 ClosestPointOnSegment(float3 a, float3 b, float3 point)
             {
-                Vector3 ab = b - a;
-                float abSqrLen = Vector3.Dot(ab, ab);
-                if (abSqrLen < epsilon) return a; // 선분이 거의 점일 경우
+                float3 ab = b - a;
+                float abSqrLen = math.dot(ab, ab);
+                if (abSqrLen < epsilon) return a;
 
-                float t = Vector3.Dot(point - a, ab) / abSqrLen;
-                t = Mathf.Clamp01(t);
+                float t = math.dot(point - a, ab) / abSqrLen;
+                t = math.clamp(t, 0f, 1f);
                 return a + t * ab;
             }
 
-            Vector3 closestPoint = ClosestPointOnSegment(capsule.pointA, capsule.pointB, sphere.center);
-            Vector3 dir = sphere.center - closestPoint;
-            float distSqr = dir.sqrMagnitude;
+            float3 closestPoint = ClosestPointOnSegment(capsule.pointA, capsule.pointB, sphere.center);
+            float3 dir = sphere.center - closestPoint;
+            float distSqr = math.lengthsq(dir);
             float radiusSum = capsule.radius + sphere.radius;
             float radiusSumSqr = radiusSum * radiusSum;
 
             if (distSqr > radiusSumSqr)
                 return CollisionInfo.None;
 
-            Vector3 normal = distSqr > epsilon ? dir.normalized : Vector3.up; // 거리가 너무 작으면 기본법선
+            float3 normal = distSqr > epsilon ? math.normalize(dir) : new float3(0, 1, 0);
 
-            Vector3 contactPointA = closestPoint + normal * capsule.radius;
-            Vector3 contactPointB = sphere.center - normal * sphere.radius;
+            float3 contactPointA = closestPoint + normal * capsule.radius;
+            float3 contactPointB = sphere.center - normal * sphere.radius;
 
             return new CollisionInfo(true, contactPointA, contactPointB);
         }
@@ -401,71 +436,61 @@ namespace Physics
         {
             const float epsilon = 1e-6f;
 
-            Vector3 ClosestPointOnOBB(Vector3 point, OBB obb)
-            {
-                Vector3 result = obb.center;
-                Vector3 dir = point - obb.center;
+            // 1) 캡슐 선분을 OBB 로컬 좌표계로 변환
+            float3 dA = capsule.pointA - obb.center;
+            float3 dB = capsule.pointB - obb.center;
 
-                for (int i = 0; i < 3; i++)
-                {
-                    float dist = Vector3.Dot(dir, obb.axis[i]);
-                    dist = Mathf.Clamp(dist, -obb.halfSize[i], obb.halfSize[i]);
-                    result += obb.axis[i] * dist;
-                }
+            float3x3 obbRotation = new float3x3(obb.axis[0], obb.axis[1], obb.axis[2]);
+            float3 pA_local = math.mul(math.transpose(obbRotation), dA);
+            float3 pB_local = math.mul(math.transpose(obbRotation), dB);
 
-                return result;
-            }
+            // 2) AABB (OBB 반크기) 와 선분 간 최단 거리 샘플링 계산
+            float3 closestSeg_local = float3.zero, closestBox_local = float3.zero;
+            float distSq = ClosestPtSegmentAABB(pA_local, pB_local, obb.halfSize, out closestSeg_local, out closestBox_local);
 
-            void ClosestPtSegmentOBB(Vector3 segA, Vector3 segB, OBB obb, out Vector3 closestSegPoint, out Vector3 closestOBBPoint)
-            {
-                Vector3 segDir = segB - segA;
-                float segLength = segDir.magnitude;
-                if (segLength < epsilon)
-                {
-                    // 퇴화된 캡슐, 점 vs OBB 처리
-                    closestSegPoint = segA;
-                    closestOBBPoint = ClosestPointOnOBB(segA, obb);
-                    return;
-                }
-
-                segDir /= segLength;
-
-                float minDistSqr = float.MaxValue;
-                closestSegPoint = segA;
-                closestOBBPoint = ClosestPointOnOBB(segA, obb);
-
-                const int samples = 10;
-                for (int i = 0; i <= samples; i++)
-                {
-                    float t = i / (float)samples;
-                    Vector3 pt = Vector3.Lerp(segA, segB, t);
-                    Vector3 obbPt = ClosestPointOnOBB(pt, obb);
-                    float distSqr = (pt - obbPt).sqrMagnitude;
-
-                    if (distSqr < minDistSqr)
-                    {
-                        minDistSqr = distSqr;
-                        closestSegPoint = pt;
-                        closestOBBPoint = obbPt;
-                    }
-                }
-            }
-
-            ClosestPtSegmentOBB(capsule.pointA, capsule.pointB, obb, out Vector3 pointOnCapsule, out Vector3 pointOnOBB);
-
-            Vector3 delta = pointOnOBB - pointOnCapsule;
-            float distSqr = delta.sqrMagnitude;
-            float radiusSqr = capsule.radius * capsule.radius;
-
-            if (distSqr > radiusSqr)
+            float radiusSq = capsule.radius * capsule.radius;
+            if (distSq > radiusSq)
                 return CollisionInfo.None;
 
-            Vector3 normal = distSqr > epsilon ? delta.normalized : Vector3.up;
+            float dist = math.sqrt(distSq);
+            float3 normal_local = dist > epsilon ? math.normalize(closestBox_local - closestSeg_local) : new float3(0, 1, 0);
 
-            Vector3 contactPointA = pointOnOBB;
-            Vector3 contactPointB = pointOnCapsule + normal * capsule.radius;
+            // 3) 로컬 좌표 접촉점 → 월드 좌표계 변환
+            float3 contactA = obb.center + math.mul(obbRotation, closestBox_local);
+            float3 contactB = obb.center + math.mul(obbRotation, closestSeg_local) + normal_local * capsule.radius;
 
-            return new CollisionInfo(true, contactPointA, contactPointB);
+            return new CollisionInfo(true, contactA, contactB);
+        }
+
+        // 보조 함수 - 샘플링 방식으로 선분-AABB 최단거리 구하기
+        private static float ClosestPtSegmentAABB(float3 pA, float3 pB, float3 halfSize, out float3 closestSegPoint, out float3 closestBoxPoint)
+        {
+            float3 d = pB - pA;
+            float segLength = math.length(d);
+            float3 dir = segLength > 1e-6f ? d / segLength : float3.zero;
+
+            float minDistSq = float.MaxValue;
+            closestSegPoint = pA;
+            closestBoxPoint = float3.zero;
+
+            const int samples = 10;
+            for (int i = 0; i <= samples; i++)
+            {
+                float t = i / (float)samples;
+                float3 pt = pA + dir * segLength * t;
+
+                float3 clamped = math.clamp(pt, -halfSize, halfSize);
+                float distSq = math.lengthsq(pt - clamped);
+
+                if (distSq < minDistSq)
+                {
+                    minDistSq = distSq;
+                    closestSegPoint = pt;
+                    closestBoxPoint = clamped;
+                }
+            }
+
+            return minDistSq;
         }
         #endregion
     }

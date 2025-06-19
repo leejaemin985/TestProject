@@ -1,6 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using Unity.Collections;
+using Unity.Jobs;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -72,4 +75,14 @@ namespace Physics
 
         }
     }
+
+    //public struct CollisionJob : IJobParallelFor
+    //{
+    //    [ReadOnly] public NativeArray<>
+
+    //    public void Execute(int index)
+    //    {
+
+    //    }
+    //}
 }

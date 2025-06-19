@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace Physics
@@ -8,97 +9,77 @@ namespace Physics
     {
         public static OBB ComputeEncompassingOBB(OBB a, OBB b)
         {
-            // Step 1: 중심은 중간 지점
-            Vector3 center = (a.center + b.center) * 0.5f;
+            float3 center = (a.center + b.center) * 0.5f;
 
-            // Step 2: 이동 방향을 forward로 사용
-            Vector3 movement = b.center - a.center;
-            Vector3 forward = movement.normalized;
-            if (movement.sqrMagnitude < 1e-6f) forward = a.axis[2]; // fallback
+            float3 movement = b.center - a.center;
+            float movementLen = math.length(movement);
+            float3 forward = movementLen > 1e-6f ? movement / movementLen : a.axis[2];
 
-            // Step 3: up 방향 (a의 up 사용)
-            Vector3 up = a.axis[1];
-            if (Mathf.Abs(Vector3.Dot(forward, up)) > 0.99f)
-                up = Vector3.Cross(forward, Mathf.Abs(Vector3.Dot(forward, Vector3.up)) < 0.99f ? Vector3.up : Vector3.right).normalized;
+            float3 up = a.axis[1];
+            if (math.abs(math.dot(forward, up)) > 0.99f)
+            {
+                float3 alt = math.abs(math.dot(forward, math.up())) < 0.99f ? math.up() : math.right();
+                up = math.normalize(math.cross(forward, alt));
+            }
 
-            // Step 4: 직교 축 구성
-            Vector3 right = Vector3.Cross(up, forward).normalized;
-            up = Vector3.Cross(forward, right).normalized;
+            float3 right = math.normalize(math.cross(up, forward));
+            up = math.normalize(math.cross(forward, right));
 
-            Vector3[] axis = new Vector3[3] { right, up, forward };
+            float3[] axis = new float3[3] { right, up, forward };
 
-            // Step 5: halfSize 계산
-            Vector3 avgHalf = Vector3.Max(a.halfSize, b.halfSize); // 충돌 누락 방지 위해 최댓값 사용
-            float extraHalfLength = movement.magnitude * 0.5f;      // forward 방향 길이 증가
-            Vector3 halfSize = new Vector3(avgHalf.x, avgHalf.y, avgHalf.z);
-            halfSize.z += extraHalfLength; // forward 축 기준 (axis[2])
+            float3 avgHalf = math.max(a.halfSize, b.halfSize);
+            float extraHalfLength = movementLen * 0.5f;
+            float3 halfSize = avgHalf;
+            halfSize.z += extraHalfLength; // forward 축
 
-            return new(center, axis, halfSize);
+            return new OBB(center, axis, halfSize);
         }
 
         public static OBB ComputeSweptOBBFromCapsules(Capsule a, Capsule b)
         {
-            List<Vector3> points = new List<Vector3>
-            {
-                a.pointA, a.pointB,
-                b.pointA, b.pointB
-            };
+            var points = new List<float3> { a.pointA, a.pointB, b.pointA, b.pointB };
 
-            // 최대 반지름 계산 (둘 중 큰 것)
-            float radius = Mathf.Max(a.radius, b.radius);
+            float radius = math.max(a.radius, b.radius);
 
-            // 중심 계산
-            Vector3 avgCenter = Vector3.zero;
+            float3 avgCenter = float3.zero;
             foreach (var p in points)
                 avgCenter += p;
             avgCenter /= points.Count;
 
-            // 이동 방향 기준 회전
-            Vector3 moveDir = (a.center - b.center).normalized;
-            if (moveDir == Vector3.zero)
-                moveDir = Vector3.forward; // 같은 위치면 기본값
+            float3 moveDir = math.normalize(a.center - b.center);
+            if (math.lengthsq(moveDir) < 1e-6f)
+                moveDir = math.forward();
 
-            // 직교 좌표계 생성
-            Vector3 up = Vector3.up;
-            if (Vector3.Dot(up, moveDir) > 0.99f) // 평행하면 다른 축 사용
-                up = Vector3.right;
+            float3 up = math.up();
+            if (math.dot(up, moveDir) > 0.99f)
+                up = math.right();
 
-            Vector3 right = Vector3.Cross(up, moveDir).normalized;
-            Vector3 forward = moveDir;
-            up = Vector3.Cross(forward, right).normalized;
+            float3 right = math.normalize(math.cross(up, moveDir));
+            float3 forward = moveDir;
+            up = math.normalize(math.cross(forward, right));
 
-            Vector3[] axis = new Vector3[] { right, up, forward };
-
-            // 모든 점을 local space로 투영
-            Matrix4x4 toLocal = Matrix4x4.identity;
-            toLocal.SetColumn(0, new Vector4(right.x, right.y, right.z, 0));
-            toLocal.SetColumn(1, new Vector4(up.x, up.y, up.z, 0));
-            toLocal.SetColumn(2, new Vector4(forward.x, forward.y, forward.z, 0));
-            toLocal.SetColumn(3, new Vector4(0, 0, 0, 1));
-            toLocal = toLocal.transpose;
-
-            Vector3 min = Vector3.positiveInfinity;
-            Vector3 max = Vector3.negativeInfinity;
+            float3x3 toLocal = new float3x3(right, up, forward);
+            float3 min = new float3(float.PositiveInfinity);
+            float3 max = new float3(float.NegativeInfinity);
 
             foreach (var p in points)
             {
-                Vector3 local = toLocal.MultiplyPoint3x4(p - avgCenter);
-                min = Vector3.Min(min, local - Vector3.one * radius);
-                max = Vector3.Max(max, local + Vector3.one * radius);
+                float3 local = math.mul(toLocal, p - avgCenter);
+                min = math.min(min, local - new float3(radius));
+                max = math.max(max, local + new float3(radius));
             }
 
-            // 최종 OBB 구성
-            Vector3 localCenter = (min + max) * 0.5f;
-            Vector3 halfSize = (max - min) * 0.5f;
-            Vector3 worldCenter = avgCenter +
-                right * localCenter.x + up * localCenter.y + forward * localCenter.z;
+            float3 localCenter = (min + max) * 0.5f;
+            float3 halfSize = (max - min) * 0.5f;
+            float3 worldCenter = avgCenter + right * localCenter.x + up * localCenter.y + forward * localCenter.z;
 
-            return new OBB(worldCenter, axis, halfSize);
+            return new OBB(worldCenter, new float3[] { right, up, forward }, halfSize);
         }
 
         public static Capsule ComputeSweptSphere(Sphere prev, Sphere curr)
         {
-            return new Capsule(prev.center, curr.center, Mathf.Max(prev.radius, curr.radius));
+            return new Capsule(prev.center, curr.center, math.max(prev.radius, curr.radius));
         }
     }
+
 }

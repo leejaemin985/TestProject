@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
+using Unity.Mathematics;
 
 namespace Physics
 {
@@ -26,14 +26,14 @@ namespace Physics
         {
             if (next is not Sphere other)
             {
-                Debug.LogError($"[Physics] - Shape types must match for swept volume calcuation.");
+                Debug.LogError("[Physics] - Shape types must match for swept volume calcuation.");
                 return null;
             }
 
             return SweptVolumeCalculator.ComputeSweptSphere(this, other);
         }
 
-        public Vector3 center;
+        public float3 center;
         public float radius;
 
         public Sphere(Transform transform)
@@ -43,22 +43,22 @@ namespace Physics
             UpdateFromTransform(transform);
         }
 
-        public Sphere(Vector3 center, float radius)
+        public Sphere(float3 center, float radius)
         {
             this.center = center;
             this.radius = radius;
         }
 
-        public bool ContainsPoint(Vector3 point)
+        public bool ContainsPoint(float3 point)
         {
-            return Vector3.SqrMagnitude(point - center) <= radius * radius;
+            return math.lengthsq(point - center) <= radius * radius;
         }
 
         public void UpdateFromTransform(Transform transform)
         {
             center = transform.position;
-            Vector3 scale = transform.lossyScale;
-            radius = Mathf.Max(scale.x, scale.y, scale.z) * .5f;
+            float3 scale = transform.lossyScale;
+            radius = math.max(math.max(scale.x, scale.y), scale.z) * 0.5f;
         }
     }
 
@@ -71,18 +71,18 @@ namespace Physics
         {
             if (next is not OBB other)
             {
-                Debug.LogError($"[Physics] - Shape types must match for swept volume calcuation.");
+                Debug.LogError("[Physics] - Shape types must match for swept volume calcuation.");
                 return null;
             }
 
             return SweptVolumeCalculator.ComputeEncompassingOBB(this, other);
         }
 
-        public Vector3 center;
-        public Vector3[] axis;
-        public Vector3 halfSize;
+        public float3 center;
+        public float3[] axis;
+        public float3 halfSize;
 
-        private Vector3[] _cachedVertices;
+        private float3[] _cachedVertices;
 
         public OBB(Transform boxTransform)
         {
@@ -94,32 +94,32 @@ namespace Physics
             UpdateFromTransform(boxTransform);
         }
 
-        public OBB(Vector3 center, Vector3 eulerRotation, Vector3 size)
+        public OBB(float3 center, float3 eulerRotation, float3 size)
         {
             this.center = center;
 
-            Quaternion rotation = Quaternion.Euler(eulerRotation);
-            axis = new Vector3[3];
-            axis[0] = rotation * Vector3.right;
-            axis[1] = rotation * Vector3.up;
-            axis[2] = rotation * Vector3.forward;
+            quaternion rotation = quaternion.EulerXYZ(math.radians(eulerRotation));
+            axis = new float3[3];
+            axis[0] = math.mul(rotation, new float3(1, 0, 0));
+            axis[1] = math.mul(rotation, new float3(0, 1, 0));
+            axis[2] = math.mul(rotation, new float3(0, 0, 1));
 
             halfSize = size * 0.5f;
 
-            _cachedVertices = new Vector3[8];
+            _cachedVertices = new float3[8];
             UpdateVertices();
         }
 
-        public OBB(Vector3 center, Vector3[] axis, Vector3 halfSize)
+        public OBB(float3 center, float3[] axis, float3 halfSize)
         {
             this.center = center;
-            this.axis = new Vector3[3];
-            this.axis[0] = axis[0].normalized;
-            this.axis[1] = axis[1].normalized;
-            this.axis[2] = axis[2].normalized;
+            this.axis = new float3[3];
+            this.axis[0] = math.normalize(axis[0]);
+            this.axis[1] = math.normalize(axis[1]);
+            this.axis[2] = math.normalize(axis[2]);
             this.halfSize = halfSize;
 
-            _cachedVertices = new Vector3[8];
+            _cachedVertices = new float3[8];
             UpdateVertices();
         }
 
@@ -135,9 +135,9 @@ namespace Physics
             _cachedVertices[7] = center - axis[0] * halfSize.x - axis[1] * halfSize.y - axis[2] * halfSize.z;
         }
 
-        public Vector3[] GetVertices()
+        public float3[] GetVertices()
         {
-            if (_cachedVertices == null) _cachedVertices = new Vector3[8];
+            if (_cachedVertices == null) _cachedVertices = new float3[8];
             UpdateVertices();
             return _cachedVertices;
         }
@@ -147,15 +147,15 @@ namespace Physics
             center = transform.position;
 
             if (axis == null || axis.Length != 3)
-                axis = new Vector3[3];
+                axis = new float3[3];
 
-            axis[0] = transform.right.normalized;
-            axis[1] = transform.up.normalized;
-            axis[2] = transform.forward.normalized;
+            axis[0] = math.normalize(transform.right);
+            axis[1] = math.normalize(transform.up);
+            axis[2] = math.normalize(transform.forward);
             halfSize = transform.lossyScale * 0.5f;
 
             if (_cachedVertices == null || _cachedVertices.Length != 8)
-                _cachedVertices = new Vector3[8];
+                _cachedVertices = new float3[8];
 
             UpdateVertices();
         }
@@ -170,18 +170,18 @@ namespace Physics
         {
             if (next is not Capsule other)
             {
-                Debug.LogError($"[Physics] - Shape types must match for swept volume calcuation.");
+                Debug.LogError("[Physics] - Shape types must match for swept volume calcuation.");
                 return null;
             }
 
             return SweptVolumeCalculator.ComputeSweptOBBFromCapsules(this, other);
         }
 
-        public Vector3 pointA;
-        public Vector3 pointB;
+        public float3 pointA;
+        public float3 pointB;
         public float radius;
 
-        public Capsule(Vector3 pointA, Vector3 pointB, float radius)
+        public Capsule(float3 pointA, float3 pointB, float radius)
         {
             this.pointA = pointA;
             this.pointB = pointB;
@@ -196,21 +196,21 @@ namespace Physics
             UpdateFromTransform(transform);
         }
 
-        public Vector3 center => (pointA + pointB) * .5f;
+        public float3 center => (pointA + pointB) * 0.5f;
 
-        public float Height => Vector3.Distance(pointA, pointB) + radius * 2;
+        public float Height => math.distance(pointA, pointB) + radius * 2;
 
-        public Vector3 Direction => (pointB - pointA).normalized;
+        public float3 Direction => math.normalize(pointB - pointA);
 
         public void UpdateFromTransform(Transform transform)
         {
-            Vector3 center = transform.position;
+            float3 center = transform.position;
 
-            Vector3 up = transform.up; // 방향 벡터 (Y축 기준 회전 포함)
+            float3 up = transform.up;
             float height = transform.lossyScale.y;
-            float radius = Mathf.Max(transform.lossyScale.x, transform.lossyScale.z) * 0.5f;
+            float radius = math.max(transform.lossyScale.x, transform.lossyScale.z) * 0.5f;
 
-            float halfSegment = Mathf.Max(0f, (height * 0.5f) - radius);
+            float halfSegment = math.max(0f, (height * 0.5f) - radius);
 
             this.pointA = center + up * halfSegment;
             this.pointB = center - up * halfSegment;
@@ -451,7 +451,7 @@ namespace Physics
         {
             Gizmos.color = PhysicsGizmoToggleWindow.GetPhysicsGizmoColor();
 
-            Vector3 dir = (capsule.pointB - capsule.pointA).normalized;
+            Vector3 dir = math.normalize((capsule.pointB - capsule.pointA));
             float height = Vector3.Distance(capsule.pointA, capsule.pointB);
 
             // 양 끝 구체
@@ -468,10 +468,13 @@ namespace Physics
             up *= capsule.radius;
             right *= capsule.radius;
 
-            Gizmos.DrawLine(capsule.pointA + up, capsule.pointB + up);
-            Gizmos.DrawLine(capsule.pointA - up, capsule.pointB - up);
-            Gizmos.DrawLine(capsule.pointA + right, capsule.pointB + right);
-            Gizmos.DrawLine(capsule.pointA - right, capsule.pointB - right);
+            Vector3 pointA = capsule.pointA;
+            Vector3 pointB = capsule.pointB;
+
+            Gizmos.DrawLine(pointA + up, pointB + up);
+            Gizmos.DrawLine(pointA - up, pointB - up);
+            Gizmos.DrawLine(pointA + right, pointB + right);
+            Gizmos.DrawLine(pointA - right, pointB - right);
         }
     }
 }
