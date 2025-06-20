@@ -226,6 +226,8 @@ namespace Physics
 
         public HashSet<Guid> collisionCheckedUIDs { get; private set; }
 
+        public Dictionary<Guid, CollisionInfo> collisionCheckedInfo { get; private set; }
+
         public enum PhysicsShapeType
         {
             OBB,
@@ -236,7 +238,8 @@ namespace Physics
         public enum PhysicsType
         {
             ATTACK,
-            HITABLE
+            HITABLE,
+            HYBRID
         }
 
         public abstract PhysicsType physicsType { get; }
@@ -281,6 +284,10 @@ namespace Physics
                 transform.rotation != prevRotation ||
                 transform.localScale != prevScale;
         }
+
+        public float3 GetPrevPosition() => prevPosition;
+
+        public float3 GetCurrPosition() => transform.position;
 
         #region Gizmo
         private void OnDrawGizmos()

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Unity.Collections;
 using Unity.Jobs;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -42,47 +43,73 @@ namespace Physics
 
         private void Initialized()
         {
-            if (physicsMap == null)
-                physicsMap = new();
-
-            physicsMap.Clear();
-            foreach (var type in Enum.GetValues(typeof(PhysicsObject.PhysicsType)))
+            physicsMap = new()
             {
-                physicsMap.Add((PhysicsObject.PhysicsType)type, new());
-            }
+                { PhysicsObject.PhysicsType.ATTACK, attackPhysics = new() },
+                { PhysicsObject.PhysicsType.HITABLE, hittablePhysics = new() },
+                { PhysicsObject.PhysicsType.HYBRID, hybridPhysics = new() },
+            };
         }
 
         private Dictionary<PhysicsObject.PhysicsType, List<PhysicsObject>> physicsMap = default;
 
+        private List<PhysicsObject> attackPhysics = default;
+        private List<PhysicsObject> hittablePhysics = default;
+        private List<PhysicsObject> hybridPhysics = default;
+
         public void RegisterPhysicsObject(PhysicsObject physicsObject)
         {
-            var list = physicsMap[physicsObject.physicsType];
-            if (list.Contains(physicsObject) == true) return;
-
-            list.Add(physicsObject);
+            if (physicsMap[physicsObject.physicsType].Contains(physicsObject) == true) return;
+            physicsMap[physicsObject.physicsType].Add(physicsObject);
         }
 
         public void UnRegisterPhysicsObject(PhysicsObject physicsObject)
         {
-            var list = physicsMap[physicsObject.physicsType];
-            if (list.Contains(physicsObject) == false) return;
-
-            list.Remove(physicsObject);
+            if (physicsMap[physicsObject.physicsType].Contains(physicsObject) == false) return;
+            physicsMap[physicsObject.physicsType].Remove(physicsObject);
         }
 
         private void LateUpdate()
         {
 
         }
+
+        private void CalculateOneTick()
+        {
+            foreach (var attackableOb in attackPhysics)
+            {
+                foreach (var hitableOb in hittablePhysics)
+                {
+                    if (attackableOb.collisionCheckedInfo.ContainsKey(hitableOb.uid) == true) continue;
+
+
+
+
+
+
+                    var collisionInfo = CollisionDetecter.CheckCollisionInfo(attackableOb.physicsShape, hitableOb.physicsShape);
+                    if (collisionInfo.hasCollision)
+                    {
+                        collisionInfo.sweepProgress = ComputeProgressAlongMotion()
+                    }
+                }
+
+            }
+
+        }
+
+        private float ComputeProgressAlongMotion(float3 prev, float3 curr, float3 contactPoint)
+        {
+            float3 movement = curr - prev;
+            float lenSq = math.lengthsq(movement);
+
+            if (lenSq < math.EPSILON)
+            {
+                return math.distance(prev, contactPoint);
+            }
+
+            float3 dir = movement / math.sqrt(lenSq);
+            return math.dot(contactPoint - prev, dir);
+        }
     }
-
-    //public struct CollisionJob : IJobParallelFor
-    //{
-    //    [ReadOnly] public NativeArray<>
-
-    //    public void Execute(int index)
-    //    {
-
-    //    }
-    //}
 }
