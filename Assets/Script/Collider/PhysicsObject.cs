@@ -1,11 +1,37 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using Unity.Mathematics;
+using UnityEditor;
 
 namespace Physics
 {
+    public static class PhysicsMath
+    {
+        private const float DEFAULT_EPSILON = 1e-4f;
+
+        public static bool Approximately(float a, float b, float epsilon = DEFAULT_EPSILON)
+        {
+            return math.abs(a - b) < epsilon;
+        }
+
+        public static bool Approximately(float3 a, float3 b, float epsilon = DEFAULT_EPSILON)
+        {
+            return math.lengthsq(a - b) < epsilon * epsilon;
+        }
+
+        public static bool Approximately(float3[] a, float3[] b, float epsilon = DEFAULT_EPSILON)
+        {
+            if (a == null || b == null || a.Length != b.Length) return false;
+
+            for (int index = 0, max = a.Length; index < max; ++index)
+            {
+                if (Approximately(a[index], b[index]) == false) return false;
+            }
+            return true;
+        }
+    }
+
     public interface IPhysicsShape
     {
         PhysicsObject.PhysicsShapeType ShapeType { get; }
@@ -14,7 +40,11 @@ namespace Physics
 
         IPhysicsShape ComputeSweptVolume(IPhysicsShape next);
 
+        bool EqualsPhysicsShape(IPhysicsShape other);
+        void CopyFrom(IPhysicsShape other);
+
         void UpdateFromTransform(Transform transform);
+
     }
 
     public struct Sphere : IPhysicsShape
@@ -59,6 +89,25 @@ namespace Physics
             center = transform.position;
             float3 scale = transform.lossyScale;
             radius = math.max(math.max(scale.x, scale.y), scale.z) * 0.5f;
+        }
+
+        public bool EqualsPhysicsShape(IPhysicsShape other)
+        {
+            if (other is not Sphere) return false;
+
+            Sphere otherSphere = (Sphere)other;
+
+            return PhysicsMath.Approximately(center, otherSphere.center) &&
+                PhysicsMath.Approximately(radius, otherSphere.radius);
+        }
+
+        public void CopyFrom(IPhysicsShape other)
+        {
+            if (other is not Sphere) return;
+
+            Sphere otherSphere = (Sphere)other;
+            this.center = otherSphere.center;
+            this.radius = otherSphere.radius;
         }
     }
 
@@ -159,6 +208,29 @@ namespace Physics
 
             UpdateVertices();
         }
+
+        public bool EqualsPhysicsShape(IPhysicsShape other)
+        {
+            if (other is not OBB) return false;
+            OBB otherOBB = (OBB)other;
+
+            return PhysicsMath.Approximately(center, otherOBB.center) &&
+                PhysicsMath.Approximately(axis, otherOBB.axis) &&
+                PhysicsMath.Approximately(halfSize, otherOBB.halfSize);
+        }
+
+        public void CopyFrom(IPhysicsShape other)
+        {
+            if (other is not OBB) return;
+
+            OBB otherOBB = (OBB)other;
+            this.center = otherOBB.center;
+
+            for (int index = 0, max = axis.Length; index < max; ++index)
+                this.axis[index]=otherOBB.axis[index];
+
+            this.halfSize = otherOBB.halfSize;
+        }
     }
 
     public struct Capsule : IPhysicsShape
@@ -216,6 +288,26 @@ namespace Physics
             this.pointB = center - up * halfSegment;
             this.radius = radius;
         }
+
+        public bool EqualsPhysicsShape(IPhysicsShape other)
+        {
+            if (other is not Capsule) return false;
+
+            Capsule otherCapsule = (Capsule)other;
+            return PhysicsMath.Approximately(pointA, otherCapsule.pointA) &&
+                PhysicsMath.Approximately(pointB, otherCapsule.pointB) &&
+                PhysicsMath.Approximately(radius, otherCapsule.radius);
+        }
+
+        public void CopyFrom(IPhysicsShape other)
+        {
+            if (other is not Capsule) return;
+
+            Capsule otherCapsule = (Capsule)other;
+            this.pointA = otherCapsule.pointA;
+            this.pointB = otherCapsule.pointB;
+            this.radius = otherCapsule.radius;
+        }
     }
 
     public abstract class PhysicsObject : MonoBehaviour
@@ -224,9 +316,7 @@ namespace Physics
 
         public bool active;
 
-        public HashSet<Guid> collisionCheckedUIDs { get; private set; }
-
-        public Dictionary<Guid, CollisionInfo> collisionCheckedInfo { get; private set; }
+        public Dictionary<Guid, CollisionInfo> checkedHitableUIDs { get; private set; }
 
         public enum PhysicsShapeType
         {
@@ -245,20 +335,19 @@ namespace Physics
         public abstract PhysicsType physicsType { get; }
 
         public PhysicsShapeType physicsShapeType;
-        public IPhysicsShape physicsShape { get; private set; }
+        public IPhysicsShape physicsShape => currPhysicsShape.ComputeSweptVolume(prevPhysicsShape);
 
-        private Vector3 prevPosition;
-        private Quaternion prevRotation;
-        private Vector3 prevScale;
+        private bool isInitialized = false;
+        private IPhysicsShape currPhysicsShape;
+        private IPhysicsShape prevPhysicsShape;
 
-        private PhysicsShapeType prevShapeType;
+        private void Start() => Initialize();
 
-        private void Start() => Initialized();
-
-        protected virtual void Initialized()
+        protected virtual void Initialize()
         {
-            physicsShape = CreateShape(physicsShapeType);
-            PhysicsGenerator.Instance.RegisterPhysicsObject(this);
+            isInitialized = true;
+
+            SyncShape();
         }
 
         private IPhysicsShape CreateShape(PhysicsShapeType physicsShapeType)
@@ -271,67 +360,76 @@ namespace Physics
             };
         }
 
+        private void SyncShape()
+        {
+            currPhysicsShape = CreateShape(physicsShapeType);
+            prevPhysicsShape = CreateShape(physicsShapeType);
+            CachedTransform();
+        }
+
         private void CachedTransform()
         {
-            this.prevPosition = transform.position;
-            this.prevRotation = transform.rotation;
-            this.prevScale = transform.localScale;
+            prevPhysicsShape.CopyFrom(currPhysicsShape);
         }
 
         private bool HasTransformChanged()
         {
-            return transform.position != prevPosition ||
-                transform.rotation != prevRotation ||
-                transform.localScale != prevScale;
+            return currPhysicsShape.EqualsPhysicsShape(prevPhysicsShape) == false;
         }
-
-        public float3 GetPrevPosition() => prevPosition;
-
-        public float3 GetCurrPosition() => transform.position;
 
         #region Gizmo
         private void OnDrawGizmos()
         {
             if (!PhysicsGizmoToggleWindow.IsShowingGizmos()) return;
 
-            bool shapeChanged = physicsShape == null || (physicsShapeType != prevShapeType);
+            if (isInitialized == false) SyncShape();
+
+            bool shapeChanged = prevPhysicsShape.GetType() != currPhysicsShape.GetType();
             bool transformChanged = HasTransformChanged();
 
             if (shapeChanged)
             {
-                physicsShape = CreateShape(physicsShapeType);
-                prevShapeType = physicsShapeType;
-
+                SyncShape();
                 CachedTransform();
-                physicsShape.UpdateFromTransform(transform);
             }
-            else if (transformChanged)
+            if (transformChanged)
             {
                 CachedTransform();
-                physicsShape.UpdateFromTransform(transform);
             }
+            PhysicsGizmoDrawer.OnDrawGizmoPhysicsShape(currPhysicsShape, PhysicsGizmoToggleWindow.GetPhysicsShapeGizmoColor());
 
-            PhysicsGizmoDrawer.OnDrawGizmoPhysicsShape(physicsShape);
+            if (!PhysicsGizmoToggleWindow.IsShowSweptGizmo()) return;
+            PhysicsGizmoDrawer.OnDrawGizmoPhysicsShape(physicsShape, PhysicsGizmoToggleWindow.GetPhysicsSweptVolumeGizmoColor());
         }
-
         #endregion
     }
 
     public class PhysicsGizmoToggleWindow : EditorWindow
     {
         private static bool showPhysicsGizmos = true;
-        private static Color physicsColor = Color.cyan;
+        private static bool showPhysicsSweptVolume = false;
+        private static Color physicsShapeColor = Color.cyan;
+        private static Color physicsSweptColor = Color.green;
 
         private const string ShowGizmoKey = "ShowPhysicsGizmos";
-        private const string GizmoColorR = "PhysicsGizmoColorR";
-        private const string GizmoColorG = "PhysicsGizmoColorG";
-        private const string GizmoColorB = "PhysicsGizmoColorB";
-        private const string GizmoColorA = "PhysicsGizmoColorA";
+        private const string ShowSweptGimzoKey = "ShowPhysicsSweptGizmo";
 
-        [MenuItem("Tools/Physics Gizmo Toggle")]
+        // Physics Gizmo Color Keys
+        private const string PhysicsShapeGizmoColorR = "PhysicsShapeGizmoColorR";
+        private const string PhysicsShapeGizmoColorG = "PhysicsShapeGizmoColorG";
+        private const string PhysicsShapeGizmoColorB = "PhysicsShapeGizmoColorB";
+        private const string PhysicsShapeGizmoColorA = "PhysicsShapeGizmoColorA";
+
+        // Physics Swept Volume Gizmo Color Keys
+        private const string PhysicsSweptGizmoColorR = "PhysicsSweptGizmoColorR";
+        private const string PhysicsSweptGizmoColorG = "PhysicsSweptGizmoColorG";
+        private const string PhysicsSweptGizmoColorB = "PhysicsSweptGizmoColorB";
+        private const string PhysicsSweptGizmoColorA = "PhysicsSweptGizmoColorA";
+
+        [MenuItem("Tools/Physics Gizmo Setting")]
         public static void ShowWindow()
         {
-            GetWindow<PhysicsGizmoToggleWindow>("Physics Gizmo Toggle");
+            GetWindow<PhysicsGizmoToggleWindow>("Physics Gizmo Setting");
         }
 
         private void OnEnable()
@@ -344,7 +442,9 @@ namespace Physics
             EditorGUI.BeginChangeCheck();
 
             showPhysicsGizmos = EditorGUILayout.Toggle("Show Physics Gizmos", showPhysicsGizmos);
-            physicsColor = EditorGUILayout.ColorField("Physics Range Color", physicsColor);
+            showPhysicsSweptVolume = EditorGUILayout.Toggle("Show Physics Swept Volume Gizmo", showPhysicsSweptVolume);
+            physicsShapeColor = EditorGUILayout.ColorField("Physics Range Color", physicsShapeColor);
+            physicsSweptColor = EditorGUILayout.ColorField("Physics Swept Volume Color", physicsSweptColor);
 
             if (EditorGUI.EndChangeCheck())
             {
@@ -355,21 +455,35 @@ namespace Physics
         private static void SavePrefs()
         {
             EditorPrefs.SetBool(ShowGizmoKey, showPhysicsGizmos);
-            EditorPrefs.SetFloat(GizmoColorR, physicsColor.r);
-            EditorPrefs.SetFloat(GizmoColorG, physicsColor.g);
-            EditorPrefs.SetFloat(GizmoColorB, physicsColor.b);
-            EditorPrefs.SetFloat(GizmoColorA, physicsColor.a);
+            EditorPrefs.SetBool(ShowSweptGimzoKey, showPhysicsSweptVolume);
+
+            EditorPrefs.SetFloat(PhysicsShapeGizmoColorR, physicsShapeColor.r);
+            EditorPrefs.SetFloat(PhysicsShapeGizmoColorG, physicsShapeColor.g);
+            EditorPrefs.SetFloat(PhysicsShapeGizmoColorB, physicsShapeColor.b);
+            EditorPrefs.SetFloat(PhysicsShapeGizmoColorA, physicsShapeColor.a);
+
+            EditorPrefs.SetFloat(PhysicsSweptGizmoColorR, physicsSweptColor.r);
+            EditorPrefs.SetFloat(PhysicsSweptGizmoColorG, physicsSweptColor.g);
+            EditorPrefs.SetFloat(PhysicsSweptGizmoColorB, physicsSweptColor.b);
+            EditorPrefs.SetFloat(PhysicsSweptGizmoColorA, physicsSweptColor.a);
         }
 
         private static void LoadPrefs()
         {
             showPhysicsGizmos = EditorPrefs.GetBool(ShowGizmoKey, true);
+            showPhysicsSweptVolume = EditorPrefs.GetBool(ShowSweptGimzoKey, false);
 
-            float r = EditorPrefs.GetFloat(GizmoColorR, physicsColor.r);
-            float g = EditorPrefs.GetFloat(GizmoColorG, physicsColor.g);
-            float b = EditorPrefs.GetFloat(GizmoColorB, physicsColor.b);
-            float a = EditorPrefs.GetFloat(GizmoColorA, physicsColor.a);
-            physicsColor = new Color(r, g, b, a);
+            float physicsShapeColorR = EditorPrefs.GetFloat(PhysicsShapeGizmoColorR, physicsShapeColor.r);
+            float physicsShapeColorG = EditorPrefs.GetFloat(PhysicsShapeGizmoColorG, physicsShapeColor.g);
+            float physicsShapeColorB = EditorPrefs.GetFloat(PhysicsShapeGizmoColorB, physicsShapeColor.b);
+            float physicsShapeColorA = EditorPrefs.GetFloat(PhysicsShapeGizmoColorA, physicsShapeColor.a);
+            physicsShapeColor = new Color(physicsShapeColorR, physicsShapeColorG, physicsShapeColorB, physicsShapeColorA);
+
+            float physicsSweptColorR = EditorPrefs.GetFloat(PhysicsSweptGizmoColorR, physicsSweptColor.r);
+            float physicsSweptColorG = EditorPrefs.GetFloat(PhysicsSweptGizmoColorG, physicsSweptColor.g);
+            float physicsSweptColorB = EditorPrefs.GetFloat(PhysicsSweptGizmoColorB, physicsSweptColor.b);
+            float physicsSweptColorA = EditorPrefs.GetFloat(PhysicsSweptGizmoColorA, physicsSweptColor.a);
+            physicsSweptColor = new Color(physicsSweptColorR, physicsSweptColorG, physicsSweptColorB, physicsSweptColorA);
         }
 
         public static bool IsShowingGizmos()
@@ -377,45 +491,59 @@ namespace Physics
             return EditorPrefs.GetBool(ShowGizmoKey, true);
         }
 
-        public static Color GetPhysicsGizmoColor()
+        public static bool IsShowSweptGizmo()
         {
-            float r = EditorPrefs.GetFloat(GizmoColorR, Color.cyan.r);
-            float g = EditorPrefs.GetFloat(GizmoColorG, Color.cyan.g);
-            float b = EditorPrefs.GetFloat(GizmoColorB, Color.cyan.b);
-            float a = EditorPrefs.GetFloat(GizmoColorA, Color.cyan.a);
+            return EditorPrefs.GetBool(ShowSweptGimzoKey, false);
+        }
+
+        public static Color GetPhysicsShapeGizmoColor()
+        {
+            float r = EditorPrefs.GetFloat(PhysicsShapeGizmoColorR, Color.cyan.r);
+            float g = EditorPrefs.GetFloat(PhysicsShapeGizmoColorG, Color.cyan.g);
+            float b = EditorPrefs.GetFloat(PhysicsShapeGizmoColorB, Color.cyan.b);
+            float a = EditorPrefs.GetFloat(PhysicsShapeGizmoColorA, Color.cyan.a);
+            return new Color(r, g, b, a);
+        }
+
+        public static Color GetPhysicsSweptVolumeGizmoColor()
+        {
+            float r = EditorPrefs.GetFloat(PhysicsSweptGizmoColorR, Color.green.r);
+            float g = EditorPrefs.GetFloat(PhysicsSweptGizmoColorG, Color.green.g);
+            float b = EditorPrefs.GetFloat(PhysicsSweptGizmoColorB, Color.green.b);
+            float a = EditorPrefs.GetFloat(PhysicsSweptGizmoColorA, Color.green.a);
             return new Color(r, g, b, a);
         }
     }
 
     public class PhysicsGizmoDrawer
     {
-        public static void OnDrawGizmoPhysicsShape(IPhysicsShape physicsShape)
+        public static void OnDrawGizmoPhysicsShape(IPhysicsShape physicsShape, Color color)
         {
             switch (true)
             {
                 case true when physicsShape is Sphere:
-                    OnDrawGizmoSphere((Sphere)physicsShape);
+                    OnDrawGizmoSphere((Sphere)physicsShape, color);
                     break;
 
                 case true when physicsShape is OBB:
-                    OnDrawGizmoOBB((OBB)physicsShape);
+                    OnDrawGizmoOBB((OBB)physicsShape, color);
                     break;
 
                 case true when physicsShape is Capsule:
-                    OnDrawGizmoCapsule((Capsule)physicsShape);
+                    OnDrawGizmoCapsule((Capsule)physicsShape, color);
                     break;
             }
         }
 
-        private static void OnDrawGizmoSphere(Sphere sphere)
+        private static void OnDrawGizmoSphere(Sphere sphere, Color color)
         {
-            Gizmos.color = PhysicsGizmoToggleWindow.GetPhysicsGizmoColor();
+            Gizmos.color = color;
             Gizmos.DrawWireSphere(sphere.center, sphere.radius);
         }
 
-        private static void OnDrawGizmoOBB(OBB oBB)
+        private static void OnDrawGizmoOBB(OBB oBB, Color color)
         {
-            Gizmos.color = PhysicsGizmoToggleWindow.GetPhysicsGizmoColor();
+            Gizmos.color = color;
 
             Vector3 center = oBB.center;
             Vector3 halfSize = oBB.halfSize;
@@ -454,9 +582,9 @@ namespace Physics
             Gizmos.DrawLine(vertices[3], vertices[7]);
         }
 
-        private static void OnDrawGizmoCapsule(Capsule capsule)
+        private static void OnDrawGizmoCapsule(Capsule capsule, Color color)
         {
-            Gizmos.color = PhysicsGizmoToggleWindow.GetPhysicsGizmoColor();
+            Gizmos.color = color;
 
             Vector3 dir = math.normalize((capsule.pointB - capsule.pointA));
             float height = Vector3.Distance(capsule.pointA, capsule.pointB);

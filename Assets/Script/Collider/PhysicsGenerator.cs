@@ -80,20 +80,13 @@ namespace Physics
             {
                 foreach (var hitableOb in hittablePhysics)
                 {
-                    if (attackableOb.collisionCheckedInfo.ContainsKey(hitableOb.uid) == true) continue;
+                    if (attackableOb.checkedHitableUIDs.ContainsKey(hitableOb.uid) == true) continue;
+
+                    //var collisionInfo = CollisionDetecter.CheckCollisionInfo()
 
 
-
-
-
-
-                    var collisionInfo = CollisionDetecter.CheckCollisionInfo(attackableOb.physicsShape, hitableOb.physicsShape);
-                    if (collisionInfo.hasCollision)
-                    {
-                        collisionInfo.sweepProgress = ComputeProgressAlongMotion()
-                    }
                 }
-
+                
             }
 
         }

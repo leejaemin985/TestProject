@@ -46,25 +46,28 @@ namespace Physics
                 avgCenter += p;
             avgCenter /= points.Count;
 
-            float3 moveDir = math.normalize(a.center - b.center);
+            float3 moveDir = b.center - a.center;
             if (math.lengthsq(moveDir) < 1e-6f)
                 moveDir = math.forward();
+            else
+                moveDir = math.normalize(moveDir);
 
             float3 up = math.up();
-            if (math.dot(up, moveDir) > 0.99f)
-                up = math.right();
+            if (math.abs(math.dot(up, moveDir)) > 0.99f)
+                up = math.cross(moveDir, math.right());
 
             float3 right = math.normalize(math.cross(up, moveDir));
-            float3 forward = moveDir;
+            float3 forward = math.normalize(moveDir);
             up = math.normalize(math.cross(forward, right));
 
-            float3x3 toLocal = new float3x3(right, up, forward);
+            float3x3 worldToLocal = math.transpose(new float3x3(right, up, forward));
+
             float3 min = new float3(float.PositiveInfinity);
             float3 max = new float3(float.NegativeInfinity);
 
             foreach (var p in points)
             {
-                float3 local = math.mul(toLocal, p - avgCenter);
+                float3 local = math.mul(worldToLocal, p - avgCenter);
                 min = math.min(min, local - new float3(radius));
                 max = math.max(max, local + new float3(radius));
             }

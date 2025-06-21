@@ -3,21 +3,30 @@ using Physics;
 
 public class TestCode : MonoBehaviour
 {
-    public IPhysicsShape[] trs1;
-    public IPhysicsShape[] trs2;
+    public Transform c1;
+    public Transform c2;
+
+    private Capsule c1s;
+    private Capsule c2s;
 
 
-    private bool test = false;
+    private OBB result;
 
     public void Update()
     {
-        //c = SweptVolumeCalculator.ComputeSweptSphere();
-        //test = true;
+        c1s = new Capsule(c1);
+        c2s = new Capsule(c2);
+
+        result = SweptVolumeCalculator.ComputeSweptOBBFromCapsules(c1s, c2s);
     }
 
     private void OnDrawGizmos()
     {
-        //if (test == false) return;
-        //PhysicsObject.OnDrawGizmoCapsule(c);
+        if (Application.isPlaying == false) return;
+        
+        PhysicsGizmoDrawer.OnDrawGizmoPhysicsShape(result, Color.red);
+
+        PhysicsGizmoDrawer.OnDrawGizmoPhysicsShape(c1s, Color.cyan);
+        PhysicsGizmoDrawer.OnDrawGizmoPhysicsShape(c2s, Color.cyan);
     }
 }
