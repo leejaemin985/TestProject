@@ -72,8 +72,11 @@ namespace Physics
             // --- Converts a capsule to minimal OBB ---
             static OBB CapsuleToOBB(Capsule capsule)
             {
-                float3 center = (capsule.pointA + capsule.pointB) * 0.5f;
-                float3 up = math.normalize(capsule.pointB - capsule.pointA);
+                float3 dir = capsule.pointB - capsule.pointA;
+                float height = math.length(dir);
+
+                // fallback 방향 (거의 구에 가까움)
+                float3 up = height > 1e-5f ? dir / height : math.up(); // 최소한 up 방향 보장
 
                 float3 arbitrary = math.abs(math.dot(up, math.up())) < 0.99f ? math.up() : math.forward();
                 float3 forward = math.normalize(math.cross(up, arbitrary));
@@ -82,8 +85,10 @@ namespace Physics
 
                 float3[] axis = new float3[3] { right, up, forward };
 
-                float halfHeight = math.length(capsule.pointB - capsule.pointA) * 0.5f;
+                float halfHeight = math.max(height * 0.5f, 0f); // 음수 방지
                 float3 halfSize = new float3(capsule.radius, halfHeight + capsule.radius, capsule.radius);
+
+                float3 center = (capsule.pointA + capsule.pointB) * 0.5f;
 
                 return new OBB(center, axis, halfSize);
             }
