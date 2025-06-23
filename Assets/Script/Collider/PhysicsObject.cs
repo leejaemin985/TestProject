@@ -41,7 +41,10 @@ namespace Physics
         IPhysicsShape ComputeSweptVolume(IPhysicsShape next);
 
         bool EqualsPhysicsShape(IPhysicsShape other);
+        
         void CopyFrom(IPhysicsShape other);
+
+        IPhysicsShape CopyClone();
 
         void UpdateFromTransform(Transform transform);
 
@@ -60,7 +63,7 @@ namespace Physics
                 return null;
             }
 
-            return SweptVolumeCalculator.ComputeSweptSphere(this, other);
+            return SweptVolumeCalculator.ComputeSweptCapsuleFromSphere(this, other);
         }
 
         public float3 center;
@@ -109,6 +112,11 @@ namespace Physics
             this.center = otherSphere.center;
             this.radius = otherSphere.radius;
         }
+
+        public IPhysicsShape CopyClone()
+        {
+            return new Sphere(center, radius);
+        }
     }
 
     public struct OBB : IPhysicsShape
@@ -124,7 +132,7 @@ namespace Physics
                 return null;
             }
 
-            return SweptVolumeCalculator.ComputeEncompassingOBB(this, other);
+            return SweptVolumeCalculator.ComputeSweptOBBFromOBB(this, other);
         }
 
         public float3 center;
@@ -231,6 +239,11 @@ namespace Physics
 
             this.halfSize = otherOBB.halfSize;
         }
+
+        public IPhysicsShape CopyClone()
+        {
+            return new OBB(center, new float3[] { axis[0], axis[1], axis[2] }, halfSize);
+        }
     }
 
     public struct Capsule : IPhysicsShape
@@ -246,7 +259,7 @@ namespace Physics
                 return null;
             }
 
-            return SweptVolumeCalculator.ComputeSweptOBBFromCapsules(this, other);
+            return SweptVolumeCalculator.ComputeSweptOBBFromCapsule(this, other);
         }
 
         public float3 pointA;
@@ -308,6 +321,11 @@ namespace Physics
             this.pointB = otherCapsule.pointB;
             this.radius = otherCapsule.radius;
         }
+
+        public IPhysicsShape CopyClone()
+        {
+            return new Capsule(pointA, pointB, radius);
+        }
     }
 
     public abstract class PhysicsObject : MonoBehaviour
@@ -338,8 +356,8 @@ namespace Physics
         public IPhysicsShape physicsShape => currPhysicsShape.ComputeSweptVolume(prevPhysicsShape);
 
         private bool isInitialized = false;
-        private IPhysicsShape currPhysicsShape;
-        private IPhysicsShape prevPhysicsShape;
+        public IPhysicsShape currPhysicsShape;
+        public IPhysicsShape prevPhysicsShape;
 
         private void Start() => Initialize();
 
@@ -372,10 +390,32 @@ namespace Physics
             prevPhysicsShape.CopyFrom(currPhysicsShape);
         }
 
+        private bool HasShapeChanged()
+        {
+            return prevPhysicsShape.GetType() != currPhysicsShape.GetType();
+        }
+
         private bool HasTransformChanged()
         {
             return currPhysicsShape.EqualsPhysicsShape(prevPhysicsShape) == false;
         }
+
+        //#######################TestCode#################################################
+        private void Update()
+        {
+            currPhysicsShape.UpdateFromTransform(transform);
+            if (HasShapeChanged())
+            {
+                SyncShape();
+            }
+
+            if (HasTransformChanged())
+            {
+                CachedTransform();
+            }
+        
+        }
+        //#######################TestCode#################################################
 
         #region Gizmo
         private void OnDrawGizmos()
@@ -384,7 +424,7 @@ namespace Physics
 
             if (isInitialized == false) SyncShape();
 
-            bool shapeChanged = prevPhysicsShape.GetType() != currPhysicsShape.GetType();
+            bool shapeChanged = HasShapeChanged();
             bool transformChanged = HasTransformChanged();
 
             if (shapeChanged)
