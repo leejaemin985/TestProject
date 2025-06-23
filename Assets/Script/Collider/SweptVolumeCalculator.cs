@@ -7,7 +7,7 @@ namespace Physics
 {
     public static class SweptVolumeCalculator
     {
-        public static OBB ComputeEncompassingOBB(OBB a, OBB b)
+        public static OBB ComputeSweptOBBFromOBB(OBB a, OBB b)
         {
             float3 center = (a.center + b.center) * 0.5f;
 
@@ -35,51 +35,78 @@ namespace Physics
             return new OBB(center, axis, halfSize);
         }
 
-        public static OBB ComputeSweptOBBFromCapsules(Capsule a, Capsule b)
+        public static OBB ComputeSweptOBBFromCapsule(Capsule a, Capsule b)
         {
-            var points = new List<float3> { a.pointA, a.pointB, b.pointA, b.pointB };
+            // --- Convert each capsule to minimal OBB ---
+            OBB obbA = CapsuleToOBB(a);
+            OBB obbB = CapsuleToOBB(b);
 
-            float radius = math.max(a.radius, b.radius);
+            // --- Compute swept center ---
+            float3 center = (obbA.center + obbB.center) * 0.5f;
+            float3 movement = obbB.center - obbA.center;
+            float movementLen = math.length(movement);
 
-            float3 avgCenter = float3.zero;
-            foreach (var p in points)
-                avgCenter += p;
-            avgCenter /= points.Count;
+            float3 forward = movementLen > 1e-6f ? movement / movementLen : obbA.axis[2];
+            float3 up = obbA.axis[1];
 
-            float3 moveDir = b.center - a.center;
-            if (math.lengthsq(moveDir) < 1e-6f)
-                moveDir = math.forward();
-            else
-                moveDir = math.normalize(moveDir);
-
-            float3 up = math.up();
-            if (math.abs(math.dot(up, moveDir)) > 0.99f)
-                up = math.cross(moveDir, math.right());
-
-            float3 right = math.normalize(math.cross(up, moveDir));
-            float3 forward = math.normalize(moveDir);
-            up = math.normalize(math.cross(forward, right));
-
-            float3x3 worldToLocal = math.transpose(new float3x3(right, up, forward));
-
-            float3 min = new float3(float.PositiveInfinity);
-            float3 max = new float3(float.NegativeInfinity);
-
-            foreach (var p in points)
+            // Handle degenerate up/forward
+            if (math.abs(math.dot(forward, up)) > 0.99f)
             {
-                float3 local = math.mul(worldToLocal, p - avgCenter);
-                min = math.min(min, local - new float3(radius));
-                max = math.max(max, local + new float3(radius));
+                float3 alt = math.abs(math.dot(forward, math.up())) < 0.99f ? math.up() : math.right();
+                up = math.normalize(math.cross(forward, alt));
             }
 
-            float3 localCenter = (min + max) * 0.5f;
-            float3 halfSize = (max - min) * 0.5f;
-            float3 worldCenter = avgCenter + right * localCenter.x + up * localCenter.y + forward * localCenter.z;
+            float3 right = math.normalize(math.cross(up, forward));
+            up = math.normalize(math.cross(forward, right));
 
-            return new OBB(worldCenter, new float3[] { right, up, forward }, halfSize);
+            float3[] axis = new float3[3] { right, up, forward };
+
+            // --- Compute half size along new axis ---
+            float3 localA = ProjectOBBOntoAxis(obbA, axis);
+            float3 localB = ProjectOBBOntoAxis(obbB, axis);
+            float3 halfSize = math.max(localA, localB);
+            halfSize.z += movementLen * 0.5f;
+
+            return new OBB(center, axis, halfSize);
+
+            // --- Converts a capsule to minimal OBB ---
+            static OBB CapsuleToOBB(Capsule capsule)
+            {
+                float3 center = (capsule.pointA + capsule.pointB) * 0.5f;
+                float3 up = math.normalize(capsule.pointB - capsule.pointA);
+
+                float3 arbitrary = math.abs(math.dot(up, math.up())) < 0.99f ? math.up() : math.forward();
+                float3 forward = math.normalize(math.cross(up, arbitrary));
+                float3 right = math.normalize(math.cross(forward, up));
+                forward = math.normalize(math.cross(right, up)); // º¸Á¤
+
+                float3[] axis = new float3[3] { right, up, forward };
+
+                float halfHeight = math.length(capsule.pointB - capsule.pointA) * 0.5f;
+                float3 halfSize = new float3(capsule.radius, halfHeight + capsule.radius, capsule.radius);
+
+                return new OBB(center, axis, halfSize);
+            }
+
+            // --- Projects an OBB onto a new axis set ---
+            static float3 ProjectOBBOntoAxis(OBB obb, float3[] targetAxis)
+            {
+                float3 result = float3.zero;
+                for (int i = 0; i < 3; ++i)
+                {
+                    float3 axis = targetAxis[i];
+                    float projection = 0f;
+                    for (int j = 0; j < 3; ++j)
+                    {
+                        projection += math.abs(math.dot(axis, obb.axis[j])) * obb.halfSize[j];
+                    }
+                    result[i] = projection;
+                }
+                return result;
+            }
         }
 
-        public static Capsule ComputeSweptSphere(Sphere prev, Sphere curr)
+        public static Capsule ComputeSweptCapsuleFromSphere(Sphere prev, Sphere curr)
         {
             return new Capsule(prev.center, curr.center, math.max(prev.radius, curr.radius));
         }
