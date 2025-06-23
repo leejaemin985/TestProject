@@ -76,20 +76,17 @@ namespace Physics
 
         private void CalculateOneTick()
         {
-            foreach (var attackableOb in attackPhysics)
+            foreach (AttackBox attackableOb in attackPhysics)
             {
-                foreach (var hitableOb in hittablePhysics)
+                foreach (HitBox hitableOb in hittablePhysics)
                 {
                     if (attackableOb.checkedHitableUIDs.ContainsKey(hitableOb.uid) == true) continue;
 
-                    //var collisionInfo = CollisionDetecter.CheckCollisionInfo()
-
-
                 }
-                
             }
 
         }
+
 
         private float ComputeProgressAlongMotion(float3 prev, float3 curr, float3 contactPoint)
         {

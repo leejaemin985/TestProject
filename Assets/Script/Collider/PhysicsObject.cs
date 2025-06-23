@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+
 using UnityEngine;
 using Unity.Mathematics;
 using UnityEditor;
@@ -334,8 +334,6 @@ namespace Physics
 
         public bool active;
 
-        public Dictionary<Guid, CollisionInfo> checkedHitableUIDs { get; private set; }
-
         public enum PhysicsShapeType
         {
             OBB,
@@ -361,7 +359,7 @@ namespace Physics
 
         private void Start() => Initialize();
 
-        protected virtual void Initialize()
+        protected virtual void Initialize(Action<CollisionInfo> collisionEvent = null)
         {
             isInitialized = true;
 

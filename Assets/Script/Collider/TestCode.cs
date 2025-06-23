@@ -12,29 +12,29 @@ public class TestCode : MonoBehaviour
     private IPhysicsShape sweptShape;
 
 
-    public void Start()
-    {
-        prevShape = physicsObject.currPhysicsShape.CopyClone();
-        currShape = physicsObject.currPhysicsShape.CopyClone();
-    }
+    //public void Start()
+    //{
+    //    prevShape = physicsObject.currPhysicsShape.CopyClone();
+    //    currShape = physicsObject.currPhysicsShape.CopyClone();
+    //}
 
-    public void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            prevShape = currShape;
-            currShape = physicsObject.currPhysicsShape.CopyClone();
+    //public void Update()
+    //{
+    //    if (Input.GetKeyDown(KeyCode.T))
+    //    {
+    //        prevShape = currShape;
+    //        currShape = physicsObject.currPhysicsShape.CopyClone();
 
-            sweptShape = prevShape.ComputeSweptVolume(currShape);
-        }
-    }
+    //        sweptShape = prevShape.ComputeSweptVolume(currShape);
+    //    }
+    //}
 
-    private void OnDrawGizmos()
-    {
-        if (Application.isPlaying == false) return;
+    //private void OnDrawGizmos()
+    //{
+    //    if (Application.isPlaying == false) return;
 
-        PhysicsGizmoDrawer.OnDrawGizmoPhysicsShape(prevShape, Color.green);
-        PhysicsGizmoDrawer.OnDrawGizmoPhysicsShape(currShape, Color.cyan);
-        PhysicsGizmoDrawer.OnDrawGizmoPhysicsShape(sweptShape, Color.red);
-    }
+    //    PhysicsGizmoDrawer.OnDrawGizmoPhysicsShape(prevShape, Color.green);
+    //    PhysicsGizmoDrawer.OnDrawGizmoPhysicsShape(currShape, Color.cyan);
+    //    PhysicsGizmoDrawer.OnDrawGizmoPhysicsShape(sweptShape, Color.red);
+    //}
 }
