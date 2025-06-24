@@ -14,8 +14,6 @@ namespace Physics
         public Vector3 contactPointA;
         public Vector3 contactPointB;
 
-        public float sweepProgress;// 낮을수록 우선순위가 높음
-
         public static CollisionInfo None => new CollisionInfo { hasCollision = false };
 
         public CollisionInfo(bool hasCollision, Vector3 contactPointA, Vector3 contactPointB)
@@ -23,8 +21,6 @@ namespace Physics
             this.hasCollision = hasCollision;
             this.contactPointA = contactPointA;
             this.contactPointB = contactPointB;
-
-            this.sweepProgress = float.MaxValue;
         }
 
         public CollisionInfo SwapPoint()

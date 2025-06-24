@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 using Unity.Mathematics;
 using UnityEditor;
+using Unit;
 
 namespace Physics
 {
@@ -34,6 +35,8 @@ namespace Physics
 
     public interface IPhysicsShape
     {
+        float3 Center { get; }
+
         PhysicsObject.PhysicsShapeType ShapeType { get; }
 
         Type CollisionType { get; }
@@ -52,6 +55,8 @@ namespace Physics
 
     public struct Sphere : IPhysicsShape
     {
+        public float3 Center => this.center;
+
         public PhysicsObject.PhysicsShapeType ShapeType => PhysicsObject.PhysicsShapeType.SPHERE;
         public Type CollisionType => typeof(Sphere);
 
@@ -121,6 +126,8 @@ namespace Physics
 
     public struct OBB : IPhysicsShape
     {
+        public float3 Center => this.center;
+
         public PhysicsObject.PhysicsShapeType ShapeType => PhysicsObject.PhysicsShapeType.OBB;
         public Type CollisionType => typeof(OBB);
 
@@ -248,6 +255,8 @@ namespace Physics
 
     public struct Capsule : IPhysicsShape
     {
+        public float3 Center => this.center;
+
         public PhysicsObject.PhysicsShapeType ShapeType => PhysicsObject.PhysicsShapeType.CAPSULE;
         public Type CollisionType => typeof(Capsule);
 
@@ -353,17 +362,13 @@ namespace Physics
         public PhysicsShapeType physicsShapeType;
         public IPhysicsShape physicsShape => currPhysicsShape.ComputeSweptVolume(prevPhysicsShape);
 
-        private bool isInitialized = false;
         public IPhysicsShape currPhysicsShape;
         public IPhysicsShape prevPhysicsShape;
 
-        private void Start() => Initialize();
-
-        protected virtual void Initialize(Action<CollisionInfo> collisionEvent = null)
+        public virtual void Initialize(Action<HitInfo> hitInfoEvent = null)
         {
-            isInitialized = true;
-
             SyncShape();
+            PhysicsGenerator.Instance.RegisterPhysicsObject(this);
         }
 
         private IPhysicsShape CreateShape(PhysicsShapeType physicsShapeType)
@@ -378,9 +383,16 @@ namespace Physics
 
         private void SyncShape()
         {
-            currPhysicsShape = CreateShape(physicsShapeType);
-            prevPhysicsShape = CreateShape(physicsShapeType);
-            CachedTransform();
+            if (currPhysicsShape == null || 
+                prevPhysicsShape == null || 
+                prevPhysicsShape.GetType() != currPhysicsShape.GetType())
+            {
+                currPhysicsShape = CreateShape(physicsShapeType);
+                prevPhysicsShape = CreateShape(physicsShapeType);
+            }
+
+            prevPhysicsShape.CopyFrom(currPhysicsShape);
+            currPhysicsShape.UpdateFromTransform(transform);
         }
 
         private void CachedTransform()
@@ -388,52 +400,27 @@ namespace Physics
             prevPhysicsShape.CopyFrom(currPhysicsShape);
         }
 
-        private bool HasShapeChanged()
-        {
-            return prevPhysicsShape.GetType() != currPhysicsShape.GetType();
-        }
-
         private bool HasTransformChanged()
         {
             return currPhysicsShape.EqualsPhysicsShape(prevPhysicsShape) == false;
         }
 
-        //#######################TestCode#################################################
         private void Update()
         {
-            currPhysicsShape.UpdateFromTransform(transform);
-            if (HasShapeChanged())
-            {
-                SyncShape();
-            }
-
-            if (HasTransformChanged())
-            {
-                CachedTransform();
-            }
-        
+            SyncShape();
         }
-        //#######################TestCode#################################################
+
 
         #region Gizmo
         private void OnDrawGizmos()
         {
             if (!PhysicsGizmoToggleWindow.IsShowingGizmos()) return;
 
-            if (isInitialized == false) SyncShape();
-
-            bool shapeChanged = HasShapeChanged();
-            bool transformChanged = HasTransformChanged();
-
-            if (shapeChanged)
+            if (Application.isPlaying == false)
             {
                 SyncShape();
-                CachedTransform();
             }
-            if (transformChanged)
-            {
-                CachedTransform();
-            }
+
             PhysicsGizmoDrawer.OnDrawGizmoPhysicsShape(currPhysicsShape, PhysicsGizmoToggleWindow.GetPhysicsShapeGizmoColor());
 
             if (!PhysicsGizmoToggleWindow.IsShowSweptGizmo()) return;

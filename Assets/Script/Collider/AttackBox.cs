@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unit;
 
 namespace Physics
 {
@@ -7,15 +8,22 @@ namespace Physics
     {
         public override PhysicsType physicsType => PhysicsType.ATTACK;
 
-        public Dictionary<Guid, CollisionInfo> checkedHitableUIDs { get; private set; }
+        public List<Guid> checkedHitableUIDs { get; private set; }
 
-        private Action<CollisionInfo> collisionEvent;
+        private Action<HitInfo> hitEvent;
 
-        protected override void Initialize(Action<CollisionInfo> collisionEvent = null)
+        public override void Initialize(Action<HitInfo> hitEvent = null)
         {
-            base.Initialize(collisionEvent);
+            base.Initialize(hitEvent);
 
-            this.collisionEvent = collisionEvent;
+            checkedHitableUIDs = new();
+            this.hitEvent = hitEvent;
+        }
+
+        public void OnCollisionEvent(HitInfo hitInfo)
+        {
+            this.hitEvent?.Invoke(hitInfo);
+            checkedHitableUIDs.Add(hitInfo.hitObject.uid);
         }
     }
 }

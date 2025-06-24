@@ -1,11 +1,12 @@
 using Physics;
+using UnityEngine;
 
 namespace Unit
 {
     public class HitInfo
     {
-        public CollisionInfo collisionInfo;
-
         public PhysicsObject hitObject;
+        public Vector3 hitPoint;
+        public float sweepProgress;
     }
 }

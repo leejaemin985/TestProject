@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using Unit;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -69,22 +70,35 @@ namespace Physics
             physicsMap[physicsObject.physicsType].Remove(physicsObject);
         }
 
-        private void LateUpdate()
+        private void Update()
         {
-
+            CalculateOneTick();
         }
 
         private void CalculateOneTick()
         {
             foreach (AttackBox attackableOb in attackPhysics)
             {
+                if (attackableOb.active == false) continue;
                 foreach (HitBox hitableOb in hittablePhysics)
                 {
-                    if (attackableOb.checkedHitableUIDs.ContainsKey(hitableOb.uid) == true) continue;
+                    if (hitableOb.active == false) continue;
 
+                    if (attackableOb.checkedHitableUIDs.Contains(hitableOb.uid) == true) continue;
+                    var collisionInfo = CollisionDetecter.CheckCollisionInfo(attackableOb.physicsShape, hitableOb.physicsShape);
+
+                    if (collisionInfo.hasCollision == false) continue;
+
+                    HitInfo hitInfo = new()
+                    {
+                        hitObject = hitableOb,
+                        hitPoint = collisionInfo.contactPointA,
+                        sweepProgress = ComputeProgressAlongMotion(attackableOb.prevPhysicsShape.Center, attackableOb.currPhysicsShape.Center, collisionInfo.contactPointA)
+                    };
+
+                    attackableOb.OnCollisionEvent(hitInfo);
                 }
             }
-
         }
 
 

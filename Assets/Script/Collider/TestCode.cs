@@ -4,37 +4,23 @@ using UnityEngine.SubsystemsImplementation;
 
 public class TestCode : MonoBehaviour
 {
-    public PhysicsObject physicsObject;
+    public AttackBox attackBox;
+    public HitBox hitBox;
 
-    private IPhysicsShape prevShape;
-    private IPhysicsShape currShape;
+    public void Start()
+    {
+        attackBox.Initialize((info)=>Debug.Log($"Test - info center: {info.hitPoint}"));
+        hitBox.Initialize();
 
-    private IPhysicsShape sweptShape;
+        attackBox.active = true;
+        hitBox.active = true;
+    }
 
-
-    //public void Start()
-    //{
-    //    prevShape = physicsObject.currPhysicsShape.CopyClone();
-    //    currShape = physicsObject.currPhysicsShape.CopyClone();
-    //}
-
-    //public void Update()
-    //{
-    //    if (Input.GetKeyDown(KeyCode.T))
-    //    {
-    //        prevShape = currShape;
-    //        currShape = physicsObject.currPhysicsShape.CopyClone();
-
-    //        sweptShape = prevShape.ComputeSweptVolume(currShape);
-    //    }
-    //}
-
-    //private void OnDrawGizmos()
-    //{
-    //    if (Application.isPlaying == false) return;
-
-    //    PhysicsGizmoDrawer.OnDrawGizmoPhysicsShape(prevShape, Color.green);
-    //    PhysicsGizmoDrawer.OnDrawGizmoPhysicsShape(currShape, Color.cyan);
-    //    PhysicsGizmoDrawer.OnDrawGizmoPhysicsShape(sweptShape, Color.red);
-    //}
+    public void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            attackBox.transform.position = new Vector3(10, 0, 0);
+        }
+    }
 }
