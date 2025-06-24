@@ -50,6 +50,8 @@ namespace Physics
                 { PhysicsObject.PhysicsType.HITABLE, hittablePhysics = new() },
                 { PhysicsObject.PhysicsType.HYBRID, hybridPhysics = new() },
             };
+
+            collisionResult = new();
         }
 
         private Dictionary<PhysicsObject.PhysicsType, List<PhysicsObject>> physicsMap = default;
@@ -58,19 +60,15 @@ namespace Physics
         private List<PhysicsObject> hittablePhysics = default;
         private List<PhysicsObject> hybridPhysics = default;
 
+        private Dictionary<AttackBox, List<HitInfoData>> collisionResult = default;
+
         public void RegisterPhysicsObject(PhysicsObject physicsObject)
         {
             if (physicsMap[physicsObject.physicsType].Contains(physicsObject) == true) return;
             physicsMap[physicsObject.physicsType].Add(physicsObject);
         }
 
-        public void UnRegisterPhysicsObject(PhysicsObject physicsObject)
-        {
-            if (physicsMap[physicsObject.physicsType].Contains(physicsObject) == false) return;
-            physicsMap[physicsObject.physicsType].Remove(physicsObject);
-        }
-
-        private void Update()
+        private void LateUpdate()
         {
             CalculateOneTick();
         }
@@ -80,6 +78,10 @@ namespace Physics
             foreach (AttackBox attackableOb in attackPhysics)
             {
                 if (attackableOb.active == false) continue;
+
+                if (collisionResult.ContainsKey(attackableOb) == false) collisionResult.Add(attackableOb, new());
+                collisionResult[attackableOb].Clear();
+
                 foreach (HitBox hitableOb in hittablePhysics)
                 {
                     if (hitableOb.active == false) continue;
@@ -89,18 +91,22 @@ namespace Physics
 
                     if (collisionInfo.hasCollision == false) continue;
 
-                    HitInfo hitInfo = new()
+                    HitInfoData hitInfo = new()
                     {
                         hitObject = hitableOb,
                         hitPoint = collisionInfo.contactPointA,
                         sweepProgress = ComputeProgressAlongMotion(attackableOb.prevPhysicsShape.Center, attackableOb.currPhysicsShape.Center, collisionInfo.contactPointA)
                     };
 
-                    attackableOb.OnCollisionEvent(hitInfo);
+                    collisionResult[attackableOb].Add(hitInfo);
                 }
             }
-        }
 
+            foreach (AttackBox physOB in collisionResult.Keys)
+            {
+                physOB.OnCollisionEvent(collisionResult[physOB]);
+            }
+        }
 
         private float ComputeProgressAlongMotion(float3 prev, float3 curr, float3 contactPoint)
         {

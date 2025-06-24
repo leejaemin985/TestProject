@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Mathematics;
 using UnityEditor;
 using Unit;
+using System.Collections;
 
 namespace Physics
 {
@@ -341,7 +342,19 @@ namespace Physics
     {
         public Guid uid { get; private set; } = Guid.NewGuid();
 
-        public bool active;
+        public override bool Equals(object obj)
+        {
+            return obj is PhysicsObject physicObj && physicObj.uid == this.uid; 
+        }
+
+        public override int GetHashCode() => uid.GetHashCode();
+
+        public bool active { get; private set; } = false;
+
+        public virtual void SetActive(bool set)
+        {
+            active = set;
+        }
 
         public enum PhysicsShapeType
         {
@@ -360,12 +373,13 @@ namespace Physics
         public abstract PhysicsType physicsType { get; }
 
         public PhysicsShapeType physicsShapeType;
-        public IPhysicsShape physicsShape => currPhysicsShape.ComputeSweptVolume(prevPhysicsShape);
+        
+        public IPhysicsShape physicsShape { get; private set; }
 
         public IPhysicsShape currPhysicsShape;
         public IPhysicsShape prevPhysicsShape;
 
-        public virtual void Initialize(Action<HitInfo> hitInfoEvent = null)
+        public virtual void Initialize(Action<HitInfos> hitInfoEvent = null)
         {
             SyncShape();
             PhysicsGenerator.Instance.RegisterPhysicsObject(this);
@@ -393,16 +407,12 @@ namespace Physics
 
             prevPhysicsShape.CopyFrom(currPhysicsShape);
             currPhysicsShape.UpdateFromTransform(transform);
-        }
 
-        private void CachedTransform()
-        {
-            prevPhysicsShape.CopyFrom(currPhysicsShape);
-        }
+            physicsShape = currPhysicsShape.ComputeSweptVolume(prevPhysicsShape);
 
-        private bool HasTransformChanged()
-        {
-            return currPhysicsShape.EqualsPhysicsShape(prevPhysicsShape) == false;
+            //currPhysicsShape.UpdateFromTransform(transform);
+            //physicsShape = currPhysicsShape.ComputeSweptVolume(prevPhysicsShape);
+            //prevPhysicsShape.CopyFrom(currPhysicsShape);
         }
 
         private void Update()

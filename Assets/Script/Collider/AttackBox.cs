@@ -10,9 +10,9 @@ namespace Physics
 
         public List<Guid> checkedHitableUIDs { get; private set; }
 
-        private Action<HitInfo> hitEvent;
+        private Action<HitInfos> hitEvent;
 
-        public override void Initialize(Action<HitInfo> hitEvent = null)
+        public override void Initialize(Action<HitInfos> hitEvent = null)
         {
             base.Initialize(hitEvent);
 
@@ -20,10 +20,18 @@ namespace Physics
             this.hitEvent = hitEvent;
         }
 
-        public void OnCollisionEvent(HitInfo hitInfo)
+        public void OnCollisionEvent(HitInfos hitInfos)
         {
-            this.hitEvent?.Invoke(hitInfo);
-            checkedHitableUIDs.Add(hitInfo.hitObject.uid);
+            this.hitEvent?.Invoke(hitInfos);
+
+            //this.hitEvent?.Invoke(hitInfo);
+            //checkedHitableUIDs.Add(hitInfo.hitObject.uid);
+        }
+
+        public override void SetActive(bool set)
+        {
+            base.SetActive(set);
+            if (set == false) checkedHitableUIDs.Clear();
         }
     }
 }

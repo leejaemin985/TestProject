@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
@@ -10,27 +10,26 @@ namespace Physics
         public static OBB ComputeSweptOBBFromOBB(OBB a, OBB b)
         {
             float3 center = (a.center + b.center) * 0.5f;
-
             float3 movement = b.center - a.center;
-            float movementLen = math.length(movement);
-            float3 forward = movementLen > 1e-6f ? movement / movementLen : a.axis[2];
 
-            float3 up = a.axis[1];
-            if (math.abs(math.dot(forward, up)) > 0.99f)
+            // âœ… ê¸°ì¤€ ì¶•ì€ aì˜ íšŒì „ ì¶•ì„ ê·¸ëŒ€ë¡œ ì‚¬ìš©
+            float3[] axis = a.axis;
+
+            // âœ… aì™€ bì˜ halfSizeë¥¼ aì˜ ì¶•ì— íˆ¬ì˜í•´ì„œ í¬ê¸° ê²°ì •
+            float3 halfSize = new float3();
+
+            for (int i = 0; i < 3; ++i)
             {
-                float3 alt = math.abs(math.dot(forward, math.up())) < 0.99f ? math.up() : math.right();
-                up = math.normalize(math.cross(forward, alt));
+                // a, bì˜ í•´ë‹¹ ì¶•ìœ¼ë¡œì˜ half extent
+                float extA = math.abs(math.dot(a.axis[i] * a.halfSize[i], axis[i]));
+                float extB = math.abs(math.dot(b.axis[i] * b.halfSize[i], axis[i]));
+                float extent = math.max(extA, extB);
+
+                // ì¶”ê°€ë¡œ movementë¥¼ ì´ ì¶•ì— íˆ¬ì˜í•œ ì ˆë°˜ë§Œí¼ ë”í•´ì¤Œ
+                float moveProj = math.abs(math.dot(movement, axis[i])) * 0.5f;
+
+                halfSize[i] = extent + moveProj;
             }
-
-            float3 right = math.normalize(math.cross(up, forward));
-            up = math.normalize(math.cross(forward, right));
-
-            float3[] axis = new float3[3] { right, up, forward };
-
-            float3 avgHalf = math.max(a.halfSize, b.halfSize);
-            float extraHalfLength = movementLen * 0.5f;
-            float3 halfSize = avgHalf;
-            halfSize.z += extraHalfLength; // forward Ãà
 
             return new OBB(center, axis, halfSize);
         }
@@ -75,17 +74,17 @@ namespace Physics
                 float3 dir = capsule.pointB - capsule.pointA;
                 float height = math.length(dir);
 
-                // fallback ¹æÇâ (°ÅÀÇ ±¸¿¡ °¡±î¿ò)
-                float3 up = height > 1e-5f ? dir / height : math.up(); // ÃÖ¼ÒÇÑ up ¹æÇâ º¸Àå
+                // fallback ë°©í–¥ (ê±°ì˜ êµ¬ì— ê°€ê¹Œì›€)
+                float3 up = height > 1e-5f ? dir / height : math.up(); // ìµœì†Œí•œ up ë°©í–¥ ë³´ì¥
 
                 float3 arbitrary = math.abs(math.dot(up, math.up())) < 0.99f ? math.up() : math.forward();
                 float3 forward = math.normalize(math.cross(up, arbitrary));
                 float3 right = math.normalize(math.cross(forward, up));
-                forward = math.normalize(math.cross(right, up)); // º¸Á¤
+                forward = math.normalize(math.cross(right, up)); // ë³´ì •
 
                 float3[] axis = new float3[3] { right, up, forward };
 
-                float halfHeight = math.max(height * 0.5f, 0f); // À½¼ö ¹æÁö
+                float halfHeight = math.max(height * 0.5f, 0f); // ìŒìˆ˜ ë°©ì§€
                 float3 halfSize = new float3(capsule.radius, halfHeight + capsule.radius, capsule.radius);
 
                 float3 center = (capsule.pointA + capsule.pointB) * 0.5f;
