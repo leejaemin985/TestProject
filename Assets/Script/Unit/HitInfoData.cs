@@ -9,6 +9,10 @@ namespace Unit
     public class HitInfos
     {
         public List<HitInfoData> hitInfos;
+        public HitInfos()
+        {
+            hitInfos = new();
+        }
     }
 
 

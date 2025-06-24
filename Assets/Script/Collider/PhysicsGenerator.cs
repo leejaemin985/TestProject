@@ -60,7 +60,7 @@ namespace Physics
         private List<PhysicsObject> hittablePhysics = default;
         private List<PhysicsObject> hybridPhysics = default;
 
-        private Dictionary<AttackBox, List<HitInfoData>> collisionResult = default;
+        private Dictionary<AttackBox, HitInfos> collisionResult = default;
 
         public void RegisterPhysicsObject(PhysicsObject physicsObject)
         {
@@ -77,14 +77,14 @@ namespace Physics
         {
             foreach (AttackBox attackableOb in attackPhysics)
             {
-                if (attackableOb.active == false) continue;
+                if (attackableOb.Active == false) continue;
 
                 if (collisionResult.ContainsKey(attackableOb) == false) collisionResult.Add(attackableOb, new());
-                collisionResult[attackableOb].Clear();
+                collisionResult[attackableOb].hitInfos.Clear();
 
                 foreach (HitBox hitableOb in hittablePhysics)
                 {
-                    if (hitableOb.active == false) continue;
+                    if (hitableOb.Active == false) continue;
 
                     if (attackableOb.checkedHitableUIDs.Contains(hitableOb.uid) == true) continue;
                     var collisionInfo = CollisionDetecter.CheckCollisionInfo(attackableOb.physicsShape, hitableOb.physicsShape);
@@ -98,13 +98,13 @@ namespace Physics
                         sweepProgress = ComputeProgressAlongMotion(attackableOb.prevPhysicsShape.Center, attackableOb.currPhysicsShape.Center, collisionInfo.contactPointA)
                     };
 
-                    collisionResult[attackableOb].Add(hitInfo);
+                    collisionResult[attackableOb].hitInfos.Add(hitInfo);
                 }
             }
 
-            foreach (AttackBox physOB in collisionResult.Keys)
+            foreach (AttackBox attackableOb in collisionResult.Keys)
             {
-                physOB.OnCollisionEvent(collisionResult[physOB]);
+                attackableOb.OnCollisionEvent(collisionResult[attackableOb]);
             }
         }
 

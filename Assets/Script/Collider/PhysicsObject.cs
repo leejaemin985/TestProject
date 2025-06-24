@@ -349,7 +349,9 @@ namespace Physics
 
         public override int GetHashCode() => uid.GetHashCode();
 
-        public bool active { get; private set; } = false;
+        private bool active = false;
+
+        public virtual bool Active => active && gameObject.activeSelf;
 
         public virtual void SetActive(bool set)
         {
@@ -397,9 +399,10 @@ namespace Physics
 
         private void SyncShape()
         {
-            if (currPhysicsShape == null || 
-                prevPhysicsShape == null || 
-                prevPhysicsShape.GetType() != currPhysicsShape.GetType())
+            if (currPhysicsShape == null ||
+                prevPhysicsShape == null ||
+                prevPhysicsShape.GetType() != currPhysicsShape.GetType() ||
+                currPhysicsShape.ShapeType != physicsShapeType)
             {
                 currPhysicsShape = CreateShape(physicsShapeType);
                 prevPhysicsShape = CreateShape(physicsShapeType);
@@ -419,7 +422,6 @@ namespace Physics
         {
             SyncShape();
         }
-
 
         #region Gizmo
         private void OnDrawGizmos()

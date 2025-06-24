@@ -24,8 +24,10 @@ namespace Physics
         {
             this.hitEvent?.Invoke(hitInfos);
 
-            //this.hitEvent?.Invoke(hitInfo);
-            //checkedHitableUIDs.Add(hitInfo.hitObject.uid);
+            foreach (var hitInfo in hitInfos.hitInfos)
+            {
+                checkedHitableUIDs.Add(hitInfo.hitObject.uid);
+            }
         }
 
         public override void SetActive(bool set)

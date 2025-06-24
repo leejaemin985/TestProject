@@ -12,10 +12,10 @@ namespace Physics
             float3 center = (a.center + b.center) * 0.5f;
             float3 movement = b.center - a.center;
 
-            // ✅ 기준 축은 a의 회전 축을 그대로 사용
+            // 기준 축은 a의 회전 축을 그대로 사용
             float3[] axis = a.axis;
 
-            // ✅ a와 b의 halfSize를 a의 축에 투영해서 크기 결정
+            // a와 b의 halfSize를 a의 축에 투영해서 크기 결정
             float3 halfSize = new float3();
 
             for (int i = 0; i < 3; ++i)

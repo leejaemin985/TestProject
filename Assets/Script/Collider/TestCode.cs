@@ -9,7 +9,7 @@ public class TestCode : MonoBehaviour
 
     public void Start()
     {
-        attackBox.Initialize((info)=>Debug.Log($"Test - info center: {info.hitObject.gameObject.name}"));
+        attackBox.Initialize((info) => Debug.Log($"Test - info center: {info.hitInfos.Count}"));
         attackBox.SetActive(true);
 
         foreach (var obb in hitBox)
