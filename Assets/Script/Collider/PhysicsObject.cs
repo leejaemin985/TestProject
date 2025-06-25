@@ -407,15 +407,9 @@ namespace Physics
                 currPhysicsShape = CreateShape(physicsShapeType);
                 prevPhysicsShape = CreateShape(physicsShapeType);
             }
-
-            prevPhysicsShape.CopyFrom(currPhysicsShape);
             currPhysicsShape.UpdateFromTransform(transform);
-
             physicsShape = currPhysicsShape.ComputeSweptVolume(prevPhysicsShape);
-
-            //currPhysicsShape.UpdateFromTransform(transform);
-            //physicsShape = currPhysicsShape.ComputeSweptVolume(prevPhysicsShape);
-            //prevPhysicsShape.CopyFrom(currPhysicsShape);
+            prevPhysicsShape.CopyFrom(currPhysicsShape);
         }
 
         private void Update()
