@@ -420,6 +420,7 @@ namespace Physics
         #region Gizmo
         private void OnDrawGizmos()
         {
+#if UNITY_EDITOR
             if (!PhysicsGizmoToggleWindow.IsShowingGizmos()) return;
 
             if (Application.isPlaying == false)
@@ -431,10 +432,11 @@ namespace Physics
 
             if (!PhysicsGizmoToggleWindow.IsShowSweptGizmo()) return;
             PhysicsGizmoDrawer.OnDrawGizmoPhysicsShape(physicsShape, PhysicsGizmoToggleWindow.GetPhysicsSweptVolumeGizmoColor());
+#endif
         }
         #endregion
     }
-
+#if UNITY_EDITOR
     public class PhysicsGizmoToggleWindow : EditorWindow
     {
         private static bool showPhysicsGizmos = true;
@@ -545,7 +547,7 @@ namespace Physics
             return new Color(r, g, b, a);
         }
     }
-
+#endif
     public class PhysicsGizmoDrawer
     {
         public static void OnDrawGizmoPhysicsShape(IPhysicsShape physicsShape, Color color)
