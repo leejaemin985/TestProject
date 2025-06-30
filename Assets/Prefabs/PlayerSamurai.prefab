@@ -77,6 +77,7 @@ GameObject:
   - component: {fileID: 3435419628776310831}
   - component: {fileID: 978523184684886547}
   - component: {fileID: 3164321590918008309}
+  - component: {fileID: 257329947871881087}
   m_Layer: 0
   m_Name: PlayerSamurai
   m_TagString: Untagged
@@ -201,6 +202,8 @@ MonoBehaviour:
   cc: {fileID: 3435419628776310831}
   animController: {fileID: 3823496746189223210}
   playerCam: {fileID: 3164321590918008309}
+  attackController: {fileID: 257329947871881087}
+  _moveAnimTargetDir: {x: 0, y: 0}
 --- !u!114 &3164321590918008309
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -216,6 +219,20 @@ MonoBehaviour:
   camAnglePos: {fileID: 2269930843781202846}
   camAngle: {fileID: 1367516550763753737}
   camPos: {fileID: 3129540333032609918}
+  pitchMin: -45
+  pitchMax: 60
+--- !u!114 &257329947871881087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4766949080651131403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fca162a003a38a24cb1a6c0f2fb837e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8973499107381494114
 GameObject:
   m_ObjectHideFlags: 0

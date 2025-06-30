@@ -1,3 +1,4 @@
+using Fusion;
 using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
@@ -25,4 +26,8 @@ public class PlayerAnimController : MonoBehaviour
     }
 
     public void SetMoveAnimDirection(Vector2 dir) => targetMoveAnimDir = new Vector2(dir.x, dir.y).normalized;
+
+    public void SetTrigger(string keyName) => anim.SetTrigger(keyName);
+
+    public void Play(string animName, int index = 0, float normalizedTime = 0) => anim.Play(animName, index, normalizedTime);
 }
