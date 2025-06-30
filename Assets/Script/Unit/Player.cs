@@ -49,7 +49,7 @@ public class Player : NetworkBehaviour
     private float GetNormalizedAnimationTime(int startTick, float animDuration)
     {
         int tickOffset = Runner.Tick - startTick;
-        float pressedTime = tickOffset * Runner.DeltaTime;
+        float pressedTime = tickOffset * Runner.DeltaTime + 1f;
         return Mathf.Clamp01(pressedTime / animDuration);
     }
 
@@ -59,6 +59,11 @@ public class Player : NetworkBehaviour
         if (animData.state == PlayerAnimState.ATTACK)
         {
             float normalizedTime = GetNormalizedAnimationTime(animData.startTick, Runner.Tick);
+            Debug.Log($"Test - {normalizedTime}");
+
+            int tickOffset = Runner.Tick - animData.startTick;
+            float pressedTime = tickOffset * Runner.DeltaTime;
+            normalizedTime = Mathf.Clamp01(pressedTime / attackController.attackMotionDuration[animData.motionNumber]);
             Debug.Log($"Test - {normalizedTime}");
             attackController.SetAttackMotion(animData.motionNumber, normalizedTime);
             if (HasInputAuthority == true)

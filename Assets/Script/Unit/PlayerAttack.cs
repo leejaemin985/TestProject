@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour
 {
-    private Dictionary<int, float> attackMotionDuration = new()
+    public Dictionary<int, float> attackMotionDuration = new()
     {
         { 0, 1.3f },
         { 1, 1.2f },
