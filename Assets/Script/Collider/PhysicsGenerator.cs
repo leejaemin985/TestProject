@@ -75,12 +75,13 @@ namespace Physics
 
         private void CalculateOneTick()
         {
+            collisionResult.Clear();
+
             foreach (AttackBox attackableOb in attackPhysics)
             {
                 if (attackableOb.Active == false) continue;
 
-                if (collisionResult.ContainsKey(attackableOb) == false) collisionResult.Add(attackableOb, new());
-                collisionResult[attackableOb].hitInfos.Clear();
+                collisionResult[attackableOb] = new();
 
                 foreach (HitBox hitableOb in hittablePhysics)
                 {
