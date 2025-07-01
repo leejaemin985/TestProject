@@ -12,7 +12,8 @@ public struct PlayerInputData : INetworkInput
 
 public enum InputButton
 {
-    Attack,
+    LightAttack,
+    HeavyAttack,
     Dash
 }
 
@@ -37,7 +38,9 @@ public class InputHandle : MonoBehaviour, INetworkRunnerCallbacks
 
         data.Move = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         
-        if (Input.GetKey(KeyCode.Mouse0)) data.buttons.Set((int)InputButton.Attack, true);
+        if (Input.GetKey(KeyCode.Mouse0)) data.buttons.Set((int)InputButton.LightAttack, true);
+
+        if (Input.GetKey(KeyCode.Mouse1)) data.buttons.Set((int)InputButton.HeavyAttack, true);
 
         if (Input.GetKey(KeyCode.LeftShift)) data.buttons.Set((int)InputButton.Dash, true);
 

@@ -1,33 +1,45 @@
 using Fusion;
 using Fusion.Addons.SimpleKCC;
 using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Unity.VisualScripting;
+using Unit;
 using UnityEngine;
-using UnityEngine.Windows;
+
+
+public class PlayerState
+{
+    public State isMotion { get; private set; }
+
+    public State isJump { get; private set; }
+
+    public State isAttack { get; private set; }
+
+    public State isHit {  get; private set; }
+
+    public PlayerState()
+    {
+        isMotion = new("isMotion");
+
+        isJump = new("isJump");
+
+        isAttack = new("isAttack");
+
+        isHit = new("isHit");
+    }
+}
+
 
 public class Player : NetworkBehaviour
 {
-    public enum PlayerAnimState
-    {
-        IDLE,
-        ATTACK,
-        HIT,
-        DEAD
-    }
-
-    public struct PlayerAnimData : INetworkStruct
-    {
-        public int startTick;
-        public PlayerAnimState state;
-        public int motionNumber;
-    }
-
     [SerializeField] private SimpleKCC cc;
     [SerializeField] private PlayerAnimController animController;
     [SerializeField] private PlayerCam playerCam;
     [SerializeField] private PlayerAttack attackController;
+    [SerializeField] private PlayerHit hitController;
+
+    [SerializeField] private Katana weapon;
+    [SerializeField] private PlayerAnimEventer animEventer;
+
+    private PlayerState playerState = new();
 
     private float moveSpeed = 65f;
 
@@ -35,42 +47,35 @@ public class Player : NetworkBehaviour
 
     private NetworkButtons prevInput;
 
-    private void Start()
+    private void Start() => Initialize();
+    
+    private void Initialize()
     {
         StartCamSet();
-        attackController.Initialized(
-            (animName, normalizedTime) => animController.Play(animName, 0, normalizedTime),
-            () => animController.Play("_Idle"));
+        hitController.Initialize();
+        animController.Initialize(playerState);
+        attackController.Initialized(IsHasInputAuthority, playerState, animController.Play, weapon, hitController.GetPhysicsBox());
+        animEventer.Initialize(attackController.SetWeaponActive);
     }
+
+    private bool IsHasInputAuthority()
+    {
+        return HasInputAuthority;
+    }
+
 
     [Networked]
     public Vector2 moveAnimTargetDir { get; set; }
 
-    private float GetNormalizedAnimationTime(int startTick, float animDuration)
-    {
-        int tickOffset = Runner.Tick - startTick;
-        float pressedTime = tickOffset * Runner.DeltaTime + 1f;
-        return Mathf.Clamp01(pressedTime / animDuration);
-    }
 
     [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
-    public void RPC_SetAnimation(PlayerAnimData animData)
+    public void RPC_OnAttackEvent(string motionName, float motionActiveTime, float motionDuration, int tick)
     {
-        if (animData.state == PlayerAnimState.ATTACK)
-        {
-            float normalizedTime = GetNormalizedAnimationTime(animData.startTick, Runner.Tick);
-            Debug.Log($"Test - {normalizedTime}");
+        int tickOffset = Runner.Tick - tick;
+        float latency = tickOffset * Runner.DeltaTime;
 
-            int tickOffset = Runner.Tick - animData.startTick;
-            float pressedTime = tickOffset * Runner.DeltaTime;
-            normalizedTime = Mathf.Clamp01(pressedTime / attackController.attackMotionDuration[animData.motionNumber]);
-            Debug.Log($"Test - {normalizedTime}");
-            attackController.SetAttackMotion(animData.motionNumber, normalizedTime);
-            if (HasInputAuthority == true)
-            {
-                attackController.SetCanAttack(false);
-            }
-        }
+        attackController.SetAttackMotion(motionActiveTime);
+        animController.Play(motionName, PlayerAnimController.PlayerAnimLayer.ATTACK, latency);
     }
 
 
@@ -85,14 +90,17 @@ public class Player : NetworkBehaviour
 
         SetPlayerMoveAndRotate(input.Move);
 
-        if (input.buttons.WasPressed(prevInput, InputButton.Attack) == true && attackController.canAttack)
+        if (input.buttons.WasPressed(prevInput, InputButton.LightAttack) == true && attackController.canAttack)
         {
-            RPC_SetAnimation(new()
-            {
-                startTick = Runner.Tick,
-                state = PlayerAnimState.ATTACK,
-                motionNumber = attackController.TryGetAttack(),
-            });
+            var attackMotion = attackController.TryAttack(false);
+            if (attackMotion.success)
+                RPC_OnAttackEvent(attackMotion.motionName, attackMotion.motionActiveTime, attackMotion.duration, Runner.Tick);
+        }
+        else if (input.buttons.WasPressed(prevInput, InputButton.HeavyAttack) == true && attackController.canAttack)
+        {
+            var attackMotion = attackController.TryAttack(true);
+            if (attackMotion.success)
+                RPC_OnAttackEvent(attackMotion.motionName, attackMotion.motionActiveTime, attackMotion.duration, Runner.Tick);
         }
 
         prevInput = input.buttons;
@@ -101,6 +109,8 @@ public class Player : NetworkBehaviour
 
     private void SetPlayerMoveAndRotate(Vector3 inputDir)
     {
+        if (playerState.isMotion.state) return;
+
         Vector3 moveDir = new Vector3(inputDir.x, 0, inputDir.y).normalized;
 
         moveAnimTargetDir = new Vector2(moveDir.x, moveDir.z);

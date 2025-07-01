@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Unit;
 
 namespace Physics
@@ -8,6 +9,7 @@ namespace Physics
     {
         public override PhysicsType physicsType => PhysicsType.ATTACK;
 
+        public Guid ignoreUid { get; private set; }
         public List<Guid> checkedHitableUIDs { get; private set; }
 
         private Action<HitInfos> hitEvent;
@@ -20,8 +22,14 @@ namespace Physics
             this.hitEvent = hitEvent;
         }
 
+        public void SetIgnoreUid(PhysicsObject ignorePhysics)
+        {
+            ignoreUid = ignorePhysics.uid;
+        }
+
         public void OnCollisionEvent(HitInfos hitInfos)
         {
+            if (hitInfos.hitInfos.Count == 0) return;
             this.hitEvent?.Invoke(hitInfos);
 
             foreach (var hitInfo in hitInfos.hitInfos)

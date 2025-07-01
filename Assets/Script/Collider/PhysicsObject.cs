@@ -430,7 +430,7 @@ namespace Physics
 
             PhysicsGizmoDrawer.OnDrawGizmoPhysicsShape(currPhysicsShape, PhysicsGizmoToggleWindow.GetPhysicsShapeGizmoColor());
 
-            if (!PhysicsGizmoToggleWindow.IsShowSweptGizmo()) return;
+            if (!PhysicsGizmoToggleWindow.IsShowSweptGizmo() || Active == false) return;
             PhysicsGizmoDrawer.OnDrawGizmoPhysicsShape(physicsShape, PhysicsGizmoToggleWindow.GetPhysicsSweptVolumeGizmoColor());
 #endif
         }
