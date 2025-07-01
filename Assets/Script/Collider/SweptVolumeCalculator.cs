@@ -9,26 +9,64 @@ namespace Physics
     {
         public static OBB ComputeSweptOBBFromOBB(OBB a, OBB b)
         {
-            float3 center = (a.center + b.center) * 0.5f;
+            float3[] vertsA = a.GetVertices();
+            float3[] vertsB = b.GetVertices();
+
+            float3[] points = new float3[16];
+            for (int i = 0; i < 8; ++i)
+            {
+                points[i] = vertsA[i];
+                points[i + 8] = vertsB[i];
+            }
+
             float3 movement = b.center - a.center;
+            float movementLen = math.length(movement);
 
-            // 기준 축은 a의 회전 축을 그대로 사용
-            float3[] axis = a.axis;
+            float3 forward;
+            float3 up;
+            float3 right;
 
-            // a와 b의 halfSize를 a의 축에 투영해서 크기 결정
-            float3 halfSize = new float3();
+            if (movementLen > 1e-6f)
+            {
+                forward = movement / movementLen;
 
+                up = a.axis[1];
+                if (math.abs(math.dot(forward, up)) > 0.99f)
+                {
+                    float3 alt = math.abs(math.dot(forward, math.up())) < 0.99f ? math.up() : math.right();
+                    up = math.normalize(math.cross(forward, alt));
+                }
+
+                right = math.normalize(math.cross(up, forward));
+                up = math.normalize(math.cross(forward, right));
+            }
+            else
+            {
+                right = a.axis[0];
+                up = a.axis[1];
+                forward = a.axis[2];
+            }
+
+            float3[] axis = new float3[3] { right, up, forward };
+
+            float3 minProj = new float3(float.PositiveInfinity);
+            float3 maxProj = new float3(float.NegativeInfinity);
+
+            foreach (var p in points)
+            {
+                for (int i = 0; i < 3; ++i)
+                {
+                    float dot = math.dot(p, axis[i]);
+                    minProj[i] = math.min(minProj[i], dot);
+                    maxProj[i] = math.max(maxProj[i], dot);
+                }
+            }
+
+            float3 halfSize = (maxProj - minProj) * 0.5f;
+            float3 center = float3.zero;
             for (int i = 0; i < 3; ++i)
             {
-                // a, b의 해당 축으로의 half extent
-                float extA = math.abs(math.dot(a.axis[i] * a.halfSize[i], axis[i]));
-                float extB = math.abs(math.dot(b.axis[i] * b.halfSize[i], axis[i]));
-                float extent = math.max(extA, extB);
-
-                // 추가로 movement를 이 축에 투영한 절반만큼 더해줌
-                float moveProj = math.abs(math.dot(movement, axis[i])) * 0.5f;
-
-                halfSize[i] = extent + moveProj;
+                center += axis[i] * ((minProj[i] + maxProj[i]) * 0.5f);
             }
 
             return new OBB(center, axis, halfSize);
