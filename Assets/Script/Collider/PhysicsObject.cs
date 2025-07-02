@@ -381,7 +381,7 @@ namespace Physics
         public IPhysicsShape currPhysicsShape;
         public IPhysicsShape prevPhysicsShape;
 
-        public virtual void Initialize(Action<HitInfos> hitInfoEvent = null)
+        protected virtual void Initialize()
         {
             SyncShape();
             PhysicsGenerator.Instance.RegisterPhysicsObject(this);

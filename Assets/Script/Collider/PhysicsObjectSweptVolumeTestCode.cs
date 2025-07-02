@@ -12,12 +12,12 @@ public class PhysicsObjectSweptVolumeTestCode : MonoBehaviour
 
     private void Start()
     {
-        attackBox.Initialize((info)=>Debug.Log($"Test - hitinfos: {info.hitInfos.Count}"));
+        attackBox.Initialize((info)=>Debug.Log($"Test - hitinfos: {info.collisionInfos.Count}"));
         attackBox.SetActive(true);
 
         foreach(var hitBox in hitBoxs)
         {
-            hitBox.Initialize();
+            hitBox.Initialize(null);
             hitBox.SetActive(true);
         }
 

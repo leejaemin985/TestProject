@@ -7,10 +7,10 @@ public class Katana : MonoBehaviour
 {
     [SerializeField] private AttackBox collisionBox;
 
-    public void Initialize(PhysicsObject userPhysicsObject, Action<HitInfos> hitEvent = null)
+    public void Initialize(Action<CollisionInfos> hitEvent = null, PhysicsObject userPhysicsObject = null)
     {
         collisionBox.Initialize(hitEvent);
-        collisionBox.SetIgnoreUid(userPhysicsObject);
+        collisionBox.AddIgnoreUid(userPhysicsObject);
     }
 
     public void SetCollisionActive(bool set)

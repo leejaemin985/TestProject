@@ -60,7 +60,7 @@ namespace Physics
         private List<PhysicsObject> hittablePhysics = default;
         private List<PhysicsObject> hybridPhysics = default;
 
-        private Dictionary<AttackBox, HitInfos> collisionResult = default;
+        private Dictionary<AttackBox, CollisionInfos> collisionResult = default;
 
         public void RegisterPhysicsObject(PhysicsObject physicsObject)
         {
@@ -87,20 +87,20 @@ namespace Physics
                 {
                     if (hitableOb.Active == false) continue;
 
-                    if (attackableOb.ignoreUid.Equals(hitableOb.uid) == true) continue;
+                    if (attackableOb.ignoreUid.Contains(hitableOb.uid) == true) continue;
                     if (attackableOb.checkedHitableUIDs.Contains(hitableOb.uid) == true) continue;
                     var collisionInfo = CollisionDetecter.CheckCollisionInfo(attackableOb.physicsShape, hitableOb.physicsShape);
 
                     if (collisionInfo.hasCollision == false) continue;
 
-                    HitInfoData hitInfo = new()
+                    CollisionInfoData hitInfo = new()
                     {
                         hitObject = hitableOb,
                         hitPoint = collisionInfo.contactPointA,
                         sweepProgress = ComputeProgressAlongMotion(attackableOb.prevPhysicsShape.Center, attackableOb.currPhysicsShape.Center, collisionInfo.contactPointA)
                     };
 
-                    collisionResult[attackableOb].hitInfos.Add(hitInfo);
+                    collisionResult[attackableOb].collisionInfos.Add(hitInfo);
                 }
             }
 

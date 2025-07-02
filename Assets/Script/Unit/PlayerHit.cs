@@ -1,4 +1,5 @@
 using Physics;
+using System;
 using UnityEngine;
 
 namespace Unit
@@ -7,9 +8,9 @@ namespace Unit
     {
         [SerializeField] private HitBox hitBox;
 
-        public void Initialize()
+        public void Initialize(Action<HitInfo> hitEvent)
         {
-            hitBox.Initialize();
+            hitBox.Initialize(hitEvent);
             hitBox.SetActive(true);
         }
 

@@ -6,130 +6,166 @@ using System.Collections.Generic;
 using Unit;
 using UnityEngine;
 
-[Serializable]
-public class MotionClipInfo
+namespace Unit
 {
-    public AnimationClip clip;
-    public float originDuration => clip.length;
-    public float duration;
-}
-
-public class PlayerAttack : MonoBehaviour
-{
-    private Func<bool> hasInputAuthority;
-    private PlayerState playerState;
-    private Action<string> SetAttackAnimEvent;
-
-    private Katana weapon;
-
-    public struct AttackMotion
+    [Serializable]
+    public class MotionClipInfo
     {
-        public string motionName;
+        public AnimationClip clip;
+        public float originDuration => clip.length;
         public float duration;
-        public float motionActiveTime;
-        public bool success;
     }
 
-    public void Initialized(Func<bool> hasAuthority, PlayerState playerState, Action<string> setAttackAnim, Katana weapon, PhysicsObject playerHitBox)
+    public class PlayerAttack : MonoBehaviour
     {
-        this.hasInputAuthority = hasAuthority;
-        this.playerState = playerState;
-        this.SetAttackAnimEvent = setAttackAnim;
-        this.weapon = weapon;
-        this.weapon.Initialize(playerHitBox, (info) => Debug.Log($"Test - collision"));
+        private Func<bool> hasInputAuthority;
+        private PlayerState playerState;
+        private Action<string> SetAttackAnimEvent;
 
-        SetState();
-    }
+        private Katana weapon;
 
-    private void SetState()
-    {
-        playerState.isAttack.AddStateOnListener(OnAttackState);
-        playerState.isAttack.AddStateOffListener(OffAttackState);
+        private HitInfo[] currAttackMotionHitInfos;
 
-    }
-
-    private void OnAttackState()
-    {
-        playerState.isMotion.state = true;
-    }
-
-    private void OffAttackState()
-    {
-
-    }
-
-    /// <summary>
-    /// 어택모션중 다음 어택모션과 부드럽게 연계하기 위해 중간 버퍼 딜레이가 있습니다. 
-    /// 이를 무시하고 attack, motion 둘다 false로 하기 위해선 attackMotion을 중지시킬때 해당 함수를 호출합니다.
-    /// </summary>
-    public void StopAttackMotion()
-    {
-        playerState.isAttack.state = false;
-        playerState.isMotion.state = false;
-    }
-
-    private const string LIGHT_ATTACK_NAME_BASE = "_LightAttack";
-    private const string HEAVY_ATTACK_NAME_BASE = "_HeavyAttack";
-
-    public MotionClipInfo[] lightAttackClip;
-    public MotionClipInfo[] heavyAttackClip;
-
-    public bool canAttack => !playerState.isAttack.state && !playerState.isHit.state;
-
-    private int comboNum = 0;
-
-    private IEnumerator runAttackMotionHandle = default;
-    private const float ATTACK_INPUT_BUFFER_TIME = .2f;
-    private WaitForSeconds attackInputBufferDelay = new WaitForSeconds(ATTACK_INPUT_BUFFER_TIME);
-
-    public AttackMotion TryAttack(bool isHeavy)
-    {
-        AttackMotion result = new();
-        if (!canAttack)
+        public struct AttackMotion
         {
-            result.success = false;
+            public string motionName;
+            public float duration;
+            public float motionActiveTime;
+            public bool success;
+
+            public HitInfo[] hitInfos;
+        }
+
+        public void Initialized(Func<bool> hasAuthority, PlayerState playerState, Action<string> setAttackAnim, Katana weapon, PhysicsObject playerHitBox)
+        {
+            this.hasInputAuthority = hasAuthority;
+            this.playerState = playerState;
+            this.SetAttackAnimEvent = setAttackAnim;
+            this.weapon = weapon;
+            this.weapon.Initialize(HitEventListener, playerHitBox);
+
+            SetState();
+        }
+
+        private void SetState()
+        {
+            playerState.isAttack.AddStateOnListener(OnAttackState);
+            playerState.isAttack.AddStateOffListener(OffAttackState);
+
+        }
+
+        private void OnAttackState()
+        {
+            playerState.isMotion.state = true;
+        }
+
+        private void OffAttackState()
+        {
+
+        }
+
+        /// <summary>
+        /// 어택모션중 다음 어택모션과 부드럽게 연계하기 위해 중간 버퍼 딜레이가 있습니다. 
+        /// 이를 무시하고 attack, motion 둘다 false로 하기 위해선 attackMotion을 중지시킬때 해당 함수를 호출합니다.
+        /// </summary>
+        public void StopAttackMotion()
+        {
+            playerState.isAttack.state = false;
+            playerState.isMotion.state = false;
+        }
+
+        private const string LIGHT_ATTACK_NAME_BASE = "_LightAttack";
+        private const string HEAVY_ATTACK_NAME_BASE = "_HeavyAttack";
+
+        public MotionClipInfo[] lightAttackClip;
+        public MotionClipInfo[] heavyAttackClip;
+
+        public bool canAttack => !playerState.isAttack.state && !playerState.isHit.state;
+
+        private int comboNum = 0;
+
+        private IEnumerator runAttackMotionHandle = default;
+        private const float ATTACK_INPUT_BUFFER_TIME = .2f;
+        private WaitForSeconds attackInputBufferDelay = new WaitForSeconds(ATTACK_INPUT_BUFFER_TIME);
+
+        public AttackMotion TryAttack(bool isHeavy)
+        {
+            AttackMotion result = new();
+            if (!canAttack)
+            {
+                result.success = false;
+                return result;
+            }
+
+            if (isHeavy)
+            {
+                comboNum %= heavyAttackClip.Length;
+                result.motionName = $"{HEAVY_ATTACK_NAME_BASE}_{comboNum}";
+                result.duration = heavyAttackClip[comboNum].originDuration;
+                result.motionActiveTime = heavyAttackClip[comboNum].duration;
+
+                result.hitInfos = new HitInfo[1] { new()
+                {
+                    damaged = 2,
+                    weight = 2,
+                    attackType = AttackType.GENERIC
+                }};
+            }
+            else
+            {
+                comboNum %= lightAttackClip.Length;
+                result.motionName = $"{LIGHT_ATTACK_NAME_BASE}_{comboNum}";
+                result.duration = lightAttackClip[comboNum].originDuration;
+                result.motionActiveTime = lightAttackClip[comboNum].duration;
+
+                result.hitInfos = new HitInfo[1] { new()
+                {
+                    damaged = 1,
+                    weight = 1,
+                    attackType = AttackType.GENERIC
+                }};
+            }
+
+            result.success = true;
             return result;
         }
 
-        if (isHeavy)
+        public void SetAttackMotion(float motionDuration)
         {
-            comboNum %= heavyAttackClip.Length;
-            result.motionName = $"{HEAVY_ATTACK_NAME_BASE}_{comboNum}";
-            result.duration = heavyAttackClip[comboNum].originDuration;
-            result.motionActiveTime = heavyAttackClip[comboNum].duration;
-        }
-        else
-        {
-            comboNum %= lightAttackClip.Length;
-            result.motionName = $"{LIGHT_ATTACK_NAME_BASE}_{comboNum}";
-            result.duration = lightAttackClip[comboNum].originDuration;
-            result.motionActiveTime = lightAttackClip[comboNum].duration;
+            comboNum++;
+            playerState.isAttack.state = true;
+            if (runAttackMotionHandle != null) StopCoroutine(runAttackMotionHandle);
+            StartCoroutine(runAttackMotionHandle = RunAttackMotion(motionDuration));
         }
 
-        result.success = true;
-        return result;
-    }
+        private IEnumerator RunAttackMotion(float sec)
+        {
+            yield return new WaitForSeconds(sec - ATTACK_INPUT_BUFFER_TIME);
+            playerState.isAttack.state = false;
+            yield return attackInputBufferDelay;
 
-    public void SetAttackMotion(float motionDuration)
-    {
-        comboNum++;
-        playerState.isAttack.state = true;
-        if (runAttackMotionHandle != null) StopCoroutine(runAttackMotionHandle);
-        StartCoroutine(runAttackMotionHandle = RunAttackMotion(motionDuration));
-    }
+            playerState.isMotion.state = false;
+        }
 
-    private IEnumerator RunAttackMotion(float sec)
-    {
-        yield return new WaitForSeconds(sec - ATTACK_INPUT_BUFFER_TIME);
-        playerState.isAttack.state = false;
-        yield return attackInputBufferDelay;
+        public void SetWeaponActive(bool set)
+        {
+            //피격 연산은 상대측에서 방어 성공여부와 함께 진행합니다.
+            if (hasInputAuthority.Invoke() == true) return;
+            this.weapon.SetCollisionActive(set);
+        }
 
-        playerState.isMotion.state = false;
-    }
+        public void SetHitInfo(HitInfo[] hitInfos)
+        {
+            this.currAttackMotionHitInfos = hitInfos;
+        }
 
-    public void SetWeaponActive(bool set)
-    {
-        if (hasInputAuthority.Invoke() == false) return;
-        this.weapon.SetCollisionActive(set);
+        public void HitEventListener(CollisionInfos collisionInfo)
+        {
+            Debug.Log($"Test - collisionEvent: {collisionInfo.collisionInfos[0].hitObject.name}");
+            foreach (var info in collisionInfo.collisionInfos)
+            {
+                info.hitObject.OnHitEvent(currAttackMotionHitInfos[0]);
+            }
+        }
     }
 }

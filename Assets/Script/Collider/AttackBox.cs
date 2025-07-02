@@ -9,30 +9,31 @@ namespace Physics
     {
         public override PhysicsType physicsType => PhysicsType.ATTACK;
 
-        public Guid ignoreUid { get; private set; }
-        public List<Guid> checkedHitableUIDs { get; private set; }
+        public HashSet<Guid> ignoreUid { get; private set; }
+        public HashSet<Guid> checkedHitableUIDs { get; private set; }
 
-        private Action<HitInfos> hitEvent;
+        private Action<CollisionInfos> hitEvent;
 
-        public override void Initialize(Action<HitInfos> hitEvent = null)
+        public void Initialize(Action<CollisionInfos> hitEvent = null)
         {
-            base.Initialize(hitEvent);
+            base.Initialize();
 
+            ignoreUid = new();
             checkedHitableUIDs = new();
             this.hitEvent = hitEvent;
         }
 
-        public void SetIgnoreUid(PhysicsObject ignorePhysics)
+        public void AddIgnoreUid(PhysicsObject ignorePhysics)
         {
-            ignoreUid = ignorePhysics.uid;
+            ignoreUid.Add(ignorePhysics.uid);
         }
 
-        public void OnCollisionEvent(HitInfos hitInfos)
+        public void OnCollisionEvent(CollisionInfos hitInfos)
         {
-            if (hitInfos.hitInfos.Count == 0) return;
+            if (hitInfos.collisionInfos.Count == 0) return;
             this.hitEvent?.Invoke(hitInfos);
 
-            foreach (var hitInfo in hitInfos.hitInfos)
+            foreach (var hitInfo in hitInfos.collisionInfos)
             {
                 checkedHitableUIDs.Add(hitInfo.hitObject.uid);
             }

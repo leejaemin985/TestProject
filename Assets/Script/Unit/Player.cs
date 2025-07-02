@@ -1,143 +1,149 @@
 using Fusion;
 using Fusion.Addons.SimpleKCC;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Unit;
 using UnityEngine;
 
-
-public class PlayerState
+namespace Unit
 {
-    public State isMotion { get; private set; }
-
-    public State isJump { get; private set; }
-
-    public State isAttack { get; private set; }
-
-    public State isHit {  get; private set; }
-
-    public PlayerState()
+    public class PlayerState
     {
-        isMotion = new("isMotion");
+        public State isMotion { get; private set; }
 
-        isJump = new("isJump");
+        public State isJump { get; private set; }
 
-        isAttack = new("isAttack");
+        public State isAttack { get; private set; }
 
-        isHit = new("isHit");
-    }
-}
+        public State isHit { get; private set; }
 
-
-public class Player : NetworkBehaviour
-{
-    [SerializeField] private SimpleKCC cc;
-    [SerializeField] private PlayerAnimController animController;
-    [SerializeField] private PlayerCam playerCam;
-    [SerializeField] private PlayerAttack attackController;
-    [SerializeField] private PlayerHit hitController;
-
-    [SerializeField] private Katana weapon;
-    [SerializeField] private PlayerAnimEventer animEventer;
-
-    private PlayerState playerState = new();
-
-    private float moveSpeed = 65f;
-
-    private IEnumerator CamSettingHandle = default;
-
-    private NetworkButtons prevInput;
-
-    private void Start() => Initialize();
-    
-    private void Initialize()
-    {
-        StartCamSet();
-        hitController.Initialize();
-        animController.Initialize(playerState);
-        attackController.Initialized(IsHasInputAuthority, playerState, animController.Play, weapon, hitController.GetPhysicsBox());
-        animEventer.Initialize(attackController.SetWeaponActive);
-    }
-
-    private bool IsHasInputAuthority()
-    {
-        return HasInputAuthority;
-    }
-
-
-    [Networked]
-    public Vector2 moveAnimTargetDir { get; set; }
-
-
-    [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
-    public void RPC_OnAttackEvent(string motionName, float motionActiveTime, float motionDuration, int tick)
-    {
-        int tickOffset = Runner.Tick - tick;
-        float latency = tickOffset * Runner.DeltaTime;
-
-        attackController.SetAttackMotion(motionActiveTime);
-        animController.Play(motionName, PlayerAnimController.PlayerAnimLayer.ATTACK, latency);
-    }
-
-
-    public override void Render()
-    {
-        animController.SetMoveAnimDirection(moveAnimTargetDir);
-    }
-
-    public override void FixedUpdateNetwork()
-    {
-        if (GetInput<PlayerInputData>(out var input) == false) return;
-
-        SetPlayerMoveAndRotate(input.Move);
-
-        if (input.buttons.WasPressed(prevInput, InputButton.LightAttack) == true && attackController.canAttack)
+        public PlayerState()
         {
-            var attackMotion = attackController.TryAttack(false);
-            if (attackMotion.success)
-                RPC_OnAttackEvent(attackMotion.motionName, attackMotion.motionActiveTime, attackMotion.duration, Runner.Tick);
+            isMotion = new("isMotion");
+
+            isJump = new("isJump");
+
+            isAttack = new("isAttack");
+
+            isHit = new("isHit");
         }
-        else if (input.buttons.WasPressed(prevInput, InputButton.HeavyAttack) == true && attackController.canAttack)
+    }
+
+
+    public class Player : Unit
+    {
+        [SerializeField] private SimpleKCC cc;
+        [SerializeField] private PlayerAnimController animController;
+        [SerializeField] private PlayerCam playerCam;
+        [SerializeField] private PlayerAttack attackController;
+        [SerializeField] private PlayerHit hitController;
+        [SerializeField] private Katana weapon;
+        [SerializeField] private PlayerAnimEventer animEventer;
+
+        private PlayerState playerState = new();
+
+        private float moveSpeed = 65f;
+
+        private IEnumerator CamSettingHandle = default;
+
+        private NetworkButtons prevInput;
+
+        private void Start() => Initialize();
+
+        private void Initialize()
         {
-            var attackMotion = attackController.TryAttack(true);
-            if (attackMotion.success)
-                RPC_OnAttackEvent(attackMotion.motionName, attackMotion.motionActiveTime, attackMotion.duration, Runner.Tick);
+            StartCamSet();
+            hitController.Initialize((info) => Debug.Log($"Test - info damaged: {info.damaged}"));
+            animController.Initialize(playerState);
+            attackController.Initialized(IsHasInputAuthority, playerState, animController.Play, weapon, hitController.GetPhysicsBox());
+            animEventer.Initialize(attackController.SetWeaponActive);
         }
 
-        prevInput = input.buttons;
-    }
-
-
-    private void SetPlayerMoveAndRotate(Vector3 inputDir)
-    {
-        if (playerState.isMotion.state) return;
-
-        Vector3 moveDir = new Vector3(inputDir.x, 0, inputDir.y).normalized;
-
-        moveAnimTargetDir = new Vector2(moveDir.x, moveDir.z);
-
-        moveDir = Camera.main.transform.TransformDirection(moveDir).normalized;
-        if (moveDir.magnitude > .1f)
+        private bool IsHasInputAuthority()
         {
-            cc.SetLookRotation(Quaternion.Slerp(transform.rotation, Camera.main.transform.rotation, 10 * Runner.DeltaTime));
+            return HasInputAuthority;
         }
-        cc.Move(moveDir * moveSpeed * Runner.DeltaTime);
-    }
 
-    #region Cam
-    private void StartCamSet()
-    {
-        if (CamSettingHandle != null) StopCoroutine(CamSettingHandle);
-        StartCoroutine(CamSettingHandle = CamSetting());
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-    }
+        [Networked]
+        public Vector2 moveAnimTargetDir { get; set; }
 
-    private IEnumerator CamSetting()
-    {
-        if (HasInputAuthority == false) yield break;
-        yield return new WaitUntil(() => Runner.IsRunning);
 
-        playerCam.SetCam();
+        [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+        public void RPC_OnAttackEvent(string motionName, float motionActiveTime, float motionDuration, int tick, HitInfo[] hitInfos)
+        {
+            int tickOffset = Runner.Tick - tick;
+            float latency = tickOffset * Runner.DeltaTime;
+
+            attackController.SetAttackMotion(motionActiveTime);
+            animController.Play(motionName, PlayerAnimController.PlayerAnimLayer.ATTACK, latency);
+
+            attackController.SetHitInfo(hitInfos);
+
+            Debug.Log($"Test - hitInfos: {hitInfos.Length}");
+        }
+
+
+        public override void Render()
+        {
+            animController.SetMoveAnimDirection(moveAnimTargetDir);
+        }
+
+        public override void FixedUpdateNetwork()
+        {
+            if (GetInput<PlayerInputData>(out var input) == false) return;
+
+            SetPlayerMoveAndRotate(input.Move);
+
+            if (input.buttons.WasPressed(prevInput, InputButton.LightAttack) == true && attackController.canAttack)
+            {
+                var attackMotion = attackController.TryAttack(false);
+                if (attackMotion.success)
+                    RPC_OnAttackEvent(attackMotion.motionName, attackMotion.motionActiveTime, attackMotion.duration, Runner.Tick, attackMotion.hitInfos);
+            }
+            else if (input.buttons.WasPressed(prevInput, InputButton.HeavyAttack) == true && attackController.canAttack)
+            {
+                var attackMotion = attackController.TryAttack(true);
+                if (attackMotion.success)
+                    RPC_OnAttackEvent(attackMotion.motionName, attackMotion.motionActiveTime, attackMotion.duration, Runner.Tick, attackMotion.hitInfos);
+            }
+
+            prevInput = input.buttons;
+        }
+
+
+        private void SetPlayerMoveAndRotate(Vector3 inputDir)
+        {
+            if (playerState.isMotion.state) return;
+
+            Vector3 moveDir = new Vector3(inputDir.x, 0, inputDir.y).normalized;
+
+            moveAnimTargetDir = new Vector2(moveDir.x, moveDir.z);
+
+            moveDir = Camera.main.transform.TransformDirection(moveDir).normalized;
+            if (moveDir.magnitude > .1f)
+            {
+                cc.SetLookRotation(Quaternion.Slerp(transform.rotation, Camera.main.transform.rotation, 10 * Runner.DeltaTime));
+            }
+            cc.Move(moveDir * moveSpeed * Runner.DeltaTime);
+        }
+
+        #region Cam
+        private void StartCamSet()
+        {
+            if (CamSettingHandle != null) StopCoroutine(CamSettingHandle);
+            StartCoroutine(CamSettingHandle = CamSetting());
+            //Cursor.lockState = CursorLockMode.Locked;
+            //Cursor.visible = false;
+        }
+
+        private IEnumerator CamSetting()
+        {
+            if (HasInputAuthority == false) yield break;
+            yield return new WaitUntil(() => Runner.IsRunning);
+
+            playerCam.SetCam();
+        }
+        #endregion
     }
-    #endregion
 }

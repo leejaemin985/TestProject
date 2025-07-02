@@ -6,20 +6,20 @@ using UnityEngine;
 namespace Unit
 {
     [Serializable]
-    public class HitInfos
+    public class CollisionInfos
     {
-        public List<HitInfoData> hitInfos;
-        public HitInfos()
+        public List<CollisionInfoData> collisionInfos;
+        public CollisionInfos()
         {
-            hitInfos = new();
+            collisionInfos = new();
         }
     }
 
 
     [Serializable]
-    public class HitInfoData
+    public class CollisionInfoData
     {
-        public PhysicsObject hitObject;
+        public HitBox hitObject;
         public Vector3 hitPoint;
         public float sweepProgress;
     }
