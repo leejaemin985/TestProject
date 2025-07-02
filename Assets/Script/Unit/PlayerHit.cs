@@ -11,14 +11,17 @@ namespace Unit
         private PlayerState playerState;
         private Action stopAttackMotion;
 
+        private Action<string, float> playerHitMotionSync;
+
         private IEnumerator hitMotionHandle;
 
-        public void Initialize(PlayerState playerState, Action<HitInfo> hitEvent, Action stopAttackMotion)
+        public void Initialize(PlayerState playerState, Action<string, float> onHitMotionSync, Action stopAttackMotion)
         {
             this.playerState = playerState;
             this.stopAttackMotion = stopAttackMotion;
+            this.playerHitMotionSync = onHitMotionSync;
 
-            hitBox.Initialize(hitEvent);
+            hitBox.Initialize(PlayerHitEvent);
             hitBox.SetActive(true);
         }
 
@@ -52,6 +55,14 @@ namespace Unit
         {
             yield return new WaitForSeconds(sec);
             playerState.isHit.state = false;
+        }
+
+        private void PlayerHitEvent(HitInfo hitInfo)
+        {
+            //ToDo
+            //HitInfo의 따라 다양한 모션 구사
+
+            playerHitMotionSync?.Invoke("_HitF", 1);
         }
     }
 }

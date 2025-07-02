@@ -50,7 +50,7 @@ namespace Unit
 
         private float moveSpeed = 65f;
         private float walkSpeed = 65f;
-        private float dashSpeed = 130f;
+        private float dashSpeed = 150f;
         private float moveSpeedChangedSpeed = 10f;
 
         private IEnumerator CamSettingHandle = default;
@@ -62,7 +62,7 @@ namespace Unit
         private void Initialize()
         {
             StartCamSet();
-            hitController.Initialize(playerState, HitMotionTest, attackController.StopAttackMotion);
+            hitController.Initialize(playerState, OnHitMotionSync, attackController.StopAttackMotion);
             animController.Initialize(playerState);
             attackController.Initialized(IsHasInputAuthority, playerState, animController.Play, weapon, hitController.GetPhysicsBox());
             animEventer.Initialize(attackController.SetWeaponActive);
@@ -73,9 +73,9 @@ namespace Unit
             return HasInputAuthority;
         }
 
-        private void HitMotionTest(HitInfo hitInfo)
+        private void OnHitMotionSync(string hitMotionName, float motionActiveTime)
         {
-            RPC_OnHitMotionEvent("_HitF", 0, cachedTick);
+            RPC_OnHitMotionEvent(hitMotionName, 0, cachedTick);
         }
 
         [Networked]
@@ -104,7 +104,6 @@ namespace Unit
 
             hitController.OnHitMotion(1);
             animController.Play(motionName, PlayerAnimController.PlayerAnimLayer.HIT, latency);
-
         }
 
         public override void Render()
@@ -173,6 +172,8 @@ namespace Unit
 
         private void SetMoveSpeed(float targetSpeed, float lerpSpeed)
         {
+            if (moveDir.magnitude < .1f) return;
+
             moveSpeed = Mathf.Lerp(moveSpeed, targetSpeed, lerpSpeed * Runner.DeltaTime);
 
             //runWeight값에 따라 이동애니메이션이 설정됩니다.

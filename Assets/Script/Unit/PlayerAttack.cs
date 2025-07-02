@@ -82,6 +82,8 @@ namespace Unit
         public bool canAttack => !playerState.isAttack.state && !playerState.isHit.state;
 
         private int comboNum = 0;
+        private const float COMBO_INPUT_WINDOW_DURATION = .5f;
+        private IEnumerator comboWindowHandle = default;
 
         private IEnumerator runAttackMotionHandle = default;
         private const float ATTACK_INPUT_BUFFER_TIME = .2f;
@@ -133,6 +135,15 @@ namespace Unit
             playerState.isAttack.state = true;
             if (runAttackMotionHandle != null) StopCoroutine(runAttackMotionHandle);
             StartCoroutine(runAttackMotionHandle = RunAttackMotion(motionDuration));
+
+            if (comboWindowHandle != null) StopCoroutine(comboWindowHandle);
+            StartCoroutine(comboWindowHandle = ComboWindowCounter(motionDuration));
+        }
+
+        private IEnumerator ComboWindowCounter(float motionDuration)
+        {
+            yield return new WaitForSeconds(motionDuration + COMBO_INPUT_WINDOW_DURATION);
+            comboNum = 0;
         }
 
         private IEnumerator RunAttackMotion(float sec)
@@ -158,7 +169,6 @@ namespace Unit
 
         public void HitEventListener(CollisionInfos collisionInfo)
         {
-            Debug.Log($"Test - collisionEvent: {collisionInfo.collisionInfos[0].hitObject.name}");
             foreach (var info in collisionInfo.collisionInfos)
             {
                 info.hitObject.OnHitEvent(currAttackMotionHitInfos[0]);

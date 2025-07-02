@@ -15,8 +15,6 @@ namespace Physics
 
         public override PhysicsType physicsType => PhysicsType.HITABLE;
 
-        //protected override IPhysicsShape CalculatePhysicsShape() => currPhysicsShape;
-
         public void OnHitEvent(HitInfo hitInfo) => hitEvent?.Invoke(hitInfo);
     }
 }
