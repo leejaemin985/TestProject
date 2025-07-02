@@ -35,6 +35,7 @@ namespace Unit
         }
 
         private float attackMotionLayerWeight = 0f;
+        private float hitMotionLayerWeight = 0f;
 
         public void Update()
         {
@@ -45,6 +46,7 @@ namespace Unit
             anim.SetFloat(KEYNAME_MOVE_VERTICAL, moveAnimDir.y);
 
             SetAttackMotionWeight();
+            SetHitMotionWeight();
         }
 
         public void SetMoveAnimDirection(Vector2 dir) => targetMoveAnimDir = new Vector2(dir.x, dir.y).normalized;
@@ -73,6 +75,25 @@ namespace Unit
 
             attackMotionLayerWeight = Mathf.Lerp(attackMotionLayerWeight, targetWeight, lerpSpeed);
             anim.SetLayerWeight(anim.GetLayerIndex("AttackMotion"), attackMotionLayerWeight);
+        }
+
+        private void SetHitMotionWeight()
+        {
+            float targetWeight = 1;
+            float lerpSpeed = .1f;
+            if (playerState.isHit.state)
+            {
+                targetWeight = 1f;
+                lerpSpeed = .2f;
+            }
+            else
+            {
+                targetWeight = 0f;
+                lerpSpeed = .05f;
+            }
+
+            hitMotionLayerWeight = Mathf.Lerp(hitMotionLayerWeight, targetWeight, lerpSpeed);
+            anim.SetLayerWeight(anim.GetLayerIndex("HitMotion"), hitMotionLayerWeight);
         }
     }
 }

@@ -12,7 +12,6 @@ namespace Unit
     public class MotionClipInfo
     {
         public AnimationClip clip;
-        public float originDuration => clip.length;
         public float duration;
     }
 
@@ -101,7 +100,6 @@ namespace Unit
             {
                 comboNum %= heavyAttackClip.Length;
                 result.motionName = $"{HEAVY_ATTACK_NAME_BASE}_{comboNum}";
-                result.duration = heavyAttackClip[comboNum].originDuration;
                 result.motionActiveTime = heavyAttackClip[comboNum].duration;
 
                 result.hitInfos = new HitInfo[1] { new()
@@ -115,7 +113,6 @@ namespace Unit
             {
                 comboNum %= lightAttackClip.Length;
                 result.motionName = $"{LIGHT_ATTACK_NAME_BASE}_{comboNum}";
-                result.duration = lightAttackClip[comboNum].originDuration;
                 result.motionActiveTime = lightAttackClip[comboNum].duration;
 
                 result.hitInfos = new HitInfo[1] { new()

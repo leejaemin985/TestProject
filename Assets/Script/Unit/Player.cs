@@ -41,6 +41,8 @@ namespace Unit
         [SerializeField] private Katana weapon;
         [SerializeField] private PlayerAnimEventer animEventer;
 
+        private int cachedTick = 0;
+
         private PlayerState playerState = new();
 
         private float moveSpeed = 65f;
@@ -54,7 +56,7 @@ namespace Unit
         private void Initialize()
         {
             StartCamSet();
-            hitController.Initialize((info) => Debug.Log($"Test - info damaged: {info.damaged}"));
+            hitController.Initialize(playerState, HitMotionTest, attackController.StopAttackMotion);
             animController.Initialize(playerState);
             attackController.Initialized(IsHasInputAuthority, playerState, animController.Play, weapon, hitController.GetPhysicsBox());
             animEventer.Initialize(attackController.SetWeaponActive);
@@ -65,12 +67,17 @@ namespace Unit
             return HasInputAuthority;
         }
 
+        private void HitMotionTest(HitInfo hitInfo)
+        {
+            RPC_OnHitMotionEvent("_HitF", 0, cachedTick);
+        }
+
         [Networked]
         public Vector2 moveAnimTargetDir { get; set; }
 
 
         [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
-        public void RPC_OnAttackEvent(string motionName, float motionActiveTime, float motionDuration, int tick, HitInfo[] hitInfos)
+        public void RPC_OnAttackEvent(string motionName, float motionActiveTime, int tick, HitInfo[] hitInfos)
         {
             int tickOffset = Runner.Tick - tick;
             float latency = tickOffset * Runner.DeltaTime;
@@ -79,10 +86,18 @@ namespace Unit
             animController.Play(motionName, PlayerAnimController.PlayerAnimLayer.ATTACK, latency);
 
             attackController.SetHitInfo(hitInfos);
-
-            Debug.Log($"Test - hitInfos: {hitInfos.Length}");
         }
 
+        [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+        public void RPC_OnHitMotionEvent(string motionName, float motionActiveTime, int tick)
+        {
+            int tickOffset = Runner.Tick - tick;
+            float latency = tickOffset * Runner.DeltaTime;
+
+            hitController.OnHitMotion(1);
+            animController.Play(motionName, PlayerAnimController.PlayerAnimLayer.HIT, latency);
+
+        }
 
         public override void Render()
         {
@@ -91,6 +106,7 @@ namespace Unit
 
         public override void FixedUpdateNetwork()
         {
+            cachedTick = Runner.Tick;
             if (GetInput<PlayerInputData>(out var input) == false) return;
 
             SetPlayerMoveAndRotate(input.Move);
@@ -99,13 +115,13 @@ namespace Unit
             {
                 var attackMotion = attackController.TryAttack(false);
                 if (attackMotion.success)
-                    RPC_OnAttackEvent(attackMotion.motionName, attackMotion.motionActiveTime, attackMotion.duration, Runner.Tick, attackMotion.hitInfos);
+                    RPC_OnAttackEvent(attackMotion.motionName, attackMotion.motionActiveTime, Runner.Tick, attackMotion.hitInfos);
             }
             else if (input.buttons.WasPressed(prevInput, InputButton.HeavyAttack) == true && attackController.canAttack)
             {
                 var attackMotion = attackController.TryAttack(true);
                 if (attackMotion.success)
-                    RPC_OnAttackEvent(attackMotion.motionName, attackMotion.motionActiveTime, attackMotion.duration, Runner.Tick, attackMotion.hitInfos);
+                    RPC_OnAttackEvent(attackMotion.motionName, attackMotion.motionActiveTime, Runner.Tick, attackMotion.hitInfos);
             }
 
             prevInput = input.buttons;
