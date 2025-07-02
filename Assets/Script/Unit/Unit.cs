@@ -3,11 +3,8 @@ using Fusion;
 
 namespace Unit
 {
-    public class Unit : NetworkBehaviour/*, IHittable*/
+    public class Unit : NetworkBehaviour
     {
-        //public void OnDamaged(HitInfo hitInfo)
-        //{
 
-        //}
     }
 }

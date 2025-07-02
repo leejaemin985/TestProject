@@ -1,12 +1,6 @@
 using Fusion;
 using System;
 
-interface IHittable
-{
-    public void OnDamaged(HitInfo hitInfo);
-
-}
-
 public enum AttackType
 {
     NONE,

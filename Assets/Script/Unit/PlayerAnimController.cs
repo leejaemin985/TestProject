@@ -15,6 +15,7 @@ namespace Unit
 
         private const string KEYNAME_MOVE_HORIZONTAL = "_Horizontal";
         private const string KEYNAME_MOVE_VERTICAL = "_Vertical";
+        private const string KEYNAME_RUN_WEIGHT = "_RunWeight";
 
         private Animator anim;
 
@@ -22,6 +23,7 @@ namespace Unit
 
         private Vector2 targetMoveAnimDir = default;
         private Vector2 moveAnimDir = default;
+        private float runAnimWeight = default;
         private float curveSpeed = 10f;
 
         private bool initialized = false;
@@ -44,12 +46,17 @@ namespace Unit
             moveAnimDir = Vector2.Lerp(moveAnimDir, targetMoveAnimDir, curveSpeed * Time.deltaTime);
             anim.SetFloat(KEYNAME_MOVE_HORIZONTAL, moveAnimDir.x);
             anim.SetFloat(KEYNAME_MOVE_VERTICAL, moveAnimDir.y);
+            anim.SetFloat(KEYNAME_RUN_WEIGHT, runAnimWeight);
 
             SetAttackMotionWeight();
             SetHitMotionWeight();
         }
 
-        public void SetMoveAnimDirection(Vector2 dir) => targetMoveAnimDir = new Vector2(dir.x, dir.y).normalized;
+        public void SetMoveAnimDirection(Vector2 dir, float runWeight)
+        {
+            targetMoveAnimDir = new Vector2(dir.x, dir.y).normalized;
+            runAnimWeight = runWeight;
+        }
 
         public void Play(string animName) => anim.Play(animName, 0, 0);
 

@@ -397,6 +397,8 @@ namespace Physics
             };
         }
 
+        protected virtual IPhysicsShape CalculatePhysicsShape() => currPhysicsShape.ComputeSweptVolume(prevPhysicsShape);
+
         private void SyncShape()
         {
             if (currPhysicsShape == null ||
@@ -408,7 +410,7 @@ namespace Physics
                 prevPhysicsShape = CreateShape(physicsShapeType);
             }
             currPhysicsShape.UpdateFromTransform(transform);
-            physicsShape = currPhysicsShape.ComputeSweptVolume(prevPhysicsShape);
+            physicsShape = CalculatePhysicsShape();
             prevPhysicsShape.CopyFrom(currPhysicsShape);
         }
 

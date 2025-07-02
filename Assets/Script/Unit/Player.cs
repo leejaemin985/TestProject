@@ -45,7 +45,13 @@ namespace Unit
 
         private PlayerState playerState = new();
 
+        private Vector3 moveDir = default;
+        private Quaternion lookRot = default;
+
         private float moveSpeed = 65f;
+        private float walkSpeed = 65f;
+        private float dashSpeed = 130f;
+        private float moveSpeedChangedSpeed = 10f;
 
         private IEnumerator CamSettingHandle = default;
 
@@ -75,6 +81,8 @@ namespace Unit
         [Networked]
         public Vector2 moveAnimTargetDir { get; set; }
 
+        [Networked]
+        public float runWeight { get; set; }
 
         [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
         public void RPC_OnAttackEvent(string motionName, float motionActiveTime, int tick, HitInfo[] hitInfos)
@@ -101,15 +109,23 @@ namespace Unit
 
         public override void Render()
         {
-            animController.SetMoveAnimDirection(moveAnimTargetDir);
+            animController.SetMoveAnimDirection(moveAnimTargetDir, runWeight);
         }
 
         public override void FixedUpdateNetwork()
         {
             cachedTick = Runner.Tick;
+
             if (GetInput<PlayerInputData>(out var input) == false) return;
 
-            SetPlayerMoveAndRotate(input.Move);
+            if (playerState.isMotion.state == false)
+            {
+                SetPlayerMoveAndRotate(input.Move);
+
+                SetMoveSpeed(
+                    input.buttons.IsSet(InputButton.Dash) ? dashSpeed : walkSpeed,
+                    moveSpeedChangedSpeed);
+            }
 
             if (input.buttons.WasPressed(prevInput, InputButton.LightAttack) == true && attackController.canAttack)
             {
@@ -124,33 +140,54 @@ namespace Unit
                     RPC_OnAttackEvent(attackMotion.motionName, attackMotion.motionActiveTime, Runner.Tick, attackMotion.hitInfos);
             }
 
+            ApplyPlayerMove();
+
             prevInput = input.buttons;
         }
 
 
-        private void SetPlayerMoveAndRotate(Vector3 inputDir)
+        private void SetPlayerMoveAndRotate(Vector2 input)
         {
-            if (playerState.isMotion.state) return;
+            //애니메이션 방향 설정
+            moveAnimTargetDir = input;
 
-            Vector3 moveDir = new Vector3(inputDir.x, 0, inputDir.y).normalized;
+            Vector3 inputDir = new Vector3(input.x, 0, input.y);
+            
+            inputDir = Camera.main.transform.TransformDirection(inputDir);
+            inputDir.y = 0;
+            inputDir.Normalize();
 
-            moveAnimTargetDir = new Vector2(moveDir.x, moveDir.z);
-
-            moveDir = Camera.main.transform.TransformDirection(moveDir).normalized;
-            if (moveDir.magnitude > .1f)
+            if (inputDir.magnitude > 0.1f)
             {
-                cc.SetLookRotation(Quaternion.Slerp(transform.rotation, Camera.main.transform.rotation, 10 * Runner.DeltaTime));
+                lookRot = Quaternion.Slerp(transform.rotation, Camera.main.transform.rotation, 10 * Runner.DeltaTime);
             }
+
+            moveDir = inputDir;
+        }
+
+        private void ApplyPlayerMove()
+        {
+            cc.SetLookRotation(lookRot);
             cc.Move(moveDir * moveSpeed * Runner.DeltaTime);
         }
+
+        private void SetMoveSpeed(float targetSpeed, float lerpSpeed)
+        {
+            moveSpeed = Mathf.Lerp(moveSpeed, targetSpeed, lerpSpeed * Runner.DeltaTime);
+
+            //runWeight값에 따라 이동애니메이션이 설정됩니다.
+            float ratio = Mathf.InverseLerp(walkSpeed, dashSpeed, moveSpeed);
+            runWeight = Mathf.Lerp(1f, 2f, ratio);
+        }
+
 
         #region Cam
         private void StartCamSet()
         {
             if (CamSettingHandle != null) StopCoroutine(CamSettingHandle);
             StartCoroutine(CamSettingHandle = CamSetting());
-            //Cursor.lockState = CursorLockMode.Locked;
-            //Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
 
         private IEnumerator CamSetting()

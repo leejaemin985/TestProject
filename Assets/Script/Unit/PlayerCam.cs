@@ -8,8 +8,8 @@ public class PlayerCam : MonoBehaviour
     [SerializeField] private Transform camAngle;
     [SerializeField] private Transform camPos;
 
-    [SerializeField] private float pitchMin = -45f;
-    [SerializeField] private float pitchMax = 60f;
+    [SerializeField] private float pitchMin = -100f;
+    [SerializeField] private float pitchMax = 100f;
 
     private float row = 0f;
     private float yaw = 0f;
