@@ -14,7 +14,8 @@ public enum InputButton
 {
     LightAttack,
     HeavyAttack,
-    Dash
+    Dash,
+    Defense
 }
 
 
@@ -40,7 +41,8 @@ public class InputHandle : MonoBehaviour, INetworkRunnerCallbacks
         
         if (Input.GetKey(KeyCode.Mouse0)) data.buttons.Set((int)InputButton.LightAttack, true);
 
-        if (Input.GetKey(KeyCode.Mouse1)) data.buttons.Set((int)InputButton.HeavyAttack, true);
+        //if (Input.GetKey(KeyCode.Mouse1)) data.buttons.Set((int)InputButton.HeavyAttack, true);
+        if (Input.GetKey(KeyCode.Mouse1)) data.buttons.Set((int)InputButton.Defense, true);
 
         if (Input.GetKey(KeyCode.LeftShift)) data.buttons.Set((int)InputButton.Dash, true);
 

@@ -1,5 +1,6 @@
 using Fusion;
 using Fusion.Addons.SimpleKCC;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,8 @@ namespace Unit
 
         public State isJump { get; private set; }
 
+        public State isDefense { get; private set; }
+
         public State isAttack { get; private set; }
 
         public State isHit { get; private set; }
@@ -24,6 +27,8 @@ namespace Unit
 
             isJump = new("isJump");
 
+            isDefense = new("isDefense");
+
             isAttack = new("isAttack");
 
             isHit = new("isHit");
@@ -33,6 +38,18 @@ namespace Unit
 
     public class Player : Unit
     {
+        private static List<Player> registeredPlayer = new();
+        private static Player GetOtherPlayer(Player user)
+        {
+            foreach (var otherUser in registeredPlayer)
+            {
+                if (otherUser.uid != user.uid) return otherUser;
+            }
+            return null;
+        }
+        
+        public Guid uid { get; private set; }
+
         [SerializeField] private SimpleKCC cc;
         [SerializeField] private PlayerAnimController animController;
         [SerializeField] private PlayerCam playerCam;
@@ -61,11 +78,44 @@ namespace Unit
 
         private void Initialize()
         {
+            uid = Guid.NewGuid();
+            registeredPlayer.Add(this);
+
             StartCamSet();
-            hitController.Initialize(playerState, OnHitMotionSync, attackController.StopAttackMotion);
+            hitController.Initialize(IsHasInputAuthority, playerState, OnHitMotionSync, attackController.StopAttackMotion, attackController.SetHitImmuneFlag, attackController.GetCurrAttackTick);
             animController.Initialize(playerState);
-            attackController.Initialized(IsHasInputAuthority, playerState, animController.Play, weapon, hitController.GetPhysicsBox());
-            animEventer.Initialize(attackController.SetWeaponActive);
+            attackController.Initialized(
+                IsHasInputAuthority,
+                playerState,
+                animController.Play,
+                weapon,
+                hitController.GetPhysicsBox(),
+                SetRot,
+                () => GetOtherPlayer(this));
+
+            animEventer.Initialize(attackController.SetWeaponActive, SetMoveDir);
+
+            SetState();
+
+            //TestCode=======================================================
+            if (testAttackHandle != null) StopCoroutine(testAttackHandle);
+            StartCoroutine(testAttackHandle = TestAttack());
+        }
+
+        private void SetState()
+        {
+            playerState.isMotion.AddStateOnListener(OnMotionState);
+            playerState.isMotion.AddStateOffListener(OffMotionState);
+        }
+
+        private void OnMotionState()
+        {
+            moveSpeed = walkSpeed;
+        }
+
+        private void OffMotionState()
+        {
+
         }
 
         private bool IsHasInputAuthority()
@@ -79,20 +129,21 @@ namespace Unit
         }
 
         [Networked]
-        public Vector2 moveAnimTargetDir { get; set; }
+        private Vector2 moveAnimTargetDir { get; set; }
 
         [Networked]
-        public float runWeight { get; set; }
+        private float runWeight { get; set; }
 
         [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
-        public void RPC_OnAttackEvent(string motionName, float motionActiveTime, int tick, HitInfo[] hitInfos)
+        public void RPC_OnAttackEvent(string motionName, float motionActiveTime, int startTick, int firstAttackTick, HitInfo[] hitInfos)
         {
-            int tickOffset = Runner.Tick - tick;
+            int tickOffset = Runner.Tick - startTick;
             float latency = tickOffset * Runner.DeltaTime;
 
-            attackController.SetAttackMotion(motionActiveTime);
+            attackController.SetAttackMotion(motionActiveTime, firstAttackTick);
             animController.Play(motionName, PlayerAnimController.PlayerAnimLayer.ATTACK, latency);
 
+            for (int index = 0, max = hitInfos.Length; index < max; ++index) hitInfos[index].attackTick = firstAttackTick;
             attackController.SetHitInfo(hitInfos);
         }
 
@@ -102,7 +153,7 @@ namespace Unit
             int tickOffset = Runner.Tick - tick;
             float latency = tickOffset * Runner.DeltaTime;
 
-            hitController.OnHitMotion(1);
+            hitController.OnHitMotion(1f);
             animController.Play(motionName, PlayerAnimController.PlayerAnimLayer.HIT, latency);
         }
 
@@ -110,6 +161,23 @@ namespace Unit
         {
             animController.SetMoveAnimDirection(moveAnimTargetDir, runWeight);
         }
+
+        private bool isTestAttack = false;
+        private IEnumerator testAttackHandle = default;
+        private IEnumerator TestAttack()
+        {
+            float defaultTimer = 3;
+            float coolTime = 5;
+            while (true)
+            {
+                isTestAttack = true;
+                yield return new WaitForSeconds(defaultTimer);
+                isTestAttack = false;
+                yield return new WaitForSeconds(coolTime);
+            }
+        }
+
+
 
         public override void FixedUpdateNetwork()
         {
@@ -126,17 +194,27 @@ namespace Unit
                     moveSpeedChangedSpeed);
             }
 
-            if (input.buttons.WasPressed(prevInput, InputButton.LightAttack) == true && attackController.canAttack)
+            if (input.buttons.WasPressed(prevInput, InputButton.LightAttack) == true && attackController.canAttack) 
             {
                 var attackMotion = attackController.TryAttack(false);
                 if (attackMotion.success)
-                    RPC_OnAttackEvent(attackMotion.motionName, attackMotion.motionActiveTime, Runner.Tick, attackMotion.hitInfos);
+                    RPC_OnAttackEvent(
+                        attackMotion.motionName,
+                        attackMotion.motionActiveTime,
+                        Runner.Tick,
+                        Runner.Tick + Mathf.RoundToInt(attackMotion.firstAttackTime / Runner.DeltaTime),
+                        attackMotion.hitInfos);
             }
-            else if (input.buttons.WasPressed(prevInput, InputButton.HeavyAttack) == true && attackController.canAttack)
+            //else if (input.buttons.WasPressed(prevInput, InputButton.HeavyAttack) == true && attackController.canAttack)
+            //{
+            //    var attackMotion = attackController.TryAttack(true);
+            //    if (attackMotion.success)
+            //        RPC_OnAttackEvent(attackMotion.motionName, attackMotion.motionActiveTime, Runner.Tick, attackMotion.hitInfos);
+            //}
+
+            if (input.buttons.IsSet(InputButton.Defense))
             {
-                var attackMotion = attackController.TryAttack(true);
-                if (attackMotion.success)
-                    RPC_OnAttackEvent(attackMotion.motionName, attackMotion.motionActiveTime, Runner.Tick, attackMotion.hitInfos);
+
             }
 
             ApplyPlayerMove();
@@ -170,6 +248,19 @@ namespace Unit
             cc.Move(moveDir * moveSpeed * Runner.DeltaTime);
         }
 
+        private void SetMoveDir(Vector2 inputDir, bool local = true)
+        {
+            Vector3 targetDir = new Vector3(inputDir.x, 0, inputDir.y);
+            if (local) targetDir = transform.TransformDirection(targetDir);
+
+            moveDir = targetDir;
+        }
+
+        private void SetRot(Quaternion targetRot)
+        {
+            lookRot = targetRot;
+        }
+
         private void SetMoveSpeed(float targetSpeed, float lerpSpeed)
         {
             if (moveDir.magnitude < .1f) return;
@@ -180,7 +271,6 @@ namespace Unit
             float ratio = Mathf.InverseLerp(walkSpeed, dashSpeed, moveSpeed);
             runWeight = Mathf.Lerp(1f, 2f, ratio);
         }
-
 
         #region Cam
         private void StartCamSet()

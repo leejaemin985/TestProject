@@ -13,4 +13,5 @@ public struct HitInfo : INetworkStruct
     public float damaged;
     public float weight;
     public AttackType attackType;
+    public int attackTick;
 };

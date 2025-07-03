@@ -13,6 +13,7 @@ namespace Unit
     {
         public AnimationClip clip;
         public float duration;
+        public float firstAttackTime;
     }
 
     public class PlayerAttack : MonoBehaviour
@@ -20,6 +21,11 @@ namespace Unit
         private Func<bool> hasInputAuthority;
         private PlayerState playerState;
         private Action<string> SetAttackAnimEvent;
+        private Action<Quaternion> SetRotAction;
+        private Func<Player> FindEnemyUnit;
+
+        private bool hitImmuneFlag = true;
+        private int currAttackTick = 0;
 
         private Katana weapon;
 
@@ -30,18 +36,21 @@ namespace Unit
             public string motionName;
             public float duration;
             public float motionActiveTime;
+            public float firstAttackTime;
             public bool success;
 
             public HitInfo[] hitInfos;
         }
 
-        public void Initialized(Func<bool> hasAuthority, PlayerState playerState, Action<string> setAttackAnim, Katana weapon, PhysicsObject playerHitBox)
+        public void Initialized(Func<bool> hasInputAuthority, PlayerState playerState, Action<string> setAttackAnim, Katana weapon, PhysicsObject playerHitBox, Action<Quaternion> setRotAction, Func<Player> findEnemyUnit)
         {
-            this.hasInputAuthority = hasAuthority;
+            this.hasInputAuthority = hasInputAuthority;
             this.playerState = playerState;
             this.SetAttackAnimEvent = setAttackAnim;
             this.weapon = weapon;
             this.weapon.Initialize(HitEventListener, playerHitBox);
+            this.SetRotAction = setRotAction;
+            this.FindEnemyUnit = findEnemyUnit;
 
             SetState();
         }
@@ -79,7 +88,7 @@ namespace Unit
         public MotionClipInfo[] lightAttackClip;
         public MotionClipInfo[] heavyAttackClip;
 
-        public bool canAttack => !playerState.isAttack.state && !playerState.isHit.state;
+        public bool canAttack => !playerState.isAttack.state && !playerState.isHit.state;// && !playerState.isDefense.state;
 
         private int comboNum = 0;
         private const float COMBO_INPUT_WINDOW_DURATION = .5f;
@@ -123,16 +132,31 @@ namespace Unit
                     weight = 1,
                     attackType = AttackType.GENERIC
                 }};
+                result.firstAttackTime = lightAttackClip[comboNum].firstAttackTime;
             }
 
             result.success = true;
             return result;
         }
 
-        public void SetAttackMotion(float motionDuration)
+        public void SetAttackMotion(float motionDuration, int currAttackTick)
         {
             comboNum++;
             playerState.isAttack.state = true;
+
+            hitImmuneFlag = true;
+            this.currAttackTick = currAttackTick;
+
+            // LookAt Enemy
+            var detectedEnemy = FindEnemyUnit.Invoke();
+            if (detectedEnemy != null)
+            {
+                var dir = (detectedEnemy.transform.position - transform.position);
+                dir.y = 0;
+                if (dir.sqrMagnitude > 0.0001f)
+                    SetRotAction?.Invoke(Quaternion.LookRotation(dir.normalized));
+            }
+
             if (runAttackMotionHandle != null) StopCoroutine(runAttackMotionHandle);
             StartCoroutine(runAttackMotionHandle = RunAttackMotion(motionDuration));
 
@@ -155,10 +179,18 @@ namespace Unit
             playerState.isMotion.state = false;
         }
 
+        public void SetHitImmuneFlag(bool set) => hitImmuneFlag = set;
+
         public void SetWeaponActive(bool set)
         {
             //피격 연산은 상대측에서 방어 성공여부와 함께 진행합니다.
-            if (hasInputAuthority.Invoke() == true) return;
+            //if (hasInputAuthority.Invoke() == true) return;
+            if (hitImmuneFlag == false)
+            {
+                Debug.Log($"Test - hit immuneFlag == false");
+                return;
+            }
+
             this.weapon.SetCollisionActive(set);
         }
 
@@ -174,5 +206,7 @@ namespace Unit
                 info.hitObject.OnHitEvent(currAttackMotionHitInfos[0]);
             }
         }
+
+        public int GetCurrAttackTick() => currAttackTick;
     }
 }

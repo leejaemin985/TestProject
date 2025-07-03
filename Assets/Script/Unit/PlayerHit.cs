@@ -8,18 +8,25 @@ namespace Unit
     public class PlayerHit : MonoBehaviour
     {
         [SerializeField] private HitBox hitBox;
+        private Func<bool> hasInputAhtority;
         private PlayerState playerState;
-        private Action stopAttackMotion;
 
         private Action<string, float> playerHitMotionSync;
 
+        private Action stopAttackMotion;
+        private Action<bool> setHitImmuneFlagEvent;
+        private Func<int> getCurrAttackTick;
+
         private IEnumerator hitMotionHandle;
 
-        public void Initialize(PlayerState playerState, Action<string, float> onHitMotionSync, Action stopAttackMotion)
+        public void Initialize(Func<bool> hasInputAuthority,PlayerState playerState, Action<string, float> onHitMotionSync, Action stopAttackMotion, Action<bool> setHitImmuneFlag, Func<int> getCurrAttackTick)
         {
+            this.hasInputAhtority = hasInputAuthority;
             this.playerState = playerState;
             this.stopAttackMotion = stopAttackMotion;
             this.playerHitMotionSync = onHitMotionSync;
+            this.setHitImmuneFlagEvent = setHitImmuneFlag;
+            this.getCurrAttackTick = getCurrAttackTick;
 
             hitBox.Initialize(PlayerHitEvent);
             hitBox.SetActive(true);
@@ -61,8 +68,19 @@ namespace Unit
         {
             //ToDo
             //HitInfo의 따라 다양한 모션 구사
-
-            playerHitMotionSync?.Invoke("_HitF", 1);
+            if (hasInputAhtority.Invoke() == false)
+            {
+                if (playerState.isAttack.state &&
+                    getCurrAttackTick.Invoke() > hitInfo.attackTick)
+                {
+                    Debug.Log($"Test - Set Off AttackCollision Because you Attack tick is higher");
+                    setHitImmuneFlagEvent?.Invoke(false);
+                }
+            }
+            else
+            {
+                playerHitMotionSync?.Invoke("_HitF", 1);
+            }
         }
     }
 }
