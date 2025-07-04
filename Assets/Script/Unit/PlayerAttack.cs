@@ -93,7 +93,7 @@ namespace Unit
         private const float ATTACK_INPUT_BUFFER_TIME = .2f;
         private WaitForSeconds attackInputBufferDelay = new WaitForSeconds(ATTACK_INPUT_BUFFER_TIME);
 
-        public AttackMotion TryAttack(bool isHeavy)
+        public AttackMotion TryAttack()
         {
             AttackMotion result = new();
             if (!canAttack)
@@ -102,32 +102,16 @@ namespace Unit
                 return result;
             }
 
-            if (isHeavy)
-            {
-                comboNum %= heavyAttackClip.Length;
-                result.motionName = $"{HEAVY_ATTACK_NAME_BASE}_{comboNum}";
-                result.motionActiveTime = heavyAttackClip[comboNum].duration;
+            comboNum %= lightAttackClip.Length;
+            result.motionName = $"{LIGHT_ATTACK_NAME_BASE}_{comboNum}";
+            result.motionActiveTime = lightAttackClip[comboNum].duration;
 
-                result.hitInfos = new HitInfo[1] { new()
-                {
-                    damaged = 2,
-                    weight = 2,
-                    attackType = AttackType.GENERIC
-                }};
-            }
-            else
-            {
-                comboNum %= lightAttackClip.Length;
-                result.motionName = $"{LIGHT_ATTACK_NAME_BASE}_{comboNum}";
-                result.motionActiveTime = lightAttackClip[comboNum].duration;
-
-                result.hitInfos = new HitInfo[1] { new()
+            result.hitInfos = new HitInfo[1] { new()
                 {
                     damaged = 1,
                     weight = 1,
                     attackType = AttackType.GENERIC
                 }};
-            }
 
             result.success = true;
             return result;

@@ -195,7 +195,7 @@ namespace Unit
 
             if (input.buttons.WasPressed(prevInput, InputButton.LightAttack) == true && attackController.canAttack) 
             {
-                var attackMotion = attackController.TryAttack(false);
+                var attackMotion = attackController.TryAttack();
                 if (attackMotion.success)
                     RPC_OnAttackEvent(
                         attackMotion.motionName,
@@ -212,7 +212,6 @@ namespace Unit
 
             if (input.buttons.IsSet(InputButton.Defense))
             {
-
             }
 
             ApplyPlayerMove();
