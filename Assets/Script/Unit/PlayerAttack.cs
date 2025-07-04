@@ -13,7 +13,6 @@ namespace Unit
     {
         public AnimationClip clip;
         public float duration;
-        public float firstAttackTime;
     }
 
     public class PlayerAttack : MonoBehaviour
@@ -24,9 +23,6 @@ namespace Unit
         private Action<Quaternion> SetRotAction;
         private Func<Player> FindEnemyUnit;
 
-        private bool hitImmuneFlag = true;
-        private int currAttackTick = 0;
-
         private Katana weapon;
 
         private HitInfo[] currAttackMotionHitInfos;
@@ -36,7 +32,6 @@ namespace Unit
             public string motionName;
             public float duration;
             public float motionActiveTime;
-            public float firstAttackTime;
             public bool success;
 
             public HitInfo[] hitInfos;
@@ -132,20 +127,16 @@ namespace Unit
                     weight = 1,
                     attackType = AttackType.GENERIC
                 }};
-                result.firstAttackTime = lightAttackClip[comboNum].firstAttackTime;
             }
 
             result.success = true;
             return result;
         }
 
-        public void SetAttackMotion(float motionDuration, int currAttackTick)
+        public void SetAttackMotion(float motionDuration)
         {
             comboNum++;
             playerState.isAttack.state = true;
-
-            hitImmuneFlag = true;
-            this.currAttackTick = currAttackTick;
 
             // LookAt Enemy
             var detectedEnemy = FindEnemyUnit.Invoke();
@@ -179,18 +170,10 @@ namespace Unit
             playerState.isMotion.state = false;
         }
 
-        public void SetHitImmuneFlag(bool set) => hitImmuneFlag = set;
-
         public void SetWeaponActive(bool set)
         {
             //피격 연산은 상대측에서 방어 성공여부와 함께 진행합니다.
-            //if (hasInputAuthority.Invoke() == true) return;
-            if (hitImmuneFlag == false)
-            {
-                Debug.Log($"Test - hit immuneFlag == false");
-                return;
-            }
-
+            if (hasInputAuthority.Invoke() == true) return;
             this.weapon.SetCollisionActive(set);
         }
 
@@ -206,7 +189,5 @@ namespace Unit
                 info.hitObject.OnHitEvent(currAttackMotionHitInfos[0]);
             }
         }
-
-        public int GetCurrAttackTick() => currAttackTick;
     }
 }

@@ -82,7 +82,7 @@ namespace Unit
             registeredPlayer.Add(this);
 
             StartCamSet();
-            hitController.Initialize(IsHasInputAuthority, playerState, OnHitMotionSync, attackController.StopAttackMotion, attackController.SetHitImmuneFlag, attackController.GetCurrAttackTick);
+            hitController.Initialize(IsHasInputAuthority, playerState, OnHitMotionSync, attackController.StopAttackMotion);
             animController.Initialize(playerState);
             attackController.Initialized(
                 IsHasInputAuthority,
@@ -135,15 +135,14 @@ namespace Unit
         private float runWeight { get; set; }
 
         [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
-        public void RPC_OnAttackEvent(string motionName, float motionActiveTime, int startTick, int firstAttackTick, HitInfo[] hitInfos)
+        public void RPC_OnAttackEvent(string motionName, float motionActiveTime, int startTick, HitInfo[] hitInfos)
         {
             int tickOffset = Runner.Tick - startTick;
             float latency = tickOffset * Runner.DeltaTime;
 
-            attackController.SetAttackMotion(motionActiveTime, firstAttackTick);
+            attackController.SetAttackMotion(motionActiveTime);
             animController.Play(motionName, PlayerAnimController.PlayerAnimLayer.ATTACK, latency);
 
-            for (int index = 0, max = hitInfos.Length; index < max; ++index) hitInfos[index].attackTick = firstAttackTick;
             attackController.SetHitInfo(hitInfos);
         }
 
@@ -202,7 +201,6 @@ namespace Unit
                         attackMotion.motionName,
                         attackMotion.motionActiveTime,
                         Runner.Tick,
-                        Runner.Tick + Mathf.RoundToInt(attackMotion.firstAttackTime / Runner.DeltaTime),
                         attackMotion.hitInfos);
             }
             //else if (input.buttons.WasPressed(prevInput, InputButton.HeavyAttack) == true && attackController.canAttack)
