@@ -230,8 +230,10 @@ namespace Unit
                         attackMotion.hitInfos);
             }
 
+
             if (input.buttons.IsSet(InputButton.Defense))
             {
+
             }
 
             ApplyPlayerMove();

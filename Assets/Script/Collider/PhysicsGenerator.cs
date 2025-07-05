@@ -102,14 +102,14 @@ namespace Physics
 
 
                     collisionResult[attackableOb].collisionInfos.Add(hitInfo);
-                    attackableOb.OnCollisionEvent(collisionResult[attackableOb]);
+                    //attackableOb.OnCollisionEvent(collisionResult[attackableOb]);
                 }
             }
 
-            //foreach (AttackBox attackableOb in collisionResult.Keys)
-            //{
-            //    attackableOb.OnCollisionEvent(collisionResult[attackableOb]);
-            //}
+            foreach (AttackBox attackableOb in collisionResult.Keys)
+            {
+                attackableOb.OnCollisionEvent(collisionResult[attackableOb]);
+            }
         }
 
         private float ComputeProgressAlongMotion(float3 prev, float3 curr, float3 contactPoint)

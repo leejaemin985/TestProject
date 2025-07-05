@@ -26,6 +26,8 @@ namespace Unit
 
             hitBox.Initialize(PlayerHitEvent);
             hitBox.SetActive(true);
+
+            SetState();
         }
 
         public PhysicsObject GetPhysicsBox() => hitBox;
@@ -38,8 +40,9 @@ namespace Unit
 
         private void OnHitState()
         {
-            playerState.isMotion.state = true;
             stopAttackMotion?.Invoke();
+
+            playerState.isMotion.state = true;
         }
 
         private void OffHitState()
