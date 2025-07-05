@@ -17,7 +17,7 @@ namespace Unit
 
     public class PlayerAttack : MonoBehaviour
     {
-        private Func<bool> hasInputAuthority;
+        private Func<bool> isServerLocal;
         private PlayerState playerState;
         private Action<string> SetAttackAnimEvent;
         private Action<Quaternion> SetRotAction;
@@ -37,9 +37,9 @@ namespace Unit
             public HitInfo[] hitInfos;
         }
 
-        public void Initialized(Func<bool> hasInputAuthority, PlayerState playerState, Action<string> setAttackAnim, Katana weapon, PhysicsObject playerHitBox, Action<Quaternion> setRotAction, Func<Player> findEnemyUnit)
+        public void Initialized(Func<bool> isServerLocal, PlayerState playerState, Action<string> setAttackAnim, Katana weapon, PhysicsObject playerHitBox, Action<Quaternion> setRotAction, Func<Player> findEnemyUnit)
         {
-            this.hasInputAuthority = hasInputAuthority;
+            this.isServerLocal = isServerLocal;
             this.playerState = playerState;
             this.SetAttackAnimEvent = setAttackAnim;
             this.weapon = weapon;
@@ -64,7 +64,7 @@ namespace Unit
 
         private void OffAttackState()
         {
-
+            this.weapon.SetCollisionActive(false);
         }
 
         /// <summary>
@@ -156,8 +156,7 @@ namespace Unit
 
         public void SetWeaponActive(bool set)
         {
-            //피격 연산은 상대측에서 방어 성공여부와 함께 진행합니다.
-            if (hasInputAuthority.Invoke() == true) return;
+            if (isServerLocal.Invoke() == false) return;
             this.weapon.SetCollisionActive(set);
         }
 
@@ -168,6 +167,7 @@ namespace Unit
 
         public void HitEventListener(CollisionInfos collisionInfo)
         {
+            if (playerState.isHit.state) return;
             foreach (var info in collisionInfo.collisionInfos)
             {
                 info.hitObject.OnHitEvent(currAttackMotionHitInfos[0]);

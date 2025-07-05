@@ -38,17 +38,11 @@ namespace Unit
 
     public class Player : Unit
     {
-        private static List<Player> registeredPlayer = new();
-        private static Player GetOtherPlayer(Player user)
-        {
-            foreach (var otherUser in registeredPlayer)
-            {
-                if (otherUser.uid != user.uid) return otherUser;
-            }
-            return null;
-        }
-        
-        public Guid uid { get; private set; }
+        private PlayerRef cachedPlayerRef;
+        private bool isServerLocal;
+
+        [Networked] 
+        public PlayerRef userRef { get; private set; }
 
         [SerializeField] private SimpleKCC cc;
         [SerializeField] private PlayerAnimController animController;
@@ -57,6 +51,16 @@ namespace Unit
         [SerializeField] private PlayerHit hitController;
         [SerializeField] private Katana weapon;
         [SerializeField] private PlayerAnimEventer animEventer;
+
+        private Player otherUser;
+        public Player GetOtherUser()
+        {
+            if (otherUser == null)
+                otherUser = EventHandler.Instance.GetOtherUser(userRef);
+            return otherUser;
+        }
+
+
 
         private int cachedTick = 0;
 
@@ -74,24 +78,43 @@ namespace Unit
 
         private NetworkButtons prevInput;
 
-        private void Start() => Initialize();
+        public void PreSpawnInitialize(PlayerRef userRef)
+        {
+            this.cachedPlayerRef = userRef;
+        }
+
+        public override void Spawned()
+        {
+            if (HasStateAuthority) userRef = cachedPlayerRef;
+
+            isServerLocal = EventHandler.isServer;
+
+            if (initSequencerHandle != null) StopCoroutine(initSequencerHandle);
+            StartCoroutine(initSequencerHandle = InitSequencer());
+        }
+
+        private IEnumerator initSequencerHandle = null;
+
+        private IEnumerator InitSequencer()
+        {
+            yield return new WaitUntil(() => EventHandler.isSpawned);
+            EventHandler.Instance.RegisterPlayer(userRef, this);
+            Initialize();
+        }
 
         private void Initialize()
         {
-            uid = Guid.NewGuid();
-            registeredPlayer.Add(this);
-
             StartCamSet();
-            hitController.Initialize(IsHasInputAuthority, playerState, OnHitMotionSync, attackController.StopAttackMotion);
+            hitController.Initialize(IsServerLocal, playerState, OnPlayerHitDetected, attackController.StopAttackMotion);
             animController.Initialize(playerState);
             attackController.Initialized(
-                IsHasInputAuthority,
+                IsServerLocal,
                 playerState,
                 animController.Play,
                 weapon,
                 hitController.GetPhysicsBox(),
                 SetRot,
-                () => GetOtherPlayer(this));
+                GetOtherUser);
 
             animEventer.Initialize(attackController.SetWeaponActive, SetMoveDir);
 
@@ -118,14 +141,9 @@ namespace Unit
 
         }
 
-        private bool IsHasInputAuthority()
+        private bool IsServerLocal()
         {
-            return HasInputAuthority;
-        }
-
-        private void OnHitMotionSync(string hitMotionName, float motionActiveTime)
-        {
-            RPC_OnHitMotionEvent(hitMotionName, 0, cachedTick);
+            return isServerLocal;
         }
 
         [Networked]
@@ -146,15 +164,22 @@ namespace Unit
             attackController.SetHitInfo(hitInfos);
         }
 
-        [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
-        public void RPC_OnHitMotionEvent(string motionName, float motionActiveTime, int tick)
+        public void OnPlayerHitDetected(string motionName, float motionActiveTime)
         {
-            int tickOffset = Runner.Tick - tick;
+            EventHandler.Instance.TryPlayerHitRequestMotionSync(userRef);
+        }
+
+        public void ForceHitMotion(int tick)
+        {
+            int tickOffset = cachedTick - tick;
+            tickOffset = tickOffset < 0 ? 0 : tickOffset;
+
             float latency = tickOffset * Runner.DeltaTime;
 
             hitController.OnHitMotion(1f);
-            animController.Play(motionName, PlayerAnimController.PlayerAnimLayer.HIT, latency);
+            animController.Play("_HitF", PlayerAnimController.PlayerAnimLayer.HIT, 0);
         }
+
 
         public override void Render()
         {
@@ -193,6 +218,7 @@ namespace Unit
                     moveSpeedChangedSpeed);
             }
 
+            //if ((input.buttons.WasPressed(prevInput, InputButton.LightAttack) == true || isTestAttack) && attackController.canAttack)
             if (input.buttons.WasPressed(prevInput, InputButton.LightAttack) == true && attackController.canAttack) 
             {
                 var attackMotion = attackController.TryAttack();
@@ -203,12 +229,6 @@ namespace Unit
                         Runner.Tick,
                         attackMotion.hitInfos);
             }
-            //else if (input.buttons.WasPressed(prevInput, InputButton.HeavyAttack) == true && attackController.canAttack)
-            //{
-            //    var attackMotion = attackController.TryAttack(true);
-            //    if (attackMotion.success)
-            //        RPC_OnAttackEvent(attackMotion.motionName, attackMotion.motionActiveTime, Runner.Tick, attackMotion.hitInfos);
-            //}
 
             if (input.buttons.IsSet(InputButton.Defense))
             {

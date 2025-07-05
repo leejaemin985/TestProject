@@ -8,7 +8,7 @@ namespace Unit
     public class PlayerHit : MonoBehaviour
     {
         [SerializeField] private HitBox hitBox;
-        private Func<bool> hasInputAhtority;
+        private Func<bool> isServerLocal;
         private PlayerState playerState;
 
         private Action<string, float> playerHitMotionSync;
@@ -17,9 +17,9 @@ namespace Unit
 
         private IEnumerator hitMotionHandle;
 
-        public void Initialize(Func<bool> hasInputAuthority,PlayerState playerState, Action<string, float> onHitMotionSync, Action stopAttackMotion)
+        public void Initialize(Func<bool> isServerLocal,PlayerState playerState, Action<string, float> onHitMotionSync, Action stopAttackMotion)
         {
-            this.hasInputAhtority = hasInputAuthority;
+            this.isServerLocal = isServerLocal;
             this.playerState = playerState;
             this.stopAttackMotion = stopAttackMotion;
             this.playerHitMotionSync = onHitMotionSync;
@@ -62,8 +62,11 @@ namespace Unit
 
         private void PlayerHitEvent(HitInfo hitInfo)
         {
+            if (isServerLocal.Invoke() == false) return;
+
             //ToDo
             //HitInfo의 따라 다양한 모션 구사
+
             playerHitMotionSync?.Invoke("_HitF", 1);
         }
     }

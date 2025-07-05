@@ -100,14 +100,16 @@ namespace Physics
                         sweepProgress = ComputeProgressAlongMotion(attackableOb.prevPhysicsShape.Center, attackableOb.currPhysicsShape.Center, collisionInfo.contactPointA)
                     };
 
+
                     collisionResult[attackableOb].collisionInfos.Add(hitInfo);
+                    attackableOb.OnCollisionEvent(collisionResult[attackableOb]);
                 }
             }
 
-            foreach (AttackBox attackableOb in collisionResult.Keys)
-            {
-                attackableOb.OnCollisionEvent(collisionResult[attackableOb]);
-            }
+            //foreach (AttackBox attackableOb in collisionResult.Keys)
+            //{
+            //    attackableOb.OnCollisionEvent(collisionResult[attackableOb]);
+            //}
         }
 
         private float ComputeProgressAlongMotion(float3 prev, float3 curr, float3 contactPoint)
