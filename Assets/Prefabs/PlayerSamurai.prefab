@@ -282,41 +282,49 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fca162a003a38a24cb1a6c0f2fb837e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lightAttackClip:
+  attackMotionInfos:
   - clip: {fileID: 7400000, guid: a58e30832143e334fa2c2fdfcf35b878, type: 2}
     duration: 0.6
-    firstAttackTime: 0.27
+    hitInfo:
+      damaged: 0
+      weight: 0
+      attackType: 1
+      attackTick: 0
   - clip: {fileID: 7400000, guid: 8f2e64a1e30240f4aa18b1322d9ac783, type: 2}
     duration: 0.6
-    firstAttackTime: 0.32
+    hitInfo:
+      damaged: 0
+      weight: 0
+      attackType: 0
+      attackTick: 0
   - clip: {fileID: 7400000, guid: 86a8aa2004603d542a167f8c96562bfc, type: 2}
     duration: 0.7
-    firstAttackTime: 0.39
+    hitInfo:
+      damaged: 0
+      weight: 0
+      attackType: 0
+      attackTick: 0
   - clip: {fileID: 7400000, guid: 4e9bea3a5b518984ca2e0ad071993fd0, type: 2}
     duration: 0.7
-    firstAttackTime: 0.47
+    hitInfo:
+      damaged: 0
+      weight: 0
+      attackType: 0
+      attackTick: 0
   - clip: {fileID: 7400000, guid: b8e22e79770fb6147bd8bfe7b2018305, type: 2}
     duration: 1
-    firstAttackTime: 0.52
+    hitInfo:
+      damaged: 0
+      weight: 0
+      attackType: 0
+      attackTick: 0
   - clip: {fileID: 7400000, guid: 6f624e36d26cbeb4f9e4e99937040679, type: 2}
     duration: 1
-    firstAttackTime: 0.57
-  heavyAttackClip:
-  - clip: {fileID: 7400000, guid: 00d6fdc8946972b4793077adaffe57aa, type: 2}
-    duration: 0.7
-    firstAttackTime: 0
-  - clip: {fileID: 7400000, guid: 3828e558a78b1d1419d57bb65f938efe, type: 2}
-    duration: 0.7
-    firstAttackTime: 0
-  - clip: {fileID: 7400000, guid: cdd88ef4628dbba4481ba0ece8b14b29, type: 2}
-    duration: 0.7
-    firstAttackTime: 0
-  - clip: {fileID: 7400000, guid: 013400d6860274b44a4cba0f9b2c5f8d, type: 2}
-    duration: 0.6
-    firstAttackTime: 0
-  - clip: {fileID: 7400000, guid: dfa419514c0b822489c1d4aa4a568e1f, type: 2}
-    duration: 2.5
-    firstAttackTime: 0
+    hitInfo:
+      damaged: 0
+      weight: 0
+      attackType: 0
+      attackTick: 0
 --- !u!114 &2077891621685207455
 MonoBehaviour:
   m_ObjectHideFlags: 0

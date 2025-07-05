@@ -6,15 +6,29 @@ using UnityEngine;
 public class Katana : MonoBehaviour
 {
     [SerializeField] private AttackBox collisionBox;
+    private Func<bool> isHitValid;
+    private HitInfo hitInfo;
 
-    public void Initialize(Action<CollisionInfos> hitEvent = null, PhysicsObject userPhysicsObject = null)
+    public void Initialize(PhysicsObject userPhysicsObject, Func<bool> isHitValid, Action<CollisionInfos> hitEvent = null)
     {
-        collisionBox.Initialize(hitEvent);
+        collisionBox.Initialize(OnHit);
+
+        this.isHitValid = isHitValid;
         collisionBox.AddIgnoreUid(userPhysicsObject);
     }
 
-    public void SetCollisionActive(bool set)
+    public void SetCollisionActive(bool set) => collisionBox.SetActive(set);
+
+    public void SetHitInfo(HitInfo hitInfo) => this.hitInfo = hitInfo;
+
+
+    private void OnHit(CollisionInfos collisionInfos)
     {
-        collisionBox.SetActive(set);
+        if (isHitValid != null && isHitValid.Invoke() == false) return;
+
+        foreach (var info in collisionInfos.collisionInfos)
+        {
+            info.hitObject.OnHitEvent(this.hitInfo);
+        }
     }
 }

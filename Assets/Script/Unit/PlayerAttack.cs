@@ -13,6 +13,7 @@ namespace Unit
     {
         public AnimationClip clip;
         public float duration;
+        public HitInfo hitInfo;
     }
 
     public class PlayerAttack : MonoBehaviour
@@ -25,16 +26,15 @@ namespace Unit
 
         private Katana weapon;
 
-        private HitInfo[] currAttackMotionHitInfos;
-
         public struct AttackMotion
         {
+            public bool success;
+
             public string motionName;
             public float duration;
             public float motionActiveTime;
-            public bool success;
 
-            public HitInfo[] hitInfos;
+            public HitInfo hitInfo;
         }
 
         public void Initialized(Func<bool> isServerLocal, PlayerState playerState, Action<string> setAttackAnim, Katana weapon, PhysicsObject playerHitBox, Action<Quaternion> setRotAction, Func<Player> findEnemyUnit)
@@ -43,7 +43,7 @@ namespace Unit
             this.playerState = playerState;
             this.SetAttackAnimEvent = setAttackAnim;
             this.weapon = weapon;
-            this.weapon.Initialize(HitEventListener, playerHitBox);
+            this.weapon.Initialize(playerHitBox, () => canHit, HitEventListener);
             this.SetRotAction = setRotAction;
             this.FindEnemyUnit = findEnemyUnit;
 
@@ -54,7 +54,6 @@ namespace Unit
         {
             playerState.isAttack.AddStateOnListener(OnAttackState);
             playerState.isAttack.AddStateOffListener(OffAttackState);
-
         }
 
         private void OnAttackState()
@@ -73,17 +72,23 @@ namespace Unit
         /// </summary>
         public void StopAttackMotion()
         {
+            if (playerState.isAttack.state == false) return;
+
+            if (runAttackMotionHandle != null) StopCoroutine(runAttackMotionHandle);
+            if (comboWindowHandle != null) StopCoroutine(comboWindowHandle);
+            comboNum = 0;
+
             playerState.isAttack.state = false;
             playerState.isMotion.state = false;
         }
 
-        private const string LIGHT_ATTACK_NAME_BASE = "_LightAttack";
-        private const string HEAVY_ATTACK_NAME_BASE = "_HeavyAttack";
+        private const string ATTACK_NAME_BASE = "_LightAttack";
 
-        public MotionClipInfo[] lightAttackClip;
-        public MotionClipInfo[] heavyAttackClip;
+        public MotionClipInfo[] attackMotionInfos;
 
-        public bool canAttack => !playerState.isAttack.state && !playerState.isHit.state;// && !playerState.isDefense.state;
+        private bool canAttack => !playerState.isAttack.state && !playerState.isHit.state;
+
+        private bool canHit => !playerState.isHit.state;
 
         private int comboNum = 0;
         private const float COMBO_INPUT_WINDOW_DURATION = .5f;
@@ -102,16 +107,12 @@ namespace Unit
                 return result;
             }
 
-            comboNum %= lightAttackClip.Length;
-            result.motionName = $"{LIGHT_ATTACK_NAME_BASE}_{comboNum}";
-            result.motionActiveTime = lightAttackClip[comboNum].duration;
+            int currentCombo = comboNum % attackMotionInfos.Length;
+            comboNum++;
 
-            result.hitInfos = new HitInfo[1] { new()
-                {
-                    damaged = 1,
-                    weight = 1,
-                    attackType = AttackType.GENERIC
-                }};
+            result.motionName = $"{ATTACK_NAME_BASE}_{currentCombo}";
+            result.motionActiveTime = attackMotionInfos[currentCombo].duration;
+            result.hitInfo = attackMotionInfos[currentCombo].hitInfo;
 
             result.success = true;
             return result;
@@ -119,7 +120,6 @@ namespace Unit
 
         public void SetAttackMotion(float motionDuration)
         {
-            comboNum++;
             playerState.isAttack.state = true;
 
             // LookAt Enemy
@@ -156,22 +156,20 @@ namespace Unit
 
         public void SetWeaponActive(bool set)
         {
+            //서버 로컬에 있는 플레이어만 피격판정을 연산합니다.
             if (isServerLocal.Invoke() == false) return;
             this.weapon.SetCollisionActive(set);
         }
 
-        public void SetHitInfo(HitInfo[] hitInfos)
+        public void SetHitInfo(HitInfo hitInfo)
         {
-            this.currAttackMotionHitInfos = hitInfos;
+            if (isServerLocal.Invoke() == false) return;
+            this.weapon.SetHitInfo(hitInfo);
         }
 
         public void HitEventListener(CollisionInfos collisionInfo)
         {
-            if (playerState.isHit.state) return;
-            foreach (var info in collisionInfo.collisionInfos)
-            {
-                info.hitObject.OnHitEvent(currAttackMotionHitInfos[0]);
-            }
+            //HitEvent Callback
         }
     }
 }

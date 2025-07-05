@@ -153,7 +153,7 @@ namespace Unit
         private float runWeight { get; set; }
 
         [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
-        public void RPC_OnAttackEvent(string motionName, float motionActiveTime, int startTick, HitInfo[] hitInfos)
+        public void RPC_OnAttackEvent(string motionName, float motionActiveTime, int startTick, HitInfo hitInfo)
         {
             int tickOffset = Runner.Tick - startTick;
             float latency = tickOffset * Runner.DeltaTime;
@@ -161,7 +161,7 @@ namespace Unit
             attackController.SetAttackMotion(motionActiveTime);
             animController.Play(motionName, PlayerAnimController.PlayerAnimLayer.ATTACK, latency);
 
-            attackController.SetHitInfo(hitInfos);
+            attackController.SetHitInfo(hitInfo);
         }
 
         public void OnPlayerHitDetected(string motionName, float motionActiveTime)
@@ -218,8 +218,8 @@ namespace Unit
                     moveSpeedChangedSpeed);
             }
 
-            //if ((input.buttons.WasPressed(prevInput, InputButton.LightAttack) == true || isTestAttack) && attackController.canAttack)
-            if (input.buttons.WasPressed(prevInput, InputButton.LightAttack) == true && attackController.canAttack) 
+            //if ((input.buttons.WasPressed(prevInput, InputButton.LightAttack) == true || isTestAttack))
+            if (input.buttons.WasPressed(prevInput, InputButton.LightAttack) == true) 
             {
                 var attackMotion = attackController.TryAttack();
                 if (attackMotion.success)
@@ -227,7 +227,7 @@ namespace Unit
                         attackMotion.motionName,
                         attackMotion.motionActiveTime,
                         Runner.Tick,
-                        attackMotion.hitInfos);
+                        attackMotion.hitInfo);
             }
 
 
