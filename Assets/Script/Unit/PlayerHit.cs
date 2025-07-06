@@ -14,15 +14,17 @@ namespace Unit
         private Action<string, float> playerHitMotionSync;
 
         private Action stopAttackMotion;
+        private Action<Vector3> onMoveAction;
 
         private IEnumerator hitMotionHandle;
 
-        public void Initialize(Func<bool> isServerLocal,PlayerState playerState, Action<string, float> onHitMotionSync, Action stopAttackMotion)
+        public void Initialize(Func<bool> isServerLocal,PlayerState playerState, Action<string, float> onHitMotionSync, Action stopAttackMotion, Action<Vector3> onMoveAction)
         {
             this.isServerLocal = isServerLocal;
             this.playerState = playerState;
             this.stopAttackMotion = stopAttackMotion;
             this.playerHitMotionSync = onHitMotionSync;
+            this.onMoveAction = onMoveAction;
 
             hitBox.Initialize(PlayerHitEvent);
             hitBox.SetActive(true);
@@ -43,6 +45,7 @@ namespace Unit
             stopAttackMotion?.Invoke();
 
             playerState.isMotion.state = true;
+            onMoveAction?.Invoke(Vector2.zero);
         }
 
         private void OffHitState()

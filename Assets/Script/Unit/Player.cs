@@ -105,18 +105,19 @@ namespace Unit
         private void Initialize()
         {
             StartCamSet();
-            hitController.Initialize(IsServerLocal, playerState, OnPlayerHitDetected, attackController.StopAttackMotion);
+            hitController.Initialize(IsServerLocal, playerState, OnPlayerHitDetected, attackController.StopAttackMotion, SetMoveDir);
             animController.Initialize(playerState);
             attackController.Initialized(
                 IsServerLocal,
+                () => { return transform; },
                 playerState,
-                animController.Play,
                 weapon,
                 hitController.GetPhysicsBox(),
+                SetMoveDir,
                 SetRot,
-                GetOtherUser);
+                GetOtherUser); ;
 
-            animEventer.Initialize(attackController.SetWeaponActive, SetMoveDir);
+            animEventer.Initialize(attackController.SetWeaponActive, attackController.SetAttackMoveDir);
 
             SetState();
 
@@ -159,7 +160,7 @@ namespace Unit
             float latency = tickOffset * Runner.DeltaTime;
 
             attackController.SetAttackMotion(motionActiveTime);
-            animController.Play(motionName, PlayerAnimController.PlayerAnimLayer.ATTACK, latency);
+            animController.Play(motionName, PlayerAnimController.PlayerAnimLayer.ATTACK, isServerLocal ? latency : 0);
 
             attackController.SetHitInfo(hitInfo);
         }
@@ -267,17 +268,15 @@ namespace Unit
             cc.Move(moveDir * moveSpeed * Runner.DeltaTime);
         }
 
-        private void SetMoveDir(Vector2 inputDir, bool local = true)
+        private void SetMoveDir(Vector3 targetDir)
         {
-            Vector3 targetDir = new Vector3(inputDir.x, 0, inputDir.y);
-            if (local) targetDir = transform.TransformDirection(targetDir);
-
             moveDir = targetDir;
         }
 
         private void SetRot(Quaternion targetRot)
         {
             lookRot = targetRot;
+            cc.SetLookRotation(lookRot);
         }
 
         private void SetMoveSpeed(float targetSpeed, float lerpSpeed)

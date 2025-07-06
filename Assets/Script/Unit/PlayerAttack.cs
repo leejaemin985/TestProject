@@ -19,12 +19,14 @@ namespace Unit
     public class PlayerAttack : MonoBehaviour
     {
         private Func<bool> isServerLocal;
+        private Func<Transform> getPlayerTransform;
         private PlayerState playerState;
-        private Action<string> SetAttackAnimEvent;
+        private Action<Vector3> onMoveAction;
         private Action<Quaternion> SetRotAction;
         private Func<Player> FindEnemyUnit;
 
         private Katana weapon;
+        private Vector3 attackMoveDir;
 
         public struct AttackMotion
         {
@@ -37,13 +39,22 @@ namespace Unit
             public HitInfo hitInfo;
         }
 
-        public void Initialized(Func<bool> isServerLocal, PlayerState playerState, Action<string> setAttackAnim, Katana weapon, PhysicsObject playerHitBox, Action<Quaternion> setRotAction, Func<Player> findEnemyUnit)
+        public void Initialized(
+            Func<bool> isServerLocal,
+            Func<Transform> getPlayerTransform,
+            PlayerState playerState,
+            Katana weapon,
+            PhysicsObject playerHitBox,
+            Action<Vector3> onMoveAction,
+            Action<Quaternion> setRotAction,
+            Func<Player> findEnemyUnit)
         {
             this.isServerLocal = isServerLocal;
+            this.getPlayerTransform = getPlayerTransform;
             this.playerState = playerState;
-            this.SetAttackAnimEvent = setAttackAnim;
             this.weapon = weapon;
             this.weapon.Initialize(playerHitBox, () => canHit, HitEventListener);
+            this.onMoveAction = onMoveAction;
             this.SetRotAction = setRotAction;
             this.FindEnemyUnit = findEnemyUnit;
 
@@ -98,6 +109,30 @@ namespace Unit
         private const float ATTACK_INPUT_BUFFER_TIME = .2f;
         private WaitForSeconds attackInputBufferDelay = new WaitForSeconds(ATTACK_INPUT_BUFFER_TIME);
 
+        public void SetAttackMoveDir(Vector3 input)
+        {
+            this.attackMoveDir = input;
+
+            Player enemy = FindEnemyUnit.Invoke();
+            if (enemy == null) return;
+
+            Transform enemyTransform = enemy.transform;
+            Transform playerTransform = getPlayerTransform.Invoke();
+
+            var toEnemy = (enemyTransform.position - playerTransform.position);
+
+            Vector3 toEnemyForward = toEnemy.normalized;
+            Vector3 toEnemyRight = Vector3.Cross(Vector3.up, toEnemyForward);
+
+            float distance = toEnemy.magnitude;
+            float moveRatio = Mathf.Clamp((distance - 0.5f) / 1f, 0, 2);
+
+            Vector3 worldMoveDir = (toEnemyForward * attackMoveDir.z + toEnemyRight * attackMoveDir.x).normalized;
+
+            onMoveAction?.Invoke(worldMoveDir * moveRatio);
+            attackMoveDir = Vector2.zero;
+        }
+
         public AttackMotion TryAttack()
         {
             AttackMotion result = new();
@@ -110,6 +145,17 @@ namespace Unit
             int currentCombo = comboNum % attackMotionInfos.Length;
             comboNum++;
 
+            // LookAt Enemy
+            var detectedEnemy = FindEnemyUnit.Invoke();
+            if (detectedEnemy != null)
+            {
+                var dir = (detectedEnemy.transform.position - transform.position);
+                dir.y = 0;
+                if (dir.sqrMagnitude > 0.0001f)
+                    SetRotAction?.Invoke(Quaternion.LookRotation(dir.normalized));
+            }
+
+
             result.motionName = $"{ATTACK_NAME_BASE}_{currentCombo}";
             result.motionActiveTime = attackMotionInfos[currentCombo].duration;
             result.hitInfo = attackMotionInfos[currentCombo].hitInfo;
@@ -121,16 +167,6 @@ namespace Unit
         public void SetAttackMotion(float motionDuration)
         {
             playerState.isAttack.state = true;
-
-            // LookAt Enemy
-            var detectedEnemy = FindEnemyUnit.Invoke();
-            if (detectedEnemy != null)
-            {
-                var dir = (detectedEnemy.transform.position - transform.position);
-                dir.y = 0;
-                if (dir.sqrMagnitude > 0.0001f)
-                    SetRotAction?.Invoke(Quaternion.LookRotation(dir.normalized));
-            }
 
             if (runAttackMotionHandle != null) StopCoroutine(runAttackMotionHandle);
             StartCoroutine(runAttackMotionHandle = RunAttackMotion(motionDuration));

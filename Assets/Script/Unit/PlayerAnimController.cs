@@ -77,7 +77,7 @@ namespace Unit
             else
             {
                 targetWeight = playerState.isMotion.state ? 1 : 0;
-                lerpSpeed = .05f;
+                lerpSpeed = .2f;
             }
 
             attackMotionLayerWeight = Mathf.Lerp(attackMotionLayerWeight, targetWeight, lerpSpeed);
@@ -96,7 +96,7 @@ namespace Unit
             else
             {
                 targetWeight = 0f;
-                lerpSpeed = .05f;
+                lerpSpeed = .2f;
             }
 
             hitMotionLayerWeight = Mathf.Lerp(hitMotionLayerWeight, targetWeight, lerpSpeed);
