@@ -60,8 +60,6 @@ namespace Unit
             return otherUser;
         }
 
-
-
         private int cachedTick = 0;
 
         private PlayerState playerState = new();
@@ -69,6 +67,7 @@ namespace Unit
         private Vector3 moveDir = default;
         private Quaternion lookRot = default;
 
+        private bool canDash => !playerState.isMotion.state && !playerState.isDefense.state;
         private float moveSpeed = 65f;
         private float walkSpeed = 65f;
         private float dashSpeed = 150f;
@@ -215,7 +214,7 @@ namespace Unit
                 SetPlayerMoveAndRotate(input.Move);
 
                 SetMoveSpeed(
-                    input.buttons.IsSet(InputButton.Dash) ? dashSpeed : walkSpeed,
+                    input.buttons.IsSet(InputButton.Dash) && canDash ? dashSpeed : walkSpeed,
                     moveSpeedChangedSpeed);
             }
 
@@ -234,8 +233,13 @@ namespace Unit
 
             if (input.buttons.IsSet(InputButton.Defense))
             {
-
+                playerState.isDefense.state = true;
             }
+            else
+            {
+                playerState.isDefense.state = false;
+            }
+            
 
             ApplyPlayerMove();
 

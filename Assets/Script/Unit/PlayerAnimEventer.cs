@@ -26,23 +26,6 @@ namespace Unit
             weapCollisionController?.Invoke(false);
         }
 
-        public void SetPlayerMove(string direction)
-        {
-            string[] moveVector = direction
-                .Split(',')
-                .Select(p=>p.Trim())
-                .ToArray();
-
-            if (moveVector.Length == 2 &&
-                float.TryParse(moveVector[0], out float x) &&
-                float.TryParse(moveVector[1], out float z))
-            {
-                Vector2 moveDir = new Vector2(x, z);
-                //onMoveAction?.Invoke(moveDir, true);
-            }
-
-        }
-
         public void SetPlayerAttackMove(string direction)
         {
             if (direction.IsNullOrEmpty() || direction.Equals("0")) onAttackMoveAction(Vector3.zero);

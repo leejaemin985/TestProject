@@ -31,11 +31,14 @@ namespace Unit
 
         }
 
-        public void TryDefense()
+        public bool TryDefense()
         {
-            if (!canDefense) return;
+            return canDefense;
+        }
 
-
+        public void SetDefense(bool set)
+        {
+            playerState.isDefense.state = set;
         }
 
     }

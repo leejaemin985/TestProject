@@ -10,7 +10,8 @@ namespace Unit
         {
             IDLE = 0,
             ATTACK = 1,
-            HIT = 2
+            DEFENSE = 2,
+            HIT = 3
         }
 
         private const string KEYNAME_MOVE_HORIZONTAL = "_Horizontal";
@@ -38,6 +39,7 @@ namespace Unit
 
         private float attackMotionLayerWeight = 0f;
         private float hitMotionLayerWeight = 0f;
+        private float defenseLayerWeight = 0f;
 
         public void Update()
         {
@@ -50,6 +52,7 @@ namespace Unit
 
             SetAttackMotionWeight();
             SetHitMotionWeight();
+            SetDefenseMotionWeight();
         }
 
         public void SetMoveAnimDirection(Vector2 dir, float runWeight)
@@ -81,7 +84,7 @@ namespace Unit
             }
 
             attackMotionLayerWeight = Mathf.Lerp(attackMotionLayerWeight, targetWeight, lerpSpeed);
-            anim.SetLayerWeight(anim.GetLayerIndex("AttackMotion"), attackMotionLayerWeight);
+            anim.SetLayerWeight((int)PlayerAnimLayer.ATTACK, attackMotionLayerWeight);
         }
 
         private void SetHitMotionWeight()
@@ -100,7 +103,26 @@ namespace Unit
             }
 
             hitMotionLayerWeight = Mathf.Lerp(hitMotionLayerWeight, targetWeight, lerpSpeed);
-            anim.SetLayerWeight(anim.GetLayerIndex("HitMotion"), hitMotionLayerWeight);
+            anim.SetLayerWeight((int)PlayerAnimLayer.HIT, hitMotionLayerWeight);
+        }
+
+        private void SetDefenseMotionWeight()
+        {
+            float targetWeight = 1;
+            float lerpSpeed = .1f;
+            if (playerState.isDefense.state)
+            {
+                targetWeight = 1f;
+                lerpSpeed = .1f;
+            }
+            else
+            {
+                targetWeight = 0f;
+                lerpSpeed = .1f;
+            }
+
+            defenseLayerWeight = Mathf.Lerp(defenseLayerWeight, targetWeight, lerpSpeed);
+            anim.SetLayerWeight((int)PlayerAnimLayer.DEFENSE, defenseLayerWeight);
         }
     }
 }

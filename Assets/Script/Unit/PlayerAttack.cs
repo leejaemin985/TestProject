@@ -28,6 +28,9 @@ namespace Unit
         private Katana weapon;
         private Vector3 attackMoveDir;
 
+        private const float ATTACK_MOVE_DISTANCE_OFFSET = 0.5f;
+        private const float ATTACK_MOVE_RATIO_CLAMP_MAX = 1.5f;
+
         public struct AttackMotion
         {
             public bool success;
@@ -113,21 +116,23 @@ namespace Unit
         {
             this.attackMoveDir = input;
 
+            Vector3 forward = getPlayerTransform.Invoke().forward;
+            float moveRatio = 1f;
+
             Player enemy = FindEnemyUnit.Invoke();
-            if (enemy == null) return;
+            if (enemy != null)
+            {
+                Transform enemyTransform = enemy.transform;
+                Transform playerTransform = getPlayerTransform.Invoke();
 
-            Transform enemyTransform = enemy.transform;
-            Transform playerTransform = getPlayerTransform.Invoke();
+                Vector3 toEnemy = (enemyTransform.position - playerTransform.position);
+                moveRatio = Mathf.Clamp((toEnemy.magnitude - ATTACK_MOVE_DISTANCE_OFFSET) / 1f, 0, ATTACK_MOVE_RATIO_CLAMP_MAX);
+            }
 
-            var toEnemy = (enemyTransform.position - playerTransform.position);
+            Vector3 right = Vector3.Cross(Vector3.up, forward);
 
-            Vector3 toEnemyForward = toEnemy.normalized;
-            Vector3 toEnemyRight = Vector3.Cross(Vector3.up, toEnemyForward);
-
-            float distance = toEnemy.magnitude;
-            float moveRatio = Mathf.Clamp((distance - 0.5f) / 1f, 0, 2);
-
-            Vector3 worldMoveDir = (toEnemyForward * attackMoveDir.z + toEnemyRight * attackMoveDir.x).normalized;
+            Vector3 rawMove = forward * attackMoveDir.z + right * attackMoveDir.x;
+            Vector3 worldMoveDir = rawMove.normalized * attackMoveDir.magnitude;
 
             onMoveAction?.Invoke(worldMoveDir * moveRatio);
             attackMoveDir = Vector2.zero;
@@ -145,17 +150,6 @@ namespace Unit
             int currentCombo = comboNum % attackMotionInfos.Length;
             comboNum++;
 
-            // LookAt Enemy
-            var detectedEnemy = FindEnemyUnit.Invoke();
-            if (detectedEnemy != null)
-            {
-                var dir = (detectedEnemy.transform.position - transform.position);
-                dir.y = 0;
-                if (dir.sqrMagnitude > 0.0001f)
-                    SetRotAction?.Invoke(Quaternion.LookRotation(dir.normalized));
-            }
-
-
             result.motionName = $"{ATTACK_NAME_BASE}_{currentCombo}";
             result.motionActiveTime = attackMotionInfos[currentCombo].duration;
             result.hitInfo = attackMotionInfos[currentCombo].hitInfo;
@@ -167,6 +161,16 @@ namespace Unit
         public void SetAttackMotion(float motionDuration)
         {
             playerState.isAttack.state = true;
+
+            // LookAt Enemy
+            var detectedEnemy = FindEnemyUnit.Invoke();
+            if (detectedEnemy != null)
+            {
+                var dir = (detectedEnemy.transform.position - transform.position);
+                dir.y = 0;
+                if (dir.sqrMagnitude > 0.0001f)
+                    SetRotAction?.Invoke(Quaternion.LookRotation(dir.normalized));
+            }
 
             if (runAttackMotionHandle != null) StopCoroutine(runAttackMotionHandle);
             StartCoroutine(runAttackMotionHandle = RunAttackMotion(motionDuration));
