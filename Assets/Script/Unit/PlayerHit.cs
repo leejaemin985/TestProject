@@ -44,6 +44,7 @@ namespace Unit
         {
             stopAttackMotion?.Invoke();
             playerState.isDefense.state = false;
+            playerState.isDefenseHit.state = false;
 
             playerState.isMotion.state = true;
             onMoveAction?.Invoke(Vector2.zero);

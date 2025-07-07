@@ -17,6 +17,8 @@ namespace Unit
 
         public State isDefense { get; private set; }
 
+        public State isDefenseHit { get; private set; }
+
         public State isAttack { get; private set; }
 
         public State isHit { get; private set; }
@@ -28,6 +30,8 @@ namespace Unit
             isJump = new("isJump");
 
             isDefense = new("isDefense");
+
+            isDefenseHit = new("isDefenseHit");
 
             isAttack = new("isAttack");
 
@@ -48,7 +52,7 @@ namespace Unit
         [SerializeField] private PlayerAnimController animController;
         [SerializeField] private PlayerCam playerCam;
         [SerializeField] private PlayerAttack attackController;
-        [SerializeField] private PlayerDefense defenceController;
+        [SerializeField] private PlayerDefense defenseController;
         [SerializeField] private PlayerHit hitController;
         [SerializeField] private Katana weapon;
         [SerializeField] private PlayerAnimEventer animEventer;
@@ -116,7 +120,7 @@ namespace Unit
                 SetMoveDir,
                 SetRot,
                 GetOtherUser);
-            defenceController.Initialize(playerState);
+            defenseController.Initialize(playerState, SetMoveDir, animController.Play);
 
             animEventer.Initialize(attackController.SetWeaponActive, attackController.SetAttackMoveDir);
 
@@ -169,14 +173,13 @@ namespace Unit
         [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
         public void RPC_SetDefenseEvent(bool set)
         {
-            defenceController.SetDefense(set);
+            defenseController.SetDefense(set);
         }
 
         public void OnPlayerHitDetected(string motionName, float motionActiveTime)
         {
-            if (playerState.isDefense.state) return;
-
-            EventHandler.Instance.TryPlayerHitRequestMotionSync(userRef);
+            if (playerState.isDefense.state) EventHandler.Instance.TryPlayerDefenseHitRequestMotionSync(userRef);
+            else EventHandler.Instance.TryPlayerHitRequestMotionSync(userRef);
         }
 
         public void ForceHitMotion(int tick)
@@ -190,6 +193,17 @@ namespace Unit
             animController.Play("_HitF", PlayerAnimController.PlayerAnimLayer.HIT, 0);
         }
 
+        public void ForceDefenseHitMotion(int tick)
+        {
+            int tickOffset = cachedTick - tick;
+            tickOffset = tickOffset < 0 ? 0 : tickOffset;
+
+            float latency = tickOffset * Runner.DeltaTime;
+
+            defenseController.SetDefenseHit();
+            //defenceController.
+            //animController.Play("")
+        }
 
         public override void Render()
         {
@@ -240,17 +254,17 @@ namespace Unit
                         attackMotion.hitInfo);
             }
 
-            if (input.buttons.IsSet((int)InputButton.Defense) == true)
-            {
-                var success = defenceController.TrySetDefense(true);
-                if (success) RPC_SetDefenseEvent(true);
-            }
-            else
-            {
-                var success = defenceController.TrySetDefense(false);
-                if (success) RPC_SetDefenseEvent(false);
-            }
-            
+            //if (input.buttons.IsSet((int)InputButton.Defense) == true)
+            //{
+            //    var success = defenseController.TrySetDefense(true);
+            //    if (success) RPC_SetDefenseEvent(true);
+            //}
+            //else if (playerState.isDefense.state)
+            //{
+            //    var success = defenseController.TrySetDefense(false);
+            //    if (success) RPC_SetDefenseEvent(false);
+            //}
+
 
             ApplyPlayerMove();
 

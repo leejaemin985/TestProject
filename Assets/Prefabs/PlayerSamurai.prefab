@@ -251,7 +251,7 @@ MonoBehaviour:
   animController: {fileID: 3823496746189223210}
   playerCam: {fileID: 3164321590918008309}
   attackController: {fileID: 257329947871881087}
-  defenceController: {fileID: 2075071353304436507}
+  defenseController: {fileID: 2075071353304436507}
   hitController: {fileID: 2077891621685207455}
   weapon: {fileID: 6689455410829703739}
   animEventer: {fileID: 4856505887737920011}

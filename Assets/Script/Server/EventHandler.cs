@@ -47,9 +47,20 @@ public class EventHandler : NetworkBehaviour
         ForceHitMotion(userRef, Runner.Tick);
     }
 
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_TryForceDefenseHitMotion(PlayerRef userRef)
+    {
+        ForceDefenseHitMotion(userRef, Runner.Tick);
+    }
+
     public void TryPlayerHitRequestMotionSync(PlayerRef userRef)
     {
         RPC_TryForceHitMotion(userRef);
+    }
+
+    public void TryPlayerDefenseHitRequestMotionSync(PlayerRef userRef)
+    {
+        RPC_TryForceDefenseHitMotion(userRef);
     }
 
     private void ForceHitMotion(PlayerRef userRef,int tick)
@@ -57,6 +68,14 @@ public class EventHandler : NetworkBehaviour
         foreach (var player in registedPlayer)
         {
             if (player.Key.Equals(userRef)) player.Value.ForceHitMotion(tick);
+        }
+    }
+
+    private void ForceDefenseHitMotion(PlayerRef userRef, int tick)
+    {
+        foreach (var player in registedPlayer)
+        {
+            if (player.Key.Equals(userRef)) player.Value.ForceDefenseHitMotion(tick);
         }
     }
 
