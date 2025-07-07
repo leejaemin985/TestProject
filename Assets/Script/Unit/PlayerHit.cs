@@ -43,6 +43,7 @@ namespace Unit
         private void OnHitState()
         {
             stopAttackMotion?.Invoke();
+            playerState.isDefense.state = false;
 
             playerState.isMotion.state = true;
             onMoveAction?.Invoke(Vector2.zero);

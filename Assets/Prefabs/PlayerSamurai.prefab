@@ -124,6 +124,7 @@ GameObject:
   - component: {fileID: 3164321590918008309}
   - component: {fileID: 257329947871881087}
   - component: {fileID: 2077891621685207455}
+  - component: {fileID: 2075071353304436507}
   m_Layer: 0
   m_Name: PlayerSamurai
   m_TagString: Untagged
@@ -250,6 +251,7 @@ MonoBehaviour:
   animController: {fileID: 3823496746189223210}
   playerCam: {fileID: 3164321590918008309}
   attackController: {fileID: 257329947871881087}
+  defenceController: {fileID: 2075071353304436507}
   hitController: {fileID: 2077891621685207455}
   weapon: {fileID: 6689455410829703739}
   animEventer: {fileID: 4856505887737920011}
@@ -289,42 +291,36 @@ MonoBehaviour:
       damaged: 0
       weight: 0
       attackType: 1
-      attackTick: 0
   - clip: {fileID: 7400000, guid: 8f2e64a1e30240f4aa18b1322d9ac783, type: 2}
     duration: 0.6
     hitInfo:
       damaged: 0
       weight: 0
       attackType: 0
-      attackTick: 0
   - clip: {fileID: 7400000, guid: 86a8aa2004603d542a167f8c96562bfc, type: 2}
     duration: 0.7
     hitInfo:
       damaged: 0
       weight: 0
       attackType: 0
-      attackTick: 0
   - clip: {fileID: 7400000, guid: 4e9bea3a5b518984ca2e0ad071993fd0, type: 2}
     duration: 0.7
     hitInfo:
       damaged: 0
       weight: 0
       attackType: 0
-      attackTick: 0
   - clip: {fileID: 7400000, guid: b8e22e79770fb6147bd8bfe7b2018305, type: 2}
     duration: 1
     hitInfo:
       damaged: 0
       weight: 0
       attackType: 0
-      attackTick: 0
   - clip: {fileID: 7400000, guid: 6f624e36d26cbeb4f9e4e99937040679, type: 2}
     duration: 1
     hitInfo:
       damaged: 0
       weight: 0
       attackType: 0
-      attackTick: 0
 --- !u!114 &2077891621685207455
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -338,6 +334,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitBox: {fileID: 1182606044760008970}
+--- !u!114 &2075071353304436507
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4766949080651131403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d97d3a24cf82a1b46be1e5b769a6c6ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8973499107381494114
 GameObject:
   m_ObjectHideFlags: 0

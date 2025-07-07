@@ -48,6 +48,7 @@ namespace Unit
         [SerializeField] private PlayerAnimController animController;
         [SerializeField] private PlayerCam playerCam;
         [SerializeField] private PlayerAttack attackController;
+        [SerializeField] private PlayerDefense defenceController;
         [SerializeField] private PlayerHit hitController;
         [SerializeField] private Katana weapon;
         [SerializeField] private PlayerAnimEventer animEventer;
@@ -114,7 +115,8 @@ namespace Unit
                 hitController.GetPhysicsBox(),
                 SetMoveDir,
                 SetRot,
-                GetOtherUser); ;
+                GetOtherUser);
+            defenceController.Initialize(playerState);
 
             animEventer.Initialize(attackController.SetWeaponActive, attackController.SetAttackMoveDir);
 
@@ -164,8 +166,16 @@ namespace Unit
             attackController.SetHitInfo(hitInfo);
         }
 
+        [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+        public void RPC_SetDefenseEvent(bool set)
+        {
+            defenceController.SetDefense(set);
+        }
+
         public void OnPlayerHitDetected(string motionName, float motionActiveTime)
         {
+            if (playerState.isDefense.state) return;
+
             EventHandler.Instance.TryPlayerHitRequestMotionSync(userRef);
         }
 
@@ -230,14 +240,15 @@ namespace Unit
                         attackMotion.hitInfo);
             }
 
-
-            if (input.buttons.IsSet(InputButton.Defense))
+            if (input.buttons.IsSet((int)InputButton.Defense) == true)
             {
-                playerState.isDefense.state = true;
+                var success = defenceController.TrySetDefense(true);
+                if (success) RPC_SetDefenseEvent(true);
             }
             else
             {
-                playerState.isDefense.state = false;
+                var success = defenceController.TrySetDefense(false);
+                if (success) RPC_SetDefenseEvent(false);
             }
             
 

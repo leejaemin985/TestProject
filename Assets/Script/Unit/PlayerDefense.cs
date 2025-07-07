@@ -31,15 +31,15 @@ namespace Unit
 
         }
 
-        public bool TryDefense()
+        public bool TrySetDefense(bool set)
         {
-            return canDefense;
+            if (set) return canDefense;
+            return true;
         }
 
         public void SetDefense(bool set)
         {
             playerState.isDefense.state = set;
         }
-
     }
 }
