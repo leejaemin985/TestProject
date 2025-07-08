@@ -15,8 +15,6 @@ namespace Unit
 
         public State isJump { get; private set; }
 
-        public State isDefense { get; private set; }
-
         public State isAttack { get; private set; }
 
         public State isHit { get; private set; }
@@ -26,8 +24,6 @@ namespace Unit
             isMotion = new("isMotion");
 
             isJump = new("isJump");
-
-            isDefense = new("isDefense");
 
             isAttack = new("isAttack");
 
@@ -67,7 +63,7 @@ namespace Unit
         private Vector3 moveDir = default;
         private Quaternion lookRot = default;
 
-        private bool canDash => !playerState.isMotion.state && !playerState.isDefense.state;
+        private bool canDash => !playerState.isMotion.state;
         private float moveSpeed = 65f;
         private float walkSpeed = 65f;
         private float dashSpeed = 150f;
@@ -233,11 +229,11 @@ namespace Unit
 
             if (input.buttons.IsSet(InputButton.Defense))
             {
-                playerState.isDefense.state = true;
+                //playerState.isDefense.state = true;
             }
             else
             {
-                playerState.isDefense.state = false;
+                //playerState.isDefense.state = false;
             }
             
 

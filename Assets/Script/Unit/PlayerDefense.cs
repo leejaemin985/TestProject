@@ -17,8 +17,8 @@ namespace Unit
 
         private void SetState()
         {
-            playerState.isDefense.AddStateOnListener(OnDefenseState);
-            playerState.isDefense.AddStateOffListener(OffDefenseState);
+            //playerState.isDefense.AddStateOnListener(OnDefenseState);
+            //playerState.isDefense.AddStateOffListener(OffDefenseState);
         }
 
         private void OnDefenseState()
@@ -38,7 +38,7 @@ namespace Unit
 
         public void SetDefense(bool set)
         {
-            playerState.isDefense.state = set;
+            //playerState.isDefense.state = set;
         }
 
     }

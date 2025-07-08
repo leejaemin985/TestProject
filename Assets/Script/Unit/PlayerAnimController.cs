@@ -10,7 +10,6 @@ namespace Unit
         {
             IDLE = 0,
             ATTACK = 1,
-            DEFENSE = 2,
             HIT = 3
         }
 
@@ -52,7 +51,6 @@ namespace Unit
 
             SetAttackMotionWeight();
             SetHitMotionWeight();
-            SetDefenseMotionWeight();
         }
 
         public void SetMoveAnimDirection(Vector2 dir, float runWeight)
@@ -104,25 +102,6 @@ namespace Unit
 
             hitMotionLayerWeight = Mathf.Lerp(hitMotionLayerWeight, targetWeight, lerpSpeed);
             anim.SetLayerWeight((int)PlayerAnimLayer.HIT, hitMotionLayerWeight);
-        }
-
-        private void SetDefenseMotionWeight()
-        {
-            float targetWeight = 1;
-            float lerpSpeed = .1f;
-            if (playerState.isDefense.state)
-            {
-                targetWeight = 1f;
-                lerpSpeed = .1f;
-            }
-            else
-            {
-                targetWeight = 0f;
-                lerpSpeed = .1f;
-            }
-
-            defenseLayerWeight = Mathf.Lerp(defenseLayerWeight, targetWeight, lerpSpeed);
-            anim.SetLayerWeight((int)PlayerAnimLayer.DEFENSE, defenseLayerWeight);
         }
     }
 }
