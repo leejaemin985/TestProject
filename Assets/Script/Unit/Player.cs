@@ -115,10 +115,6 @@ namespace Unit
             animEventer.Initialize(attackController.SetWeaponActive, attackController.SetAttackMoveDir);
 
             SetState();
-
-            //TestCode=======================================================
-            if (testAttackHandle != null) StopCoroutine(testAttackHandle);
-            StartCoroutine(testAttackHandle = TestAttack());
         }
 
         private void SetState()
@@ -182,23 +178,6 @@ namespace Unit
             animController.SetMoveAnimDirection(moveAnimTargetDir, runWeight);
         }
 
-        private bool isTestAttack = false;
-        private IEnumerator testAttackHandle = default;
-        private IEnumerator TestAttack()
-        {
-            float defaultTimer = 3;
-            float coolTime = 5;
-            while (true)
-            {
-                isTestAttack = true;
-                yield return new WaitForSeconds(defaultTimer);
-                isTestAttack = false;
-                yield return new WaitForSeconds(coolTime);
-            }
-        }
-
-
-
         public override void FixedUpdateNetwork()
         {
             cachedTick = Runner.Tick;
@@ -214,8 +193,7 @@ namespace Unit
                     moveSpeedChangedSpeed);
             }
 
-            //if ((input.buttons.WasPressed(prevInput, InputButton.LightAttack) == true || isTestAttack))
-            if (input.buttons.WasPressed(prevInput, InputButton.LightAttack) == true) 
+            if (input.buttons.WasPressed(prevInput, InputButton.LightAttack) == true)
             {
                 var attackMotion = attackController.TryAttack();
                 if (attackMotion.success)
