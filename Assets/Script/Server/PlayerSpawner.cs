@@ -9,32 +9,30 @@ using Unit;
 public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
 {
     public EventHandler eventHandler;
+    public PhysicsEventHandler physicsEventHandler;
     public Player playerPrefab;
 
     public void PlayerJoined(PlayerRef player)
     {
-        bool firstJoined = Runner.ActivePlayers.Count() == 1;
-        if (firstJoined)
+        bool masterClient = Runner.IsSharedModeMasterClient;
+        if (masterClient)
         {
-            Runner.Spawn(eventHandler, Vector3.zero, Quaternion.identity, player);
-            EventHandler.SetServer(true);
+            Runner.Spawn(physicsEventHandler, Vector3.zero, Quaternion.identity, player);
         }
-        else if (player == Runner.LocalPlayer)
-        {
-            Runner.Spawn(
-                playerPrefab,
-                Vector3.up,
-                Quaternion.identity,
-                player,
-                (runner, obj) =>
-                {
-                    var user = obj.GetComponent<Player>();
-                    if (user == null) return;
 
+        if (player != Runner.LocalPlayer) return;
 
-                    user.PreSpawnInitialize(player);
-                });
-            EventHandler.SetServer(false);
-        }
+        Runner.Spawn(
+            playerPrefab,
+            Vector3.up,
+            Quaternion.identity,
+            player,
+            (runner, obj) =>
+            {
+                var user = obj.GetComponent<Player>();
+                if (user == null) return;
+
+                user.PreSpawnInitialize(player);
+            });
     }
 }

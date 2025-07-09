@@ -68,25 +68,4 @@ public class EventHandler : NetworkBehaviour
         }
         return null;
     }
-
-
-    private NetworkButtons prevInput;
-
-    public override void FixedUpdateNetwork()
-    {
-        if (GetInput<PlayerInputData>(out var input) == false) return;
-
-        if (input.buttons.WasPressed(prevInput, InputButton.LightAttack) == true)
-        {
-
-        }
-
-        if (input.buttons.WasPressed(prevInput, InputButton.Defense) == true)
-        {
-
-        }
-
-        prevInput = input.buttons;
-    }
-
 }

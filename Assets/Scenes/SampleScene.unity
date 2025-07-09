@@ -251,6 +251,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   eventHandler: {fileID: 8675701592673971075, guid: aa579a19eaa3f0b46a7594dea931e2b1, type: 3}
+  physicsEventHandler: {fileID: 8706349330844931941, guid: 0b9f8256be165aa45948c185f42ce29d, type: 3}
   playerPrefab: {fileID: 978523184684886547, guid: e7ea4492dedce384ba5c27ea219b3e10, type: 3}
 --- !u!114 &288167915
 MonoBehaviour:

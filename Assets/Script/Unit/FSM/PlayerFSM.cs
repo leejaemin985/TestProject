@@ -1,32 +1,55 @@
+using Fusion;
 using Fusion.Addons.SimpleKCC;
 using UnityEngine;
 
 namespace Unit
 {
-    public class PlayerFSM : MonoBehaviour, IMachineState
+    public class PlayerFSM : NetworkBehaviour, IMachineState
     {
         [SerializeField] private PlayerStateBase[] stateArray = default;
 
-        private KCC kcc;
-        private Animator animator;
+        private Player playerUnit;
+        private SimpleKCC kcc;
+        private PlayerFSMAnimController animator;
+        [SerializeField] private float animatorTransitionDuration = 4f / 60f;
 
-        public KCC cc => kcc;
-        public Animator anim => animator;
+        public Player player => playerUnit;
+        public SimpleKCC cc => kcc;
+        public PlayerFSMAnimController anim => animator;
+        public float animTransitionDuration => animatorTransitionDuration;
+
+        public int cachedTick { get; private set; }
+
+        public InputInterpreter input;
 
         private IState currentState;
 
-        public void Initialized(KCC cc, Animator anim)
+        #region Networked
+
+        [Networked]
+        public Vector3 moveAnimDir { get; set; }
+
+        [Networked]
+        public float runWeight { get; set; }
+
+        #endregion
+
+        public void Initialized(Player player, SimpleKCC cc, PlayerFSMAnimController anim)
         {
+            this.playerUnit = player;
             kcc = cc;
             animator = anim;
+            input = new();
 
             foreach (var state in stateArray)
             {
                 state.InjectFSM(this);
             }
+
+            SetState<PlayerMovementState>();
         }
 
-        void IMachineState.SetState<T>()
+        public void SetState<T>() where T : class, IState
         {
             for (int index = 0, max = stateArray.Length; index < max; ++index)
             {
@@ -41,7 +64,7 @@ namespace Unit
             }
         }
 
-        void IMachineState.SetForceState<T>()
+        public void SetForceState<T>() where T : class, IState
         {
             for (int index = 0, max = stateArray.Length; index < max; ++index)
             {
@@ -52,6 +75,13 @@ namespace Unit
                     currentState.EnterState();
                 }
             }
+        }
+
+        public override void FixedUpdateNetwork()
+        {
+            cachedTick = Runner.Tick;
+
+            currentState?.OnState();
         }
     }
 }

@@ -82,8 +82,6 @@ namespace Unit
         {
             if (HasStateAuthority) userRef = cachedPlayerRef;
 
-            isServerLocal = EventHandler.isServer;
-
             if (initSequencerHandle != null) StopCoroutine(initSequencerHandle);
             StartCoroutine(initSequencerHandle = InitSequencer());
         }
@@ -92,18 +90,19 @@ namespace Unit
 
         private IEnumerator InitSequencer()
         {
-            yield return new WaitUntil(() => EventHandler.isSpawned);
-            EventHandler.Instance.RegisterPlayer(userRef, this);
+            yield return new WaitUntil(() => PhysicsEventHandler.isSpawned);
+
+            PhysicsEventHandler.Instance.RegisterPlayer(userRef, this);
             Initialize();
         }
 
         private void Initialize()
         {
             StartCamSet();
-            hitController.Initialize(IsServerLocal, playerState, OnPlayerHitDetected, attackController.StopAttackMotion, SetMoveDir);
+            hitController.Initialize(IsMasterClient, playerState, OnPlayerHitDetected, attackController.StopAttackMotion, SetMoveDir);
             animController.Initialize(playerState);
             attackController.Initialized(
-                IsServerLocal,
+                IsMasterClient,
                 () => { return transform; },
                 playerState,
                 weapon,
@@ -133,9 +132,9 @@ namespace Unit
 
         }
 
-        private bool IsServerLocal()
+        private bool IsMasterClient()
         {
-            return isServerLocal;
+            return Runner.IsSharedModeMasterClient;
         }
 
         [Networked]

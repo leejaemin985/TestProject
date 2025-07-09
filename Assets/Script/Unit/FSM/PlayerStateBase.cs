@@ -5,9 +5,11 @@ namespace Unit
 {
     public abstract class PlayerStateBase : MonoBehaviour, IState
     {
-        private PlayerFSM fsm;
+        protected PlayerFSM fsm;
         protected KCC cc => fsm.cc;
-        protected Animator anim => fsm.anim;
+        protected PlayerFSMAnimController anim => fsm.anim;
+
+        [SerializeField] protected string animState;
 
         public void InjectFSM(PlayerFSM fsm)
         {
