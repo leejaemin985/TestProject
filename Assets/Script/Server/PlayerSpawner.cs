@@ -8,7 +8,6 @@ using Unit;
 
 public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
 {
-    public EventHandler eventHandler;
     public PhysicsEventHandler physicsEventHandler;
     public Player playerPrefab;
 

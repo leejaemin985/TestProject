@@ -52,7 +52,7 @@ namespace Unit
         public Player GetOtherUser()
         {
             if (otherUser == null)
-                otherUser = EventHandler.Instance.GetOtherUser(userRef);
+                otherUser = PlayerRegistry.Instance.GetOtherPlayer(userRef);
             return otherUser;
         }
 
@@ -90,9 +90,9 @@ namespace Unit
 
         private IEnumerator InitSequencer()
         {
-            yield return new WaitUntil(() => PhysicsEventHandler.isSpawned);
+            yield return new WaitUntil(() => GameManager.Instance.isInitialized);
 
-            PhysicsEventHandler.Instance.RegisterPlayer(userRef, this);
+            PlayerRegistry.Instance.RegisterPlayer(userRef, this);
             Initialize();
         }
 
@@ -157,7 +157,7 @@ namespace Unit
 
         public void OnPlayerHitDetected(string motionName, float motionActiveTime)
         {
-            EventHandler.Instance.TryPlayerHitRequestMotionSync(userRef);
+            //EventHandler.Instance.TryPlayerHitRequestMotionSync(userRef);
         }
 
         public void ForceHitMotion(int tick)
