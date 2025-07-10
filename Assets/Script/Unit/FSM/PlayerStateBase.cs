@@ -7,7 +7,7 @@ namespace Unit
     {
         protected PlayerFSM fsm;
         protected KCC cc => fsm.cc;
-        protected PlayerFSMAnimController anim => fsm.anim;
+        protected Animator anim => fsm.anim;
 
         [SerializeField] protected string animState;
 

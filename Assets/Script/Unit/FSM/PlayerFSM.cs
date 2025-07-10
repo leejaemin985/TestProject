@@ -4,21 +4,26 @@ using UnityEngine;
 
 namespace Unit
 {
-    public class PlayerFSM : NetworkBehaviour, IMachineState
+    public class PlayerFSM : MonoBehaviour, IMachineState
     {
+        public const string RESOURCES_PATH = "Prefab/PlayerFSM";
+
         [SerializeField] private PlayerStateBase[] stateArray = default;
 
         private Player playerUnit;
         private SimpleKCC kcc;
-        private PlayerFSMAnimController animator;
-        [SerializeField] private float animatorTransitionDuration = 4f / 60f;
+        private Animator animator;
+        private float animatorTransitionDuration = 4f / 60f;
+
 
         public Player player => playerUnit;
         public SimpleKCC cc => kcc;
-        public PlayerFSMAnimController anim => animator;
+        public Animator anim => animator;
         public float animTransitionDuration => animatorTransitionDuration;
 
+        public bool HasAuthority => player.HasStateAuthority;
         public int cachedTick { get; private set; }
+        public float deltaTime { get; private set; }
 
         public InputInterpreter input;
 
@@ -26,15 +31,21 @@ namespace Unit
 
         #region Networked
 
-        [Networked]
-        public Vector3 moveAnimDir { get; set; }
+        public Vector3 moveAnimDir
+        {
+            get { return playerUnit.moveAnimDir; }
+            set { playerUnit.moveAnimDir = value; }
+        }
 
-        [Networked]
-        public float runWeight { get; set; }
+        public float runWeight
+        {
+            get { return playerUnit.runWeight; }
+            set { playerUnit.runWeight = value; }
+        }
 
         #endregion
 
-        public void Initialized(Player player, SimpleKCC cc, PlayerFSMAnimController anim)
+        public void Initialized(Player player, SimpleKCC cc, Animator anim)
         {
             this.playerUnit = player;
             kcc = cc;
@@ -77,9 +88,11 @@ namespace Unit
             }
         }
 
-        public override void FixedUpdateNetwork()
+        public void UpdateTick(InputData newInput, int tick, float deltaTime)
         {
-            cachedTick = Runner.Tick;
+            input.Update(newInput);
+            this.cachedTick = tick;
+            this.deltaTime = deltaTime;
 
             currentState?.OnState();
         }

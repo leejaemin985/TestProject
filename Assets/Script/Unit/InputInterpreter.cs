@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
-public struct InputData
+using Fusion;
+
+public struct InputData : INetworkInput
 {
     public Vector2 moveDir;
     public bool dash;

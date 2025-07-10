@@ -4,20 +4,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public struct PlayerInputData : INetworkInput
-{
-    public Vector2 Move;
-    public NetworkButtons buttons;
-}
-
-public enum InputButton
-{
-    LightAttack,
-    HeavyAttack,
-    Dash,
-    Defense
-}
-
 
 public class InputHandle : MonoBehaviour, INetworkRunnerCallbacks
 {
@@ -35,16 +21,13 @@ public class InputHandle : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnInput(NetworkRunner runner, NetworkInput input)
     {
-        PlayerInputData data = new();
+        InputData data = new();
 
-        data.Move = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        
-        if (Input.GetKey(KeyCode.Mouse0)) data.buttons.Set((int)InputButton.LightAttack, true);
+        data.moveDir = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
 
-        //if (Input.GetKey(KeyCode.Mouse1)) data.buttons.Set((int)InputButton.HeavyAttack, true);
-        if (Input.GetKey(KeyCode.Mouse1)) data.buttons.Set((int)InputButton.Defense, true);
+        if (Input.GetKey(KeyCode.Mouse0)) data.attack = true;
 
-        if (Input.GetKey(KeyCode.LeftShift)) data.buttons.Set((int)InputButton.Dash, true);
+        if (Input.GetKey(KeyCode.LeftShift)) data.dash = true;
 
         input.Set(data);
     }

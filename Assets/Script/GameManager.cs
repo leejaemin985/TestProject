@@ -36,12 +36,6 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    private static readonly Type[] requiredMasterSingletons =
-    {
-        typeof(PlayerRegistry),
-        typeof(PhysicsEventHandler),
-    };
-
     public bool isInitialized { get; private set; } = false;
 
     private const float CHECK_INTERVAL = 0.2f;
@@ -68,6 +62,13 @@ public class GameManager : MonoBehaviour
     }
 
     #region Using Reflection
+
+    //private static readonly Type[] requiredMasterSingletons =
+    //{
+    //    typeof(PlayerRegistry),
+    //    typeof(PhysicsEventHandler),
+    //};
+
     //private IEnumerator CheckMasterSingletonsReady()
     //{
     //    yield return null;

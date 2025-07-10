@@ -20,13 +20,4 @@ public class PlayerRegistry : MasterSingleton<PlayerRegistry>
         if (registedUser.ContainsKey(userRef)) registedUser[userRef] = player;
         registedUser.Add(userRef, player);
     }
-
-    public Player GetOtherPlayer(PlayerRef userRef)
-    {
-        foreach (var user in registedUser)
-        {
-            if (user.Value.userRef.Equals(userRef) == false) return user.Value;
-        }
-        return null;
-    }
 }

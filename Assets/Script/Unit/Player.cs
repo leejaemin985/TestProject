@@ -9,69 +9,30 @@ using UnityEngine;
 
 namespace Unit
 {
-    public class PlayerState
-    {
-        public State isMotion { get; private set; }
-
-        public State isJump { get; private set; }
-
-        public State isAttack { get; private set; }
-
-        public State isHit { get; private set; }
-
-        public PlayerState()
-        {
-            isMotion = new("isMotion");
-
-            isJump = new("isJump");
-
-            isAttack = new("isAttack");
-
-            isHit = new("isHit");
-        }
-    }
-
-
     public class Player : Unit
     {
         private PlayerRef cachedPlayerRef;
-        private bool isServerLocal;
 
         [Networked] 
         public PlayerRef userRef { get; private set; }
 
+        [Networked]
+        public Vector3 moveAnimDir { get; set; }
+
+        [Networked]
+        public float runWeight { get; set; }
+
+
         [SerializeField] private SimpleKCC cc;
-        [SerializeField] private PlayerAnimController animController;
         [SerializeField] private PlayerCam playerCam;
-        [SerializeField] private PlayerAttack attackController;
-        [SerializeField] private PlayerHit hitController;
-        [SerializeField] private Katana weapon;
+        [SerializeField] private Animator anim;
+
         [SerializeField] private PlayerAnimEventer animEventer;
+        [SerializeField] private Katana weapon;
 
-        private Player otherUser;
-        public Player GetOtherUser()
-        {
-            if (otherUser == null)
-                otherUser = PlayerRegistry.Instance.GetOtherPlayer(userRef);
-            return otherUser;
-        }
-
-        private int cachedTick = 0;
-
-        private PlayerState playerState = new();
-
-        private Vector3 moveDir = default;
-        private Quaternion lookRot = default;
-
-        private bool canDash => !playerState.isMotion.state;
-        private float moveSpeed = 65f;
-        private float walkSpeed = 65f;
-        private float dashSpeed = 150f;
-        private float moveSpeedChangedSpeed = 10f;
+        private PlayerFSM fsm;
 
         private IEnumerator CamSettingHandle = default;
-
-        private NetworkButtons prevInput;
 
         public void PreSpawnInitialize(PlayerRef userRef)
         {
@@ -99,172 +60,29 @@ namespace Unit
         private void Initialize()
         {
             StartCamSet();
-            hitController.Initialize(IsMasterClient, playerState, OnPlayerHitDetected, attackController.StopAttackMotion, SetMoveDir);
-            animController.Initialize(playerState);
-            attackController.Initialized(
-                IsMasterClient,
-                () => { return transform; },
-                playerState,
-                weapon,
-                hitController.GetPhysicsBox(),
-                SetMoveDir,
-                SetRot,
-                GetOtherUser); ;
-
-            animEventer.Initialize(attackController.SetWeaponActive, attackController.SetAttackMoveDir);
-
-            SetState();
-        }
-
-        private void SetState()
-        {
-            playerState.isMotion.AddStateOnListener(OnMotionState);
-            playerState.isMotion.AddStateOffListener(OffMotionState);
-        }
-
-        private void OnMotionState()
-        {
-            moveSpeed = walkSpeed;
-        }
-
-        private void OffMotionState()
-        {
+            fsm = Instantiate(Resources.Load<PlayerFSM>(PlayerFSM.RESOURCES_PATH));
+            fsm.transform.SetParent(transform, false);
+            fsm.Initialized(this, cc, anim);
 
         }
-
-        private bool IsMasterClient()
-        {
-            return Runner.IsSharedModeMasterClient;
-        }
-
-        [Networked]
-        private Vector2 moveAnimTargetDir { get; set; }
-
-        [Networked]
-        private float runWeight { get; set; }
-
-        [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
-        public void RPC_OnAttackEvent(string motionName, float motionActiveTime, int startTick, HitInfo hitInfo)
-        {
-            int tickOffset = Runner.Tick - startTick;
-            float latency = tickOffset * Runner.DeltaTime;
-
-            attackController.SetAttackMotion(motionActiveTime);
-            animController.Play(motionName, PlayerAnimController.PlayerAnimLayer.ATTACK, isServerLocal ? latency : 0);
-
-            attackController.SetHitInfo(hitInfo);
-        }
-
-        public void OnPlayerHitDetected(string motionName, float motionActiveTime)
-        {
-            //EventHandler.Instance.TryPlayerHitRequestMotionSync(userRef);
-        }
-
-        public void ForceHitMotion(int tick)
-        {
-            int tickOffset = cachedTick - tick;
-            tickOffset = tickOffset < 0 ? 0 : tickOffset;
-
-            float latency = tickOffset * Runner.DeltaTime;
-
-            hitController.OnHitMotion(1f);
-            animController.Play("_HitF", PlayerAnimController.PlayerAnimLayer.HIT, 0);
-        }
-
 
         public override void Render()
         {
-            animController.SetMoveAnimDirection(moveAnimTargetDir, runWeight);
+            if (!HasInputAuthority)
+            {
+                Debug.Log($"{moveAnimDir}");
+            }
+
+            anim.SetFloat("_Horizontal", moveAnimDir.x);
+            anim.SetFloat("_Vertical", moveAnimDir.z);
+            anim.SetFloat("_RunWeight", runWeight);
         }
 
         public override void FixedUpdateNetwork()
         {
-            cachedTick = Runner.Tick;
+            if (GetInput<InputData>(out var input) == false) return;
 
-            if (GetInput<PlayerInputData>(out var input) == false) return;
-
-            if (playerState.isMotion.state == false)
-            {
-                SetPlayerMoveAndRotate(input.Move);
-
-                SetMoveSpeed(
-                    input.buttons.IsSet(InputButton.Dash) && canDash ? dashSpeed : walkSpeed,
-                    moveSpeedChangedSpeed);
-            }
-
-            if (input.buttons.WasPressed(prevInput, InputButton.LightAttack) == true)
-            {
-                var attackMotion = attackController.TryAttack();
-                if (attackMotion.success)
-                    RPC_OnAttackEvent(
-                        attackMotion.motionName,
-                        attackMotion.motionActiveTime,
-                        Runner.Tick,
-                        attackMotion.hitInfo);
-            }
-
-
-            if (input.buttons.IsSet(InputButton.Defense))
-            {
-                //playerState.isDefense.state = true;
-            }
-            else
-            {
-                //playerState.isDefense.state = false;
-            }
-            
-
-            ApplyPlayerMove();
-
-            prevInput = input.buttons;
-        }
-
-
-        private void SetPlayerMoveAndRotate(Vector2 input)
-        {
-            //애니메이션 방향 설정
-            moveAnimTargetDir = input;
-
-            Vector3 inputDir = new Vector3(input.x, 0, input.y);
-            
-            inputDir = Camera.main.transform.TransformDirection(inputDir);
-            inputDir.y = 0;
-            inputDir.Normalize();
-
-            if (inputDir.magnitude > 0.1f)
-            {
-                lookRot = Quaternion.Slerp(transform.rotation, Camera.main.transform.rotation, 10 * Runner.DeltaTime);
-            }
-
-            moveDir = inputDir;
-        }
-
-        private void ApplyPlayerMove()
-        {
-            cc.SetLookRotation(lookRot);
-            cc.Move(moveDir * moveSpeed * Runner.DeltaTime);
-        }
-
-        private void SetMoveDir(Vector3 targetDir)
-        {
-            moveDir = targetDir;
-        }
-
-        private void SetRot(Quaternion targetRot)
-        {
-            lookRot = targetRot;
-            cc.SetLookRotation(lookRot);
-        }
-
-        private void SetMoveSpeed(float targetSpeed, float lerpSpeed)
-        {
-            if (moveDir.magnitude < .1f) return;
-
-            moveSpeed = Mathf.Lerp(moveSpeed, targetSpeed, lerpSpeed * Runner.DeltaTime);
-
-            //runWeight값에 따라 이동애니메이션이 설정됩니다.
-            float ratio = Mathf.InverseLerp(walkSpeed, dashSpeed, moveSpeed);
-            runWeight = Mathf.Lerp(1f, 2f, ratio);
+            fsm?.UpdateTick(input, Runner.Tick, Runner.DeltaTime);
         }
 
         #region Cam
