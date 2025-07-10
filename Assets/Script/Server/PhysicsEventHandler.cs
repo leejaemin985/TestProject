@@ -3,7 +3,7 @@ using Fusion;
 using UnityEngine;
 using Unit;
 
-public class PhysicsEventHandler : MasterSingleton<PhysicsEventHandler>, IMasterSingleton
+public class PhysicsEventHandler : MasterSingleton<PhysicsEventHandler>
 {
-    public bool initialized => HasInstance;
+
 }

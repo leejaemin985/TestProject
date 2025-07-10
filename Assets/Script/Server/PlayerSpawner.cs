@@ -8,6 +8,7 @@ using Unit;
 
 public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
 {
+    public PlayerRegistry PlayerRegistry;
     public PhysicsEventHandler physicsEventHandler;
     public Player playerPrefab;
 
@@ -16,6 +17,7 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
         bool masterClient = Runner.IsSharedModeMasterClient;
         if (masterClient)
         {
+            Runner.Spawn(PlayerRegistry, Vector3.zero, Quaternion.identity, player);
             Runner.Spawn(physicsEventHandler, Vector3.zero, Quaternion.identity, player);
         }
 

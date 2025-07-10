@@ -1,6 +1,7 @@
 ﻿using Physics;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -16,8 +17,6 @@ public class GameManager : MonoBehaviour
                 instance =
                     new GameObject("GameManager").
                     AddComponent<GameManager>();
-
-                DontDestroyOnLoad(instance.gameObject);
             }
             return instance;
         }
@@ -54,24 +53,67 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator CheckMasterSingletonsReady()
     {
-        //while (true)
-        //{
-        //    bool allReady = true;
+        yield return null;
 
-        //    foreach (IMasterSingleton type in requiredMasterSingletons)
-        //    {
-        //        if (type.initialized == false)
-        //            allReady = false;
-        //        break;
-        //    }
+        List<Type> masterSingletonTypes = new();
 
-        //    if (allReady)
-        //    {
-        //        isInitialized = true;
-        //        yield break;
-        //    }
+        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
-        //    yield return new WaitForSeconds(CHECK_INTERVAL);
-        //}
+        foreach (var asm in assemblies)
+        {
+            foreach (var type in asm.GetTypes())
+            {
+                if (type.IsClass &&
+                    !type.IsAbstract &&
+                    type.BaseType != null &&
+                    type.BaseType.IsGenericType &&
+                    type.BaseType.GetGenericTypeDefinition() == typeof(MasterSingleton<>))
+                {
+                    masterSingletonTypes.Add(type);
+                }
+            }
+        }
+
+        var checkDelay = new WaitForSeconds(CHECK_INTERVAL);
+        while (true)
+        {
+            bool allReady = true;
+
+            foreach (var type in masterSingletonTypes)
+            {
+                if (!IsMasterSingletonInitialized(type))
+                {
+                    allReady = false;
+                    break;
+                }
+            }
+
+            if (allReady)
+            {
+                isInitialized = true;
+                yield break;
+            }
+
+            yield return checkDelay;
+        }
+
+    }
+
+    private static bool IsMasterSingletonInitialized(Type type)
+    {
+        var instanceProp = type.GetProperty("Instance",
+            System.Reflection.BindingFlags.Public |
+            System.Reflection.BindingFlags.Static |
+            System.Reflection.BindingFlags.FlattenHierarchy);
+        if (instanceProp == null) return false;
+
+        var instance = instanceProp.GetValue(null);
+        if (instance == null) return false;
+
+        var initializedProp = type.GetProperty("Initialized", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+        if (initializedProp == null) return false;
+
+
+        return (bool)initializedProp.GetValue(instance);
     }
 }

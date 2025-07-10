@@ -4,11 +4,8 @@ using UnityEngine;
 using Fusion;
 
 
-public class PlayerRegistry : MasterSingleton<PlayerRegistry>, IMasterSingleton
+public class PlayerRegistry : MasterSingleton<PlayerRegistry>
 {
-    public bool initialized => HasInstance;
-
-
     private Dictionary<PlayerRef, Player> registedUser;
 
     protected override void Initialize()
