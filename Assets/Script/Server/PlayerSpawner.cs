@@ -35,5 +35,7 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
 
                 user.PreSpawnInitialize(player);
             });
+
+
     }
 }

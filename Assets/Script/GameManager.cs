@@ -22,6 +22,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
+
+
     private void Awake()
     {
         if (instance != null && instance != this)
@@ -48,72 +50,89 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         if (checkMasterSingletonHandle != null) StopCoroutine(checkMasterSingletonHandle);
-        StartCoroutine(checkMasterSingletonHandle = CheckMasterSingletonsReady());
+        StartCoroutine(checkMasterSingletonHandle = CheckMasterSingletonsReady());       
     }
 
     private IEnumerator CheckMasterSingletonsReady()
     {
-        yield return null;
+        bool CheckRegistryInitialized() => PlayerRegistry.Instance != null && PlayerRegistry.Instance.Initialized;
+        bool CheckPhysicsEventHandlerInitialized() => PhysicsEventHandler.Instance != null && PhysicsEventHandler.Instance.Initialized;
 
-        List<Type> masterSingletonTypes = new();
-
-        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-        foreach (var asm in assemblies)
+        while (!isInitialized)
         {
-            foreach (var type in asm.GetTypes())
-            {
-                if (type.IsClass &&
-                    !type.IsAbstract &&
-                    type.BaseType != null &&
-                    type.BaseType.IsGenericType &&
-                    type.BaseType.GetGenericTypeDefinition() == typeof(MasterSingleton<>))
-                {
-                    masterSingletonTypes.Add(type);
-                }
-            }
-        }
-
-        var checkDelay = new WaitForSeconds(CHECK_INTERVAL);
-        while (true)
-        {
-            bool allReady = true;
-
-            foreach (var type in masterSingletonTypes)
-            {
-                if (!IsMasterSingletonInitialized(type))
-                {
-                    allReady = false;
-                    break;
-                }
-            }
-
-            if (allReady)
-            {
+            if (CheckRegistryInitialized() && CheckPhysicsEventHandlerInitialized())
                 isInitialized = true;
-                yield break;
-            }
 
-            yield return checkDelay;
+            yield return new WaitForSeconds(CHECK_INTERVAL);
         }
-
     }
 
-    private static bool IsMasterSingletonInitialized(Type type)
-    {
-        var instanceProp = type.GetProperty("Instance",
-            System.Reflection.BindingFlags.Public |
-            System.Reflection.BindingFlags.Static |
-            System.Reflection.BindingFlags.FlattenHierarchy);
-        if (instanceProp == null) return false;
+    #region Using Reflection
+    //private IEnumerator CheckMasterSingletonsReady()
+    //{
+    //    yield return null;
 
-        var instance = instanceProp.GetValue(null);
-        if (instance == null) return false;
+    //    List<Type> masterSingletonTypes = new();
 
-        var initializedProp = type.GetProperty("Initialized", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-        if (initializedProp == null) return false;
+    //    var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
 
-        return (bool)initializedProp.GetValue(instance);
-    }
+    //    foreach (var asm in assemblies)
+    //    {
+    //        foreach (var type in asm.GetTypes())
+    //        {
+    //            if (type.IsClass &&
+    //                !type.IsAbstract &&
+    //                type.BaseType != null &&
+    //                type.BaseType.IsGenericType &&
+    //                type.BaseType.GetGenericTypeDefinition() == typeof(MasterSingleton<>))
+    //            {
+    //                masterSingletonTypes.Add(type);
+    //            }
+    //        }
+    //    }
+
+    //    var checkDelay = new WaitForSeconds(CHECK_INTERVAL);
+    //    while (true)
+    //    {
+    //        bool allReady = true;
+
+    //        foreach (var type in masterSingletonTypes)
+    //        {
+    //            if (!IsMasterSingletonInitialized(type))
+    //            {
+    //                allReady = false;
+    //                break;
+    //            }
+    //        }
+
+    //        if (allReady)
+    //        {
+    //            isInitialized = true;
+    //            yield break;
+    //        }
+
+    //        yield return checkDelay;
+    //    }
+
+    //}
+
+    //private static bool IsMasterSingletonInitialized(Type type)
+    //{
+    //    var instanceProp = type.GetProperty("Instance",
+    //        System.Reflection.BindingFlags.Public |
+    //        System.Reflection.BindingFlags.Static |
+    //        System.Reflection.BindingFlags.FlattenHierarchy);
+    //    if (instanceProp == null) return false;
+
+    //    var instance = instanceProp.GetValue(null);
+    //    if (instance == null) return false;
+
+    //    var initializedProp = type.GetProperty("Initialized", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+    //    if (initializedProp == null) return false;
+
+
+    //    return (bool)initializedProp.GetValue(instance);
+    //}
+    #endregion
 }
