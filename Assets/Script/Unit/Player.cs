@@ -68,14 +68,15 @@ namespace Unit
 
         public override void Render()
         {
-            if (!HasInputAuthority)
-            {
-                Debug.Log($"{moveAnimDir}");
-            }
+            var currx = anim.GetFloat("_Horizontal");
+            var curry = anim.GetFloat("_Vertical");
+            var currr = anim.GetFloat("_RunWeight");
 
-            anim.SetFloat("_Horizontal", moveAnimDir.x);
-            anim.SetFloat("_Vertical", moveAnimDir.z);
-            anim.SetFloat("_RunWeight", runWeight);
+            float curvSpeed = 10;
+
+            anim.SetFloat("_Horizontal", Mathf.Lerp(currx, moveAnimDir.x, curvSpeed * Time.deltaTime));
+            anim.SetFloat("_Vertical", Mathf.Lerp(curry, moveAnimDir.z, curvSpeed * Time.deltaTime));
+            anim.SetFloat("_RunWeight", Mathf.Lerp(currr, runWeight, curvSpeed * Time.deltaTime));
         }
 
         public override void FixedUpdateNetwork()
