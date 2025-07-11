@@ -24,6 +24,8 @@ namespace Unit
 
         protected virtual void ExitState() { }
 
+        protected virtual void OnRender() { }
+
         bool IState.CanEnter() => CanEnter();
 
         void IState.EnterState() => EnterState();
@@ -31,5 +33,7 @@ namespace Unit
         void IState.OnState() => OnState();
 
         void IState.ExitState() => ExitState();
+
+        void IState.OnRender() => OnRender();
     }
 }

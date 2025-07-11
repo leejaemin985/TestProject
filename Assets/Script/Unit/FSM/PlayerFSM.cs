@@ -96,5 +96,13 @@ namespace Unit
 
             currentState?.OnState();
         }
+
+        public void UpdateRender(int tick, float deltaTime)
+        {
+            this.cachedTick = tick;
+            this.deltaTime = deltaTime;
+
+            currentState?.OnRender();
+        }
     }
 }

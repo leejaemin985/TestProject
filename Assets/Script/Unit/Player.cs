@@ -68,15 +68,16 @@ namespace Unit
 
         public override void Render()
         {
-            var currx = anim.GetFloat("_Horizontal");
-            var curry = anim.GetFloat("_Vertical");
-            var currr = anim.GetFloat("_RunWeight");
+            fsm?.UpdateRender(Runner.Tick, Runner.DeltaTime);
+            //var currx = anim.GetFloat("_Horizontal");
+            //var curry = anim.GetFloat("_Vertical");
+            //var currr = anim.GetFloat("_RunWeight");
 
-            float curvSpeed = 10;
+            //float curvSpeed = 10;
 
-            anim.SetFloat("_Horizontal", Mathf.Lerp(currx, moveAnimDir.x, curvSpeed * Time.deltaTime));
-            anim.SetFloat("_Vertical", Mathf.Lerp(curry, moveAnimDir.z, curvSpeed * Time.deltaTime));
-            anim.SetFloat("_RunWeight", Mathf.Lerp(currr, runWeight, curvSpeed * Time.deltaTime));
+            //anim.SetFloat("_Horizontal", Mathf.Lerp(currx, moveAnimDir.x, curvSpeed * Time.deltaTime));
+            //anim.SetFloat("_Vertical", Mathf.Lerp(curry, moveAnimDir.z, curvSpeed * Time.deltaTime));
+            //anim.SetFloat("_RunWeight", Mathf.Lerp(currr, runWeight, curvSpeed * Time.deltaTime));
         }
 
         public override void FixedUpdateNetwork()

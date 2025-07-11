@@ -9,5 +9,7 @@ namespace Unit
         void OnState();
 
         void ExitState();
+
+        void OnRender();
     }
 }

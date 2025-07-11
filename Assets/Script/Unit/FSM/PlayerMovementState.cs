@@ -26,38 +26,46 @@ namespace Unit
 
         protected override void OnState()
         {
-            if (fsm.HasAuthority)
+            if (!fsm.HasAuthority) return;
+
+            Vector3 inputDir = new Vector3(fsm.input.Current.moveDir.x, 0, fsm.input.Current.moveDir.y);
+
+            fsm.moveAnimDir = Vector3.Lerp(fsm.moveAnimDir, inputDir, curveSpeed * fsm.deltaTime);
+
+            inputDir = Camera.main.transform.TransformDirection(inputDir);
+            inputDir.y = 0;
+            inputDir.Normalize();
+
+            currentMoveDir = Vector3.Lerp(currentMoveDir, inputDir, curveSpeed * fsm.deltaTime);
+
+            float targetMoveSpeed = fsm.input.IsSet(x => x.dash) ? runSpeed : walkSpeed;
+            currentMoveSpeed = Mathf.Lerp(currentMoveSpeed, targetMoveSpeed, curveSpeed * fsm.deltaTime);
+
+            fsm.runWeight = Mathf.Lerp(1f, 2f, Mathf.InverseLerp(walkSpeed, runSpeed, currentMoveSpeed));
+
+            if (inputDir.sqrMagnitude > 0.01f)
             {
-                Vector3 inputDir = new Vector3(fsm.input.Current.moveDir.x, 0, fsm.input.Current.moveDir.y);
-
-                //fsm.moveAnimDir = Vector3.Lerp(fsm.moveAnimDir, inputDir, curveSpeed * fsm.deltaTime);
-                //fsm.moveAnimDir = inputDir;//Vector3.Lerp(fsm.moveAnimDir, inputDir, curveSpeed * fsm.deltaTime);
-                fsm.player.moveAnimDir = inputDir;
-
-
-                inputDir = Camera.main.transform.TransformDirection(inputDir);
-                inputDir.y = 0;
-                inputDir.Normalize();
-
-                //currentMoveDir = Vector3.Lerp(currentMoveDir, inputDir, curveSpeed * fsm.deltaTime);
-
-                float targetMoveSpeed = fsm.input.IsSet(x => x.dash) ? runSpeed : walkSpeed;
-                //currentMoveSpeed = Mathf.Lerp(currentMoveSpeed, targetMoveSpeed, curveSpeed * fsm.deltaTime);
-                
-                //fsm.runWeight = Mathf.Lerp(1f, 2f, Mathf.InverseLerp(walkSpeed, runSpeed, targetMoveSpeed));
-                fsm.player.runWeight = Mathf.Lerp(1f, 2f, Mathf.InverseLerp(walkSpeed, runSpeed, targetMoveSpeed));
-
-                if (inputDir.sqrMagnitude > 0.01f)
-                {
-                    fsm.cc.SetLookRotation(Quaternion.Slerp(fsm.cc.transform.rotation, Camera.main.transform.rotation, curveSpeed * fsm.deltaTime));
-                }
-
-                fsm.cc.Move(inputDir * currentMoveSpeed * fsm.deltaTime);
+                fsm.cc.SetLookRotation(Quaternion.Slerp(fsm.cc.transform.rotation, Camera.main.transform.rotation, curveSpeed * fsm.deltaTime));
             }
 
-            //fsm.anim.SetFloat("_Horizontal", fsm.moveAnimDir.x);
-            //fsm.anim.SetFloat("_Vertical", fsm.moveAnimDir.z);
-            //fsm.anim.SetFloat("_RunWeight", fsm.runWeight);
+            fsm.cc.Move(inputDir * currentMoveSpeed * fsm.deltaTime);
+        }
+
+        protected override void OnRender()
+        {
+            const string HORIZONTAL = "_Horizontal";
+            const string VERTICAL = "_Vertical";
+            const string RUNWEIGHT = "_RunWeight";
+
+            float curvSpeed = .1f;
+
+            float currentHorizontal = fsm.anim.GetFloat(HORIZONTAL);
+            float currentVertical = fsm.anim.GetFloat(VERTICAL);
+            float currentRunWeight = fsm.anim.GetFloat(RUNWEIGHT);
+
+            fsm.anim.SetFloat(HORIZONTAL, Mathf.Lerp(currentHorizontal, fsm.moveAnimDir.x, curvSpeed));
+            fsm.anim.SetFloat(VERTICAL, Mathf.Lerp(currentVertical, fsm.moveAnimDir.z, curvSpeed));
+            fsm.anim.SetFloat(RUNWEIGHT, Mathf.Lerp(currentRunWeight, fsm.runWeight, curvSpeed));
         }
     }
 }
