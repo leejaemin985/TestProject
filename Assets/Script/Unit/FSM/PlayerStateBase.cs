@@ -26,6 +26,8 @@ namespace Unit
 
         protected virtual void OnRender() { }
 
+        protected virtual void OnAnimEvent(string param) { }
+
         bool IState.CanEnter() => CanEnter();
 
         void IState.EnterState() => EnterState();
@@ -35,5 +37,7 @@ namespace Unit
         void IState.ExitState() => ExitState();
 
         void IState.OnRender() => OnRender();
+
+        void IState.OnAnimEvent(string param) => OnAnimEvent(param);
     }
 }

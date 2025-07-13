@@ -47,6 +47,7 @@ MonoBehaviour:
   animState: _Movement
   walkSpeed: 65
   runSpeed: 150
+  curveSpeed: 10
 --- !u!1 &337906039955506607
 GameObject:
   m_ObjectHideFlags: 0
@@ -77,6 +78,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5580219329131200572}
+  - {fileID: 2388216009864843664}
   m_Father: {fileID: 8815805002074322402}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3166846193314243143
@@ -126,3 +128,69 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stateArray:
   - {fileID: 8254595142628485093}
+  - {fileID: 3582036955177075393}
+--- !u!1 &6052761579268680511
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2388216009864843664}
+  - component: {fileID: 3582036955177075393}
+  m_Layer: 0
+  m_Name: AttackState
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2388216009864843664
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6052761579268680511}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5906400368625154044}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3582036955177075393
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6052761579268680511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1ca471c0ecee334384b003a0b31be70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animState: 
+  attackMotionInfos:
+  - clip: {fileID: 7400000, guid: a58e30832143e334fa2c2fdfcf35b878, type: 2}
+    motionName: _LightAttack_0
+    motionDuration: 0.6
+  - clip: {fileID: 7400000, guid: 8f2e64a1e30240f4aa18b1322d9ac783, type: 2}
+    motionName: _LightAttack_1
+    motionDuration: 0.6
+  - clip: {fileID: 7400000, guid: 86a8aa2004603d542a167f8c96562bfc, type: 2}
+    motionName: _LightAttack_2
+    motionDuration: 0.7
+  - clip: {fileID: 7400000, guid: 4e9bea3a5b518984ca2e0ad071993fd0, type: 2}
+    motionName: _LightAttack_3
+    motionDuration: 0.7
+  - clip: {fileID: 7400000, guid: b8e22e79770fb6147bd8bfe7b2018305, type: 2}
+    motionName: _LightAttack_4
+    motionDuration: 1
+  - clip: {fileID: 7400000, guid: 6f624e36d26cbeb4f9e4e99937040679, type: 2}
+    motionName: _LightAttack_5
+    motionDuration: 1
+  attackTryWindowTime: 0

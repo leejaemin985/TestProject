@@ -1,5 +1,6 @@
 using Fusion;
 using Fusion.Addons.SimpleKCC;
+using System;
 using UnityEngine;
 
 namespace Unit
@@ -13,21 +14,22 @@ namespace Unit
         private Player playerUnit;
         private SimpleKCC kcc;
         private Animator animator;
-        private float animatorTransitionDuration = 4f / 60f;
 
 
         public Player player => playerUnit;
         public SimpleKCC cc => kcc;
         public Animator anim => animator;
-        public float animTransitionDuration => animatorTransitionDuration;
 
         public bool HasAuthority => player.HasStateAuthority;
         public int cachedTick { get; private set; }
         public float deltaTime { get; private set; }
+        public float tickRate => 1f / deltaTime;
 
         public InputInterpreter input;
 
         private IState currentState;
+
+        private Action<string, int, float> rpcRunMotion;
 
         #region Networked
 
@@ -45,12 +47,14 @@ namespace Unit
 
         #endregion
 
-        public void Initialized(Player player, SimpleKCC cc, Animator anim)
+        public void Initialized(Player player, SimpleKCC cc, Animator anim, Action<string, int, float> rpcRunMotion)
         {
             this.playerUnit = player;
             kcc = cc;
             animator = anim;
             input = new();
+
+            this.rpcRunMotion = rpcRunMotion;
 
             foreach (var state in stateArray)
             {
@@ -58,6 +62,12 @@ namespace Unit
             }
 
             SetState<PlayerMovementState>();
+        }
+
+        public void RPC_RunMotion(string motionName, int startTick, float transitionTime)
+        {
+            if (!HasAuthority) return;
+            rpcRunMotion?.Invoke(motionName, startTick, transitionTime);
         }
 
         public void SetState<T>() where T : class, IState
@@ -103,6 +113,11 @@ namespace Unit
             this.deltaTime = deltaTime;
 
             currentState?.OnRender();
+        }
+
+        public void OnAnimEvent(string param)
+        {
+            currentState?.OnAnimEvent(param);
         }
     }
 }

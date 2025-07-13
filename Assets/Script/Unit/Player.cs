@@ -62,28 +62,26 @@ namespace Unit
             StartCamSet();
             fsm = Instantiate(Resources.Load<PlayerFSM>(PlayerFSM.RESOURCES_PATH));
             fsm.transform.SetParent(transform, false);
-            fsm.Initialized(this, cc, anim);
+            fsm.Initialized(this, cc, anim, RPC_RunMotion);
 
+            animEventer.Initialize(fsm.OnAnimEvent);
+        }
+
+        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        private void RPC_RunMotion(string motionName, int startTick, float transitionTime)
+        {
+            fsm?.anim.CrossFadeInFixedTime(motionName, transitionTime, 0, 0);
         }
 
         public override void Render()
         {
             fsm?.UpdateRender(Runner.Tick, Runner.DeltaTime);
-            //var currx = anim.GetFloat("_Horizontal");
-            //var curry = anim.GetFloat("_Vertical");
-            //var currr = anim.GetFloat("_RunWeight");
-
-            //float curvSpeed = 10;
-
-            //anim.SetFloat("_Horizontal", Mathf.Lerp(currx, moveAnimDir.x, curvSpeed * Time.deltaTime));
-            //anim.SetFloat("_Vertical", Mathf.Lerp(curry, moveAnimDir.z, curvSpeed * Time.deltaTime));
-            //anim.SetFloat("_RunWeight", Mathf.Lerp(currr, runWeight, curvSpeed * Time.deltaTime));
         }
 
         public override void FixedUpdateNetwork()
         {
             if (GetInput<InputData>(out var input) == false) return;
-
+            
             fsm?.UpdateTick(input, Runner.Tick, Runner.DeltaTime);
         }
 

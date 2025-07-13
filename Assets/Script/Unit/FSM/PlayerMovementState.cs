@@ -12,21 +12,23 @@ namespace Unit
         private Vector3 currentMoveDir;
         private float currentMoveSpeed;
 
-        protected override bool CanEnter()
-        {
-            return true;
-        }
-
         protected override void EnterState()
         {
             currentMoveDir = Vector3.zero;
             currentMoveSpeed = walkSpeed;
-            fsm.anim.Play(animState);
+
+            fsm.RPC_RunMotion(animState, fsm.cachedTick, .3f);
         }
 
         protected override void OnState()
         {
             if (!fsm.HasAuthority) return;
+
+            if (fsm.input.IsSet(x => x.attack))
+            {
+                fsm.SetState<PlayerAttackState>();
+                return;
+            }
 
             Vector3 inputDir = new Vector3(fsm.input.Current.moveDir.x, 0, fsm.input.Current.moveDir.y);
 

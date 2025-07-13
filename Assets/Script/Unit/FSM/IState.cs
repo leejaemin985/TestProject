@@ -11,5 +11,7 @@ namespace Unit
         void ExitState();
 
         void OnRender();
+
+        void OnAnimEvent(string param);
     }
 }
