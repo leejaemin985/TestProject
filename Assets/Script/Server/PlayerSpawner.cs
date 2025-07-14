@@ -10,6 +10,7 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
 {
     public PlayerRegistry PlayerRegistry;
     public PhysicsEventHandler physicsEventHandler;
+    public EventDispatcher eventDispatcher;
     public Player playerPrefab;
 
     public void PlayerJoined(PlayerRef player)
@@ -19,6 +20,7 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
         {
             Runner.Spawn(PlayerRegistry, Vector3.zero, Quaternion.identity, player);
             Runner.Spawn(physicsEventHandler, Vector3.zero, Quaternion.identity, player);
+            Runner.Spawn(eventDispatcher, Vector3.zero, Quaternion.identity, player);
         }
 
         if (player != Runner.LocalPlayer) return;

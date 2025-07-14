@@ -66,6 +66,12 @@ namespace Unit
             fsm.cc.Move(currentAttackMove * attackMoveSpeed * fsm.deltaTime);
         }
 
+        protected override void ExitState()
+        {
+            currentAttackMove = Vector3.zero;
+            fsm.playerWeap.SetCollisionActive(false);
+        }
+
         protected override void OnRender()
         {
 
@@ -80,6 +86,7 @@ namespace Unit
             }
             return enemy;
         }
+
 
         protected override void OnAnimEvent(string param)
         {

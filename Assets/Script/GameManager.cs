@@ -52,10 +52,13 @@ public class GameManager : MonoBehaviour
     {
         bool CheckRegistryInitialized() => PlayerRegistry.Instance != null && PlayerRegistry.Instance.Initialized;
         bool CheckPhysicsEventHandlerInitialized() => PhysicsEventHandler.Instance != null && PhysicsEventHandler.Instance.Initialized;
+        bool CheckEventDispatcherInitialized() => EventDispatcher.Instance != null && EventDispatcher.Instance.Initialized;
 
         while (!isInitialized)
         {
-            if (CheckRegistryInitialized() && CheckPhysicsEventHandlerInitialized())
+            if (CheckRegistryInitialized() &&
+                CheckPhysicsEventHandlerInitialized() &&
+                CheckEventDispatcherInitialized())
                 isInitialized = true;
 
             yield return new WaitForSeconds(CHECK_INTERVAL);

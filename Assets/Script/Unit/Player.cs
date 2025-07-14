@@ -90,6 +90,11 @@ namespace Unit
             fsm?.anim.CrossFadeInFixedTime(motionName, transitionTime, 0, 0);
         }
 
+        public void SetStateEvent(string stateName)
+        {
+
+        }
+
         private void HitEvent(HitInfo hitInfo)
         {
 
