@@ -2,10 +2,8 @@ using Fusion;
 using Fusion.Addons.SimpleKCC;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Unit;
 using UnityEngine;
+using Physics;
 
 namespace Unit
 {
@@ -29,6 +27,9 @@ namespace Unit
 
         [SerializeField] private PlayerAnimEventer animEventer;
         [SerializeField] private Katana weapon;
+        private HitBox playerHitBox;
+        private readonly Vector3 hitBoxLocalPos = new Vector3(0, 1, 0);
+        private readonly Vector3 hitBoxScale = new Vector3(.7f, 2, .7f);
 
         private PlayerFSM fsm;
 
@@ -60,9 +61,25 @@ namespace Unit
         private void Initialize()
         {
             StartCamSet();
+
+            if (Runner.IsSharedModeMasterClient)
+            {
+                playerHitBox = new GameObject("PlayerHitBox").AddComponent<HitBox>();
+                playerHitBox.physicsShapeType = PhysicsObject.PhysicsShapeType.CAPSULE;
+                playerHitBox.transform.SetParent(transform);
+                playerHitBox.transform.localPosition = hitBoxLocalPos;
+                playerHitBox.transform.localScale = hitBoxScale;
+
+
+                playerHitBox.Initialize(HitEvent);
+                playerHitBox.SetActive(true);
+            }
+
+            weapon.Initialize(Runner.IsSharedModeMasterClient, playerHitBox);
+
             fsm = Instantiate(Resources.Load<PlayerFSM>(PlayerFSM.RESOURCES_PATH));
             fsm.transform.SetParent(transform, false);
-            fsm.Initialized(this, cc, anim, RPC_RunMotion);
+            fsm.Initialized(this, cc, anim, RPC_RunMotion, weapon);
 
             animEventer.Initialize(fsm.OnAnimEvent);
         }
@@ -71,6 +88,11 @@ namespace Unit
         private void RPC_RunMotion(string motionName, int startTick, float transitionTime)
         {
             fsm?.anim.CrossFadeInFixedTime(motionName, transitionTime, 0, 0);
+        }
+
+        private void HitEvent(HitInfo hitInfo)
+        {
+
         }
 
         public override void Render()

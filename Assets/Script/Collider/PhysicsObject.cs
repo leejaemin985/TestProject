@@ -349,7 +349,7 @@ namespace Physics
 
         public override int GetHashCode() => uid.GetHashCode();
 
-        private bool active = false;
+        protected bool active = false;
 
         public virtual bool Active => active && gameObject.activeSelf;
 

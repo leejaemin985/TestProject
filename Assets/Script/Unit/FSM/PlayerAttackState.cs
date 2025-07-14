@@ -137,7 +137,7 @@ namespace Unit
 
         private void SetWeaponCollision(string param)
         {
-
+            fsm.playerWeap.SetCollisionActive(string.Equals(param, "0") ? false : true);
         }
     }
 }

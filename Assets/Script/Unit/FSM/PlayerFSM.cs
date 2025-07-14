@@ -14,11 +14,14 @@ namespace Unit
         private Player playerUnit;
         private SimpleKCC kcc;
         private Animator animator;
+        private Katana playerWeapon;
 
 
         public Player player => playerUnit;
         public SimpleKCC cc => kcc;
         public Animator anim => animator;
+        public Katana playerWeap => playerWeapon;
+
 
         public bool HasAuthority => player.HasStateAuthority;
         public int cachedTick { get; private set; }
@@ -47,12 +50,13 @@ namespace Unit
 
         #endregion
 
-        public void Initialized(Player player, SimpleKCC cc, Animator anim, Action<string, int, float> rpcRunMotion)
+        public void Initialized(Player player, SimpleKCC cc, Animator anim, Action<string, int, float> rpcRunMotion, Katana playerWeapon)
         {
             this.playerUnit = player;
             kcc = cc;
             animator = anim;
             input = new();
+            this.playerWeapon = playerWeapon;
 
             this.rpcRunMotion = rpcRunMotion;
 

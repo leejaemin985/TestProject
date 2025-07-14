@@ -34,6 +34,7 @@ public class GameManager : MonoBehaviour
 
         instance = this;
         DontDestroyOnLoad(gameObject);
+        Application.targetFrameRate = 60;
     }
 
     public bool isInitialized { get; private set; } = false;
