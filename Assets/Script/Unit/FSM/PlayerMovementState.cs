@@ -1,3 +1,5 @@
+using Fusion;
+using System.Linq;
 using UnityEngine;
 
 namespace Unit
@@ -17,7 +19,7 @@ namespace Unit
             currentMoveDir = Vector3.zero;
             currentMoveSpeed = walkSpeed;
 
-            fsm.RPC_RunMotion(animState, fsm.cachedTick, .3f);
+            fsm.RPC_RunMotion(StateName, fsm.cachedTick, .3f);
         }
 
         protected override void OnState()

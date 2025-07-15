@@ -1,10 +1,19 @@
 using Fusion;
 using Fusion.Addons.SimpleKCC;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Unit
 {
+    [Serializable]
+    public class MotionInfo
+    {
+        public AnimationClip clip;
+        public string motionName;
+        public float motionDuration;
+    }
+
     public class PlayerFSM : MonoBehaviour, IMachineState
     {
         public const string RESOURCES_PATH = "Prefab/PlayerFSM";
@@ -119,9 +128,6 @@ namespace Unit
             currentState?.OnRender();
         }
 
-        public void OnAnimEvent(string param)
-        {
-            currentState?.OnAnimEvent(param);
-        }
+        public void OnAnimEvent(string param) => currentState?.OnAnimEvent(param);
     }
 }

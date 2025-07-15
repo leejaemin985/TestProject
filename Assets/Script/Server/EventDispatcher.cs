@@ -9,16 +9,14 @@ public class EventDispatcher : MasterSingleton<EventDispatcher>
     public void SetStateEvent(PlayerRef user, string stateName)
     {
         if (!HasStateAuthority) return;
-        UserSetStateEvent(user, stateName);
+        RPC_UserSetStateEvent(user, stateName);
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void UserSetStateEvent(PlayerRef user, string stateName)
+    private void RPC_UserSetStateEvent(PlayerRef user, string stateName)
     {
-        var targetUser = PlayerRegistry.Instance.RegistedUsers.FirstOrDefault(x => x.Key.Equals(user)).Value;
+        var targetUser = PlayerRegistry.Instance.RegistedUsers[user];
         if (targetUser != null)
-        {
             targetUser.SetStateEvent(stateName);
-        }
     }
 }

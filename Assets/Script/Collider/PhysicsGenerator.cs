@@ -102,7 +102,6 @@ namespace Physics
 
 
                     collisionResult[attackableOb].collisionInfos.Add(hitInfo);
-                    //attackableOb.OnCollisionEvent(collisionResult[attackableOb]);
                 }
             }
 

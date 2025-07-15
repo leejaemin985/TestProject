@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using Physics;
+using System.Linq;
 
 namespace Unit
 {
@@ -70,7 +71,6 @@ namespace Unit
                 playerHitBox.transform.localPosition = hitBoxLocalPos;
                 playerHitBox.transform.localScale = hitBoxScale;
 
-
                 playerHitBox.Initialize(HitEvent);
                 playerHitBox.SetActive(true);
             }
@@ -92,12 +92,12 @@ namespace Unit
 
         public void SetStateEvent(string stateName)
         {
-
+            fsm
         }
 
         private void HitEvent(HitInfo hitInfo)
         {
-
+            EventDispatcher.Instance.SetStateEvent(userRef, "HitState");
         }
 
         public override void Render()

@@ -79,6 +79,7 @@ Transform:
   m_Children:
   - {fileID: 5580219329131200572}
   - {fileID: 2388216009864843664}
+  - {fileID: 1699565764288260264}
   m_Father: {fileID: 8815805002074322402}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3166846193314243143
@@ -129,6 +130,62 @@ MonoBehaviour:
   stateArray:
   - {fileID: 8254595142628485093}
   - {fileID: 3582036955177075393}
+  - {fileID: 3458819030448858746}
+--- !u!1 &5193746578822369104
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1699565764288260264}
+  - component: {fileID: 3458819030448858746}
+  m_Layer: 0
+  m_Name: HitState
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1699565764288260264
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5193746578822369104}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5906400368625154044}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3458819030448858746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5193746578822369104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df3d4eff99d694e4195775e5ffc508a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animState: 
+  hitMotionInfos:
+  - clip: {fileID: 7400000, guid: 979533f277366d54aa873edf2460d708, type: 2}
+    motionName: _HitF
+    motionDuration: 0.8
+  - clip: {fileID: 7400000, guid: e3a0e1d9c0b54f446a6e46db58349d4a, type: 2}
+    motionName: _HitFL
+    motionDuration: 0.8
+  - clip: {fileID: 7400000, guid: 62eb87b0e780f104a8984678229d6d19, type: 2}
+    motionName: _HitFR
+    motionDuration: 0.8
 --- !u!1 &6052761579268680511
 GameObject:
   m_ObjectHideFlags: 0
@@ -193,4 +250,4 @@ MonoBehaviour:
   - clip: {fileID: 7400000, guid: 6f624e36d26cbeb4f9e4e99937040679, type: 2}
     motionName: _LightAttack_5
     motionDuration: 1
-  attackTryWindowTime: 0
+  attackTryWindowTime: 0.1

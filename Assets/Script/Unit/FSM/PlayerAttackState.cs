@@ -4,17 +4,9 @@ using UnityEngine;
 
 namespace Unit
 {
-    [Serializable]
-    public class AttackMotionInfo
-    {
-        public AnimationClip clip;
-        public string motionName;
-        public float motionDuration;
-    }
-
     public class PlayerAttackState : PlayerStateBase
     {
-        [SerializeField] AttackMotionInfo[] attackMotionInfos;
+        [SerializeField] MotionInfo[] attackMotionInfos;
 
         [SerializeField] private float attackTryWindowTime = .1f;
 

@@ -15,7 +15,6 @@ public class Katana : MonoBehaviour
         {
             collisionBox.gameObject.SetActive(true);
             collisionBox.Initialize(OnHit);
-            collisionBox.SetActive(true);
             collisionBox.AddIgnoreUid(userPhysicsObject);
         }
         else
