@@ -1,3 +1,4 @@
+using Fusion;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,8 +10,8 @@ namespace Physics
     {
         public override PhysicsType physicsType => PhysicsType.ATTACK;
 
-        public HashSet<Guid> ignoreUid { get; private set; }
-        public HashSet<Guid> checkedHitableUIDs { get; private set; }
+        public HashSet<Guid> ignoreUid { get; private set; } = new();
+        public HashSet<Guid> checkedHitableUIDs { get; private set; } = new();
 
         private Action<CollisionInfos> hitEvent;
 
@@ -18,8 +19,6 @@ namespace Physics
         {
             base.Initialize();
 
-            ignoreUid = new();
-            checkedHitableUIDs = new();
             this.hitEvent = hitEvent;
         }
 
