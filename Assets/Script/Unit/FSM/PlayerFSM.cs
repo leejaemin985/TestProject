@@ -1,6 +1,7 @@
 using Fusion;
 using Fusion.Addons.SimpleKCC;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Unit
@@ -10,6 +11,15 @@ namespace Unit
         public const string RESOURCES_PATH = "Prefab/PlayerFSM";
 
         [SerializeField] private PlayerStateBase[] stateArray = default;
+
+        public enum StateType
+        {
+            Move,
+            Attack,
+            Hit
+        }
+
+        private Dictionary<StateType, Action> stateSetActionMap;
 
         private Player playerUnit;
         private SimpleKCC kcc;
@@ -66,12 +76,24 @@ namespace Unit
             }
 
             SetState<PlayerMovementState>();
+
+            stateSetActionMap = new()
+            {
+                { StateType.Move, SetState<PlayerMovementState> },
+                { StateType.Attack, SetState<PlayerAttackState> },
+                { StateType.Hit, SetState<PlayerHitState> }
+            };
         }
 
         public void RPC_RunMotion(string motionName, int startTick, float transitionTime)
         {
             if (!HasAuthority) return;
             rpcRunMotion?.Invoke(motionName, startTick, transitionTime);
+        }
+
+        public void SetState(StateType stateType)
+        {
+            stateSetActionMap[stateType]?.Invoke();
         }
 
         public void SetState<T>() where T : class, IState

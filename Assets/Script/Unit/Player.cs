@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using Physics;
+using System.Linq;
 
 namespace Unit
 {
@@ -90,14 +91,15 @@ namespace Unit
             fsm?.anim.CrossFadeInFixedTime(motionName, transitionTime, 0, 0);
         }
 
-        public void SetStateEvent(string stateName)
+        public void SetStateEvent(PlayerFSM.StateType stateType)
         {
-
+            if (!HasStateAuthority) return;
+            fsm?.SetState(stateType);
         }
 
         private void HitEvent(HitInfo hitInfo)
         {
-
+            EventDispatcher.Instance.SetStateEvent(userRef, PlayerFSM.StateType.Hit);
         }
 
         public override void Render()
