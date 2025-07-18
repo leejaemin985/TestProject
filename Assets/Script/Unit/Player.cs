@@ -5,6 +5,8 @@ using System.Collections;
 using UnityEngine;
 using Physics;
 using System.Linq;
+using System.Collections.Generic;
+using System.Data;
 
 namespace Unit
 {
@@ -62,7 +64,7 @@ namespace Unit
         private void Initialize()
         {
             StartCamSet();
-
+            
             if (Runner.IsSharedModeMasterClient)
             {
                 playerHitBox = new GameObject("PlayerHitBox").AddComponent<HitBox>();
@@ -80,7 +82,7 @@ namespace Unit
 
             fsm = Instantiate(Resources.Load<PlayerFSM>(PlayerFSM.RESOURCES_PATH));
             fsm.transform.SetParent(transform, false);
-            fsm.Initialized(this, cc, anim, RPC_RunMotion, weapon);
+            fsm.Initialized(this, cc, anim, RPC_RunMotion, RPC_SyncState, weapon);
 
             animEventer.Initialize(fsm.OnAnimEvent);
         }
@@ -91,20 +93,20 @@ namespace Unit
             fsm?.anim.CrossFadeInFixedTime(motionName, transitionTime, 0, 0);
         }
 
-        public void SetStateEvent(PlayerFSM.StateType stateType)
+        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        private void RPC_SyncState(PlayerStateBase.StateType stateType)
         {
-            if (!HasStateAuthority) return;
-            fsm?.SetState(stateType);
+            fsm?.AdjustSetState(stateType);
         }
 
         private void HitEvent(HitInfo hitInfo)
         {
-            EventDispatcher.Instance.SetStateEvent(userRef, PlayerFSM.StateType.Hit);
+            //EventDispatcher.Instance.SetStateEvent(userRef, PlayerFSM.StateType.Hit);
         }
 
         public override void Render()
         {
-            fsm?.UpdateRender(Runner.Tick, Runner.DeltaTime);
+            fsm?.UpdateRender();
         }
 
         public override void FixedUpdateNetwork()

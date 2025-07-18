@@ -14,6 +14,8 @@ namespace Unit
 
     public class PlayerAttackState : PlayerStateBase
     {
+        public override StateType stateType => StateType.Attack;
+
         [SerializeField] AttackMotionInfo[] attackMotionInfos;
 
         [SerializeField] private float attackTryWindowTime = .1f;
@@ -30,6 +32,8 @@ namespace Unit
 
         protected override void EnterState()
         {
+            base.EnterState();
+
             var currentMotion = attackMotionInfos[currentCombo % attackMotionInfos.Length];
             currentCombo++;
 

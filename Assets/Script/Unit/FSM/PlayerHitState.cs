@@ -5,11 +5,15 @@ namespace Unit
 {
     public class PlayerHitState : PlayerStateBase
     {
+        public override StateType stateType => StateType.Hit;
+
         [SerializeField] private float hitMotionDuration;
         private int hitEndTick;
 
         protected override void EnterState()
         {
+            base.EnterState();
+
             float tickRate = 1 / fsm.deltaTime;
             hitEndTick = fsm.cachedTick + Mathf.RoundToInt(hitMotionDuration * tickRate);
 

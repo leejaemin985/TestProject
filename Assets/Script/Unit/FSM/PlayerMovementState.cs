@@ -4,6 +4,8 @@ namespace Unit
 {
     public class PlayerMovementState : PlayerStateBase
     {
+        public override StateType stateType => StateType.Move;
+
         [SerializeField] private float walkSpeed;
         [SerializeField] private float runSpeed;
 
@@ -14,6 +16,8 @@ namespace Unit
 
         protected override void EnterState()
         {
+            base.EnterState();
+
             currentMoveDir = Vector3.zero;
             currentMoveSpeed = walkSpeed;
 
@@ -32,7 +36,7 @@ namespace Unit
 
             Vector3 inputDir = new Vector3(fsm.input.Current.moveDir.x, 0, fsm.input.Current.moveDir.y);
 
-            fsm.moveAnimDir = Vector3.Lerp(fsm.moveAnimDir, inputDir, curveSpeed * fsm.deltaTime);
+            fsm.player.moveAnimDir = Vector3.Lerp(fsm.player.moveAnimDir, inputDir, curveSpeed * fsm.deltaTime);
 
             inputDir = Camera.main.transform.TransformDirection(inputDir);
             inputDir.y = 0;
@@ -43,7 +47,7 @@ namespace Unit
             float targetMoveSpeed = fsm.input.IsSet(x => x.dash) ? runSpeed : walkSpeed;
             currentMoveSpeed = Mathf.Lerp(currentMoveSpeed, targetMoveSpeed, curveSpeed * fsm.deltaTime);
 
-            fsm.runWeight = Mathf.Lerp(1f, 2f, Mathf.InverseLerp(walkSpeed, runSpeed, currentMoveSpeed));
+            fsm.player.runWeight = Mathf.Lerp(1f, 2f, Mathf.InverseLerp(walkSpeed, runSpeed, currentMoveSpeed));
 
             if (inputDir.sqrMagnitude > 0.01f)
             {
@@ -65,9 +69,9 @@ namespace Unit
             float currentVertical = fsm.anim.GetFloat(VERTICAL);
             float currentRunWeight = fsm.anim.GetFloat(RUNWEIGHT);
 
-            fsm.anim.SetFloat(HORIZONTAL, Mathf.Lerp(currentHorizontal, fsm.moveAnimDir.x, curvSpeed));
-            fsm.anim.SetFloat(VERTICAL, Mathf.Lerp(currentVertical, fsm.moveAnimDir.z, curvSpeed));
-            fsm.anim.SetFloat(RUNWEIGHT, Mathf.Lerp(currentRunWeight, fsm.runWeight, curvSpeed));
+            fsm.anim.SetFloat(HORIZONTAL, Mathf.Lerp(currentHorizontal, fsm.player.moveAnimDir.x, curvSpeed));
+            fsm.anim.SetFloat(VERTICAL, Mathf.Lerp(currentVertical, fsm.player.moveAnimDir.z, curvSpeed));
+            fsm.anim.SetFloat(RUNWEIGHT, Mathf.Lerp(currentRunWeight, fsm.player.runWeight, curvSpeed));
         }
     }
 }

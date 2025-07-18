@@ -1,10 +1,20 @@
 using Fusion.Addons.SimpleKCC;
+using System.Data;
 using UnityEngine;
 
 namespace Unit
 {
     public abstract class PlayerStateBase : MonoBehaviour, IState
     {
+        public enum StateType
+        {
+            Move,
+            Attack,
+            Hit
+        }
+
+        public abstract StateType stateType { get; }
+
         protected PlayerFSM fsm;
         protected KCC cc => fsm.cc;
         protected Animator anim => fsm.anim;
@@ -16,9 +26,10 @@ namespace Unit
             this.fsm = fsm;
         }
 
-        protected virtual bool CanEnter() { return true; }
-
-        protected virtual void EnterState() { }
+        protected virtual void EnterState()
+        {
+            fsm.RPC_SyncState(stateType);
+        }
 
         protected virtual void OnState() { }
 
@@ -28,7 +39,6 @@ namespace Unit
 
         protected virtual void OnAnimEvent(string param) { }
 
-        bool IState.CanEnter() => CanEnter();
 
         void IState.EnterState() => EnterState();
 

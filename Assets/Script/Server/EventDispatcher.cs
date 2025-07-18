@@ -7,19 +7,19 @@ using UnityEngine;
 
 public class EventDispatcher : MasterSingleton<EventDispatcher>
 {
-    public void SetStateEvent(PlayerRef user, PlayerFSM.StateType stateType)
+    public void SetStateEvent(PlayerRef user, PlayerStateBase.StateType stateType)
     {
         if (!HasStateAuthority) return;
         RPC_UserSetStateEvent(user, stateType);
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_UserSetStateEvent(PlayerRef user, PlayerFSM.StateType stateType)
+    private void RPC_UserSetStateEvent(PlayerRef user, PlayerStateBase.StateType stateType)
     {
         var targetUser = PlayerRegistry.Instance.RegistedUsers.FirstOrDefault(x => x.Key.Equals(user)).Value;
         if (targetUser != null)
         {
-            targetUser.SetStateEvent(stateType);
+
         }
     }
 }
