@@ -26,7 +26,7 @@ namespace Unit
             currentMoveDir = Vector3.zero;
             currentMoveSpeed = walkSpeed;
 
-            anim.CrossFadeInFixedTime("_Movement", 0, 0, 0);
+            PlayAnim("_Movement", .2f);
         }
 
         protected override void OnState()

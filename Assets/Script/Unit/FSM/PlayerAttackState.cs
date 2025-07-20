@@ -16,139 +16,128 @@ namespace Unit
     {
         public override StateType GetStateType() => StateType.Attack;
 
-        //[SerializeField] AttackMotionInfo[] attackMotionInfos;
+        [SerializeField] AttackMotionInfo[] attackMotionInfos;
 
-        //[SerializeField] private float attackTryWindowTime = .1f;
+        [SerializeField] private float attackTryWindowTime = .1f;
 
-        //private int attackEndTick;
-        //private int attackRetryTick;
-        //private int currentCombo;
+        private int attackEndTick;
+        private int attackRetryTick;
+        private int currentCombo;
 
-        //private const float ATTACK_MOVE_DISTANCE_OFFSET = .7f;
-        //private const float ATTACK_MOVE_RATIO_CLAMP_MAX = 1.2f;
+        private const float ATTACK_MOVE_DISTANCE_OFFSET = .7f;
+        private const float ATTACK_MOVE_RATIO_CLAMP_MAX = 1.2f;
 
-        //private Vector3 currentAttackMove;
-        //private float attackMoveSpeed = 65f;
+        private Vector3 currentAttackMove;
+        private float attackMoveSpeed = 65f;
 
-        //protected override void EnterState()
-        //{
-        //    base.EnterState();
+        protected override void EnterState()
+        {
+            base.EnterState();
 
-        //    var currentMotion = attackMotionInfos[currentCombo % attackMotionInfos.Length];
-        //    currentCombo++;
+            var currentMotion = attackMotionInfos[currentCombo % attackMotionInfos.Length];
+            currentCombo++;
 
-        //    currentAttackMove = Vector3.zero;
+            currentAttackMove = Vector3.zero;
 
-        //    float tickRate = 1 / fsm.deltaTime;
-        //    attackEndTick = fsm.cachedTick + Mathf.RoundToInt(currentMotion.motionDuration * tickRate);
-        //    attackRetryTick = attackEndTick - Mathf.RoundToInt(attackTryWindowTime * tickRate);
+            float tickRate = 1 / Runner.DeltaTime;
+            attackEndTick = Runner.Tick + Mathf.RoundToInt(currentMotion.motionDuration * tickRate);
+            attackRetryTick = attackEndTick - Mathf.RoundToInt(attackTryWindowTime * tickRate);
 
-        //    fsm.RPC_RunMotion(currentMotion.motionName, fsm.cachedTick, 0);
+            PlayAnim(currentMotion.motionName, 0f);
 
-        //    var enemy = FindEnemy();
-        //    if (enemy != null)
-        //    {
-        //        var dir = (enemy.transform.position - fsm.player.transform.position).normalized;
-        //        fsm.cc.SetLookRotation(Quaternion.LookRotation(dir));
-        //    }
-        //}
+            var enemy = FindEnemy();
+            if (enemy != null)
+            {
+                var dir = (enemy.transform.position - player.transform.position).normalized;
+                cc.SetLookRotation(Quaternion.LookRotation(dir));
+            }
+        }
 
-        //protected override void OnState()
-        //{
-        //    if (!fsm.HasAuthority) return;
-        //    if (attackRetryTick <= fsm.cachedTick && fsm.input.IsSet(x => x.attack)) 
-        //    {
-        //        fsm.SetState<PlayerAttackState>();
-        //        return;
-        //    }
+        protected override void OnState()
+        {
+            if (!HasStateAuthority) return;
+            if (attackRetryTick <= Runner.Tick && fsm.input.IsSet(x => x.attack)) 
+            {
+                fsm.SetState<PlayerAttackState>();
+                return;
+            }
 
-        //    if (attackEndTick <= fsm.cachedTick)
-        //    {
-        //        fsm.SetState<PlayerMovementState>();
-        //    }
+            if (attackEndTick <= Runner.Tick)
+            {
+                fsm.SetState<PlayerMovementState>();
+            }
 
-        //    fsm.cc.Move(currentAttackMove * attackMoveSpeed * fsm.deltaTime);
-        //}
+            cc.Move(currentAttackMove * attackMoveSpeed * Runner.DeltaTime);
+        }
 
-        //protected override void ExitState()
-        //{
-        //    currentAttackMove = Vector3.zero;
-        //    fsm.playerWeap.SetCollisionActive(false);
-        //}
+        protected override void ExitState()
+        {
+            weap.SetCollisionActive(false);
+        }
 
-        //protected override void OnRender()
-        //{
-
-        //}
-
-        //private Player FindEnemy()
-        //{
-        //    Player enemy = null;
-        //    foreach (var user in PlayerRegistry.Instance.RegistedUsers.Values)
-        //    {
-        //        if (!user.Equals(fsm.player)) enemy = user;
-        //    }
-        //    return enemy;
-        //}
+        private Player FindEnemy()
+        {
+            return PlayerRegistry.Instance.RegistedUsers.FirstOrDefault(x => x.Key.Equals(player.userRef) == false).Value;
+        }
 
 
-        //protected override void OnAnimEvent(string param)
-        //{
-        //    var parts = param.Split("//");
-        //    switch (parts[0])
-        //    {
-        //        case "AttackMove":
-        //            OnAttackMove(parts[1]);
-        //            break;
-        //        case "SetWeapCollision":
-        //            SetWeaponCollision(parts[1]);
-        //            break;
-        //    }
-        //}
+        protected override void OnAnimEvent(string param)
+        {
+            var parts = param.Split("//");
+            switch (parts[0])
+            {
+                case "AttackMove":
+                    OnAttackMove(parts[1]);
+                    break;
+                case "SetWeapCollision":
+                    SetWeaponCollision(parts[1]);
+                    break;
+            }
+        }
 
-        //private void OnAttackMove(string param)
-        //{
-        //    if (string.IsNullOrEmpty(param) || param.Equals("0"))
-        //    {
-        //        currentAttackMove = Vector3.zero;
-        //        return;
-        //    }
+        private void OnAttackMove(string param)
+        {
+            if (string.IsNullOrEmpty(param) || param.Equals("0"))
+            {
+                currentAttackMove = Vector3.zero;
+                return;
+            }
 
-        //    string[] moveVector = param
-        //        .Split(',')
-        //        .Select(p => p.Trim())
-        //        .ToArray();
+            string[] moveVector = param
+                .Split(',')
+                .Select(p => p.Trim())
+                .ToArray();
 
-        //    if (moveVector.Length == 3 &&
-        //        float.TryParse(moveVector[0], out float x) &&
-        //        float.TryParse(moveVector[1], out float y) &&
-        //        float.TryParse(moveVector[2], out float z))
-        //    {
-        //        Vector3 input = new Vector3(x, y, z);
+            if (moveVector.Length == 3 &&
+                float.TryParse(moveVector[0], out float x) &&
+                float.TryParse(moveVector[1], out float y) &&
+                float.TryParse(moveVector[2], out float z))
+            {
+                Vector3 input = new Vector3(x, y, z);
+                
+                Vector3 forward = player.transform.forward;
+                float moveRatio = 1f;
 
-        //        Vector3 forward = fsm.player.transform.forward;
-        //        float moveRatio = 1f;
+                var enemy = FindEnemy();
+                if (enemy != null)
+                {
+                    Vector3 toEnemy = (enemy.transform.position - player.transform.position);
+                
+                    forward = toEnemy.normalized;
+                    moveRatio = Mathf.Clamp((toEnemy.magnitude - ATTACK_MOVE_DISTANCE_OFFSET) / 1f, 0, ATTACK_MOVE_RATIO_CLAMP_MAX);
+                }
+                Vector3 right = Vector3.Cross(Vector3.up, forward);
 
-        //        var enemy = FindEnemy();
-        //        if (enemy != null)
-        //        {
-        //            Vector3 toEnemy = (enemy.transform.position - fsm.player.transform.position);
+                Vector3 rawMove = (forward * input.z + right * input.x).normalized;
+                Vector3 worldMoveDir = rawMove * input.magnitude;
 
-        //            forward = toEnemy.normalized;
-        //            moveRatio = Mathf.Clamp((toEnemy.magnitude - ATTACK_MOVE_DISTANCE_OFFSET) / 1f, 0, ATTACK_MOVE_RATIO_CLAMP_MAX);
-        //        }
-        //        Vector3 right = Vector3.Cross(Vector3.up, forward);
+                currentAttackMove = worldMoveDir * moveRatio;
+            }
+        }
 
-        //        Vector3 rawMove = (forward * input.z + right * input.x).normalized;
-        //        Vector3 worldMoveDir = rawMove * input.magnitude;
-
-        //        currentAttackMove = worldMoveDir * moveRatio;
-        //    }
-        //}
-
-        //private void SetWeaponCollision(string param)
-        //{
-        //    fsm.playerWeap.SetCollisionActive(string.Equals(param, "0") ? false : true);
-        //}
+        private void SetWeaponCollision(string param)
+        {
+            weap.SetCollisionActive(string.Equals(param, "0") ? false : true);
+        }
     }
 }

@@ -78,6 +78,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stateArray:
   - {fileID: 9115356238606166732}
+  - {fileID: 4144497015441670531}
+  - {fileID: 6677774022126578438}
+  _currentStateType: 0
 --- !u!1 &2839280743686969756
 GameObject:
   m_ObjectHideFlags: 0
@@ -218,6 +221,8 @@ MonoBehaviour:
   - {fileID: 978523184684886547}
   - {fileID: 5601132550606417841}
   - {fileID: 9115356238606166732}
+  - {fileID: 4144497015441670531}
+  - {fileID: 6677774022126578438}
   ForceRemoteRenderTimeframe: 0
 --- !u!54 &2429171034896933854
 Rigidbody:
@@ -318,6 +323,115 @@ MonoBehaviour:
   camPos: {fileID: 3129540333032609918}
   pitchMin: -45
   pitchMax: 60
+--- !u!1 &5525299070524082504
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2163807793309135879}
+  - component: {fileID: 6677774022126578438}
+  m_Layer: 0
+  m_Name: HitState
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2163807793309135879
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5525299070524082504}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4891781815831520554}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6677774022126578438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5525299070524082504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df3d4eff99d694e4195775e5ffc508a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hitMotionDuration: 0.7
+--- !u!1 &7238041486482526272
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4355715396861701645}
+  - component: {fileID: 4144497015441670531}
+  m_Layer: 0
+  m_Name: AttackState
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4355715396861701645
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7238041486482526272}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4891781815831520554}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4144497015441670531
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7238041486482526272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1ca471c0ecee334384b003a0b31be70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackMotionInfos:
+  - clip: {fileID: 7400000, guid: a58e30832143e334fa2c2fdfcf35b878, type: 2}
+    motionName: _LightAttack_0
+    motionDuration: 0.6
+  - clip: {fileID: 7400000, guid: 8f2e64a1e30240f4aa18b1322d9ac783, type: 2}
+    motionName: _LightAttack_1
+    motionDuration: 0.6
+  - clip: {fileID: 7400000, guid: 86a8aa2004603d542a167f8c96562bfc, type: 2}
+    motionName: _LightAttack_2
+    motionDuration: 0.7
+  - clip: {fileID: 7400000, guid: 4e9bea3a5b518984ca2e0ad071993fd0, type: 2}
+    motionName: _LightAttack_3
+    motionDuration: 0.7
+  - clip: {fileID: 7400000, guid: b8e22e79770fb6147bd8bfe7b2018305, type: 2}
+    motionName: _LightAttack_4
+    motionDuration: 1
+  - clip: {fileID: 7400000, guid: 6f624e36d26cbeb4f9e4e99937040679, type: 2}
+    motionName: _LightAttack_5
+    motionDuration: 1
+  attackTryWindowTime: 0.1
 --- !u!1 &8345124330114409181
 GameObject:
   m_ObjectHideFlags: 0
@@ -348,6 +462,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1856634780031410300}
+  - {fileID: 4355715396861701645}
+  - {fileID: 2163807793309135879}
   m_Father: {fileID: 3468013034680474919}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8973499107381494114

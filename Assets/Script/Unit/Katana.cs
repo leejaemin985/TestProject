@@ -9,7 +9,7 @@ public class Katana : MonoBehaviour
     private HitInfo hitInfo;
 
 
-    public void Initialize(bool isMasterClient, PhysicsObject userPhysicsObject, Action<CollisionInfos> hitEvent = null)
+    public void Initialize(bool isMasterClient, PhysicsObject userPhysicsObject)
     {
         if (isMasterClient)
         {
@@ -25,7 +25,7 @@ public class Katana : MonoBehaviour
 
     public void SetCollisionActive(bool set) => collisionBox.SetActive(set);
 
-    public void SetHitInfo(HitInfo hitInfo) => this.hitInfo = hitInfo;
+    //public void SetHitInfo(HitInfo hitInfo) => this.hitInfo = hitInfo;
 
 
     private void OnHit(CollisionInfos collisionInfos)

@@ -17,6 +17,6 @@ namespace Unit
             this.onAnimEvent = onAnimEvent;
         }
 
-        public void OnEvent(string param) => onAnimEvent(param);
+        public void OnEvent(string param) => onAnimEvent?.Invoke(param);
     }
 }

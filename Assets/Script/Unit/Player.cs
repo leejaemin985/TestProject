@@ -26,9 +26,6 @@ namespace Unit
         [SerializeField] private Katana weapon;
 
         private HitBox playerHitBox;
-        private readonly Vector3 hitBoxLocalPos = new Vector3(0, 1, 0);
-        private readonly Vector3 hitBoxScale = new Vector3(.7f, 2, .7f);
-
 
         private IEnumerator CamSettingHandle = default;
 
@@ -50,7 +47,7 @@ namespace Unit
         private IEnumerator InitSequencer()
         {
             yield return new WaitUntil(() => GameManager.Instance.isInitialized);
-
+            
             PlayerRegistry.Instance.RegisterPlayer(userRef, this);
             Initialize();
         }
@@ -59,27 +56,33 @@ namespace Unit
         {
             StartCamSet();
             
-            //if (Runner.IsSharedModeMasterClient)
-            //{
-            //    playerHitBox = new GameObject("PlayerHitBox").AddComponent<HitBox>();
-            //    playerHitBox.physicsShapeType = PhysicsObject.PhysicsShapeType.CAPSULE;
-            //    playerHitBox.transform.SetParent(transform);
-            //    playerHitBox.transform.localPosition = hitBoxLocalPos;
-            //    playerHitBox.transform.localScale = hitBoxScale;
+            if (Runner.IsSharedModeMasterClient)
+                playerHitBox = InitPlayerHitBox();
 
-
-            //    playerHitBox.Initialize(HitEvent);
-            //    playerHitBox.SetActive(true);
-            //}
-
-            //weapon.Initialize(Runner.IsSharedModeMasterClient, playerHitBox);
+            weapon.Initialize(Runner.IsSharedModeMasterClient, playerHitBox);
 
             fsm.Initialized(this, cc, anim, weapon);
+            animEventer.Initialize(fsm.AnimEvent);
         }
 
         public void RequestSetState(PlayerStateBase.StateType stateType)
         {
-            //fsm?.SetState(stateType);
+            fsm?.SetState(stateType);
+        }
+
+        private HitBox InitPlayerHitBox()
+        {
+            var ret = new GameObject("PlayerHitBox").AddComponent<HitBox>();
+            ret.physicsShapeType = PhysicsObject.PhysicsShapeType.CAPSULE;
+
+            ret.transform.SetParent(transform);
+            ret.transform.localPosition = new Vector3(0, 1, 0);
+            ret.transform.localScale = new Vector3(.7f, 2, .7f);
+
+            ret.Initialize(HitEvent);
+            ret.SetActive(true);
+
+            return ret;
         }
 
         private void HitEvent(HitInfo hitInfo)

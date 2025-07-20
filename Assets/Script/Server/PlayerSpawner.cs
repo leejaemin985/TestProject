@@ -18,9 +18,9 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
         bool masterClient = Runner.IsSharedModeMasterClient;
         if (masterClient)
         {
-            Runner.Spawn(PlayerRegistry, Vector3.zero, Quaternion.identity, player);
-            Runner.Spawn(physicsEventHandler, Vector3.zero, Quaternion.identity, player);
-            Runner.Spawn(eventDispatcher, Vector3.zero, Quaternion.identity, player);
+            if (PlayerRegistry.Instance == null) Runner.Spawn(PlayerRegistry, Vector3.zero, Quaternion.identity, player);
+            if (PhysicsEventHandler.Instance == null) Runner.Spawn(physicsEventHandler, Vector3.zero, Quaternion.identity, player);
+            if (EventDispatcher.Instance == null) Runner.Spawn(eventDispatcher, Vector3.zero, Quaternion.identity, player);
         }
 
         if (player != Runner.LocalPlayer) return;

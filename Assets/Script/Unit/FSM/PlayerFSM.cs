@@ -1,6 +1,7 @@
 using Fusion;
 using Fusion.Addons.SimpleKCC;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using UnityEngine;
@@ -16,8 +17,6 @@ namespace Unit
 
         private Dictionary<PlayerStateBase.StateType, PlayerStateBase> stateMap;
 
-        private Katana playerWeapon;
-
         public InputInterpreter input;
 
         [Networked] public PlayerStateBase.StateType currentStateType { get; set; }
@@ -27,19 +26,19 @@ namespace Unit
         public void Initialized(Player player, SimpleKCC cc, Animator anim, Katana playerWeapon)
         {
             input = new();
-            this.playerWeapon = playerWeapon;
 
             stateMap = new();
-
             foreach (var state in stateArray)
             {
-                state.Initialize(this, cc, anim);
+                state.Initialize(player, this, cc, anim, playerWeapon);
                 stateMap[state.GetStateType()] = state;
             }
 
             SetState<PlayerMovementState>();
 
             isInitialized = true;
+
+            StartCoroutine(Test());
         }
 
         public void SetState(PlayerStateBase.StateType stateType)
@@ -67,9 +66,6 @@ namespace Unit
             currentStateType = currentState.GetStateType();
         }
 
-        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-        public void RPC_SyncState(PlayerStateBase.StateType stateType) => currentState = stateMap[stateType];
-
         public override void Render()
         {
             if (isInitialized == false) return;
@@ -80,14 +76,34 @@ namespace Unit
             currentState?.OnRender();
         }
 
+        private bool attack = true;
+
+        private IEnumerator Test()
+        {
+            while (true)
+            {
+                yield return new WaitForSeconds(3f);
+                attack = !attack;
+            }
+        }
+
+
         public override void FixedUpdateNetwork()
         {
             if (isInitialized == false) return;
 
             if (GetInput<InputData>(out var newInput) == false) return;
+
+            //newInput.attack = attack;
+            
             input.Update(newInput);
 
             currentState?.OnState();
+        }
+
+        public void AnimEvent(string param)
+        {
+            currentState?.OnAnimEvent(param);
         }
     }
 }
