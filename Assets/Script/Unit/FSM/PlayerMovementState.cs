@@ -1,10 +1,11 @@
 using UnityEngine;
+using Fusion;
 
 namespace Unit
 {
     public class PlayerMovementState : PlayerStateBase
     {
-        public override StateType stateType => StateType.Move;
+        public override StateType GetStateType() => StateType.Move;
 
         [SerializeField] private float walkSpeed;
         [SerializeField] private float runSpeed;
@@ -14,6 +15,10 @@ namespace Unit
         private Vector3 currentMoveDir;
         private float currentMoveSpeed;
 
+
+        [Networked] private Vector3 moveAnimDir { get; set; }
+        [Networked] private float runWeight { get; set; }
+
         protected override void EnterState()
         {
             base.EnterState();
@@ -21,12 +26,12 @@ namespace Unit
             currentMoveDir = Vector3.zero;
             currentMoveSpeed = walkSpeed;
 
-            fsm.RPC_RunMotion(animState, fsm.cachedTick, .3f);
+            anim.CrossFadeInFixedTime("_Movement", 0, 0, 0);
         }
 
         protected override void OnState()
         {
-            if (!fsm.HasAuthority) return;
+            if (!HasStateAuthority) return;
 
             if (fsm.input.IsSet(x => x.attack))
             {
@@ -36,25 +41,25 @@ namespace Unit
 
             Vector3 inputDir = new Vector3(fsm.input.Current.moveDir.x, 0, fsm.input.Current.moveDir.y);
 
-            fsm.player.moveAnimDir = Vector3.Lerp(fsm.player.moveAnimDir, inputDir, curveSpeed * fsm.deltaTime);
+            moveAnimDir = Vector3.Lerp(moveAnimDir, inputDir, curveSpeed * Runner.DeltaTime);
 
             inputDir = Camera.main.transform.TransformDirection(inputDir);
             inputDir.y = 0;
             inputDir.Normalize();
 
-            currentMoveDir = Vector3.Lerp(currentMoveDir, inputDir, curveSpeed * fsm.deltaTime);
+            currentMoveDir = Vector3.Lerp(currentMoveDir, inputDir, curveSpeed * Runner.DeltaTime);
 
             float targetMoveSpeed = fsm.input.IsSet(x => x.dash) ? runSpeed : walkSpeed;
-            currentMoveSpeed = Mathf.Lerp(currentMoveSpeed, targetMoveSpeed, curveSpeed * fsm.deltaTime);
+            currentMoveSpeed = Mathf.Lerp(currentMoveSpeed, targetMoveSpeed, curveSpeed * Runner.DeltaTime);
 
-            fsm.player.runWeight = Mathf.Lerp(1f, 2f, Mathf.InverseLerp(walkSpeed, runSpeed, currentMoveSpeed));
+            runWeight = Mathf.Lerp(1f, 2f, Mathf.InverseLerp(walkSpeed, runSpeed, currentMoveSpeed));
 
             if (inputDir.sqrMagnitude > 0.01f)
             {
-                fsm.cc.SetLookRotation(Quaternion.Slerp(fsm.cc.transform.rotation, Camera.main.transform.rotation, curveSpeed * fsm.deltaTime));
+                cc.SetLookRotation(Quaternion.Slerp(cc.transform.rotation, Camera.main.transform.rotation, curveSpeed * Runner.DeltaTime));
             }
 
-            fsm.cc.Move(inputDir * currentMoveSpeed * fsm.deltaTime);
+            cc.Move(inputDir * currentMoveSpeed * Runner.DeltaTime);
         }
 
         protected override void OnRender()
@@ -65,13 +70,13 @@ namespace Unit
 
             float curvSpeed = .1f;
 
-            float currentHorizontal = fsm.anim.GetFloat(HORIZONTAL);
-            float currentVertical = fsm.anim.GetFloat(VERTICAL);
-            float currentRunWeight = fsm.anim.GetFloat(RUNWEIGHT);
+            float currentHorizontal = anim.GetFloat(HORIZONTAL);
+            float currentVertical = anim.GetFloat(VERTICAL);
+            float currentRunWeight = anim.GetFloat(RUNWEIGHT);
 
-            fsm.anim.SetFloat(HORIZONTAL, Mathf.Lerp(currentHorizontal, fsm.player.moveAnimDir.x, curvSpeed));
-            fsm.anim.SetFloat(VERTICAL, Mathf.Lerp(currentVertical, fsm.player.moveAnimDir.z, curvSpeed));
-            fsm.anim.SetFloat(RUNWEIGHT, Mathf.Lerp(currentRunWeight, fsm.player.runWeight, curvSpeed));
+            anim.SetFloat(HORIZONTAL, Mathf.Lerp(currentHorizontal, moveAnimDir.x, curvSpeed));
+            anim.SetFloat(VERTICAL, Mathf.Lerp(currentVertical, moveAnimDir.z, curvSpeed));
+            anim.SetFloat(RUNWEIGHT, Mathf.Lerp(currentRunWeight, runWeight, curvSpeed));
         }
     }
 }

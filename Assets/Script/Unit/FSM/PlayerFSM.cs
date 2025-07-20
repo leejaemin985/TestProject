@@ -2,82 +2,57 @@ using Fusion;
 using Fusion.Addons.SimpleKCC;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Unit
 {
-    public class PlayerFSM : MonoBehaviour, IMachineState
+    public class PlayerFSM : NetworkBehaviour, IMachineState
     {
-        public const string RESOURCES_PATH = "Prefab/PlayerFSM";
-
         [SerializeField] private PlayerStateBase[] stateArray = default;
+
+        private bool isInitialized = false;
 
         private Dictionary<PlayerStateBase.StateType, PlayerStateBase> stateMap;
 
-        private Player playerUnit;
-        private SimpleKCC kcc;
-        private Animator animator;
         private Katana playerWeapon;
-
-
-        public Player player => playerUnit;
-        public SimpleKCC cc => kcc;
-        public Animator anim => animator;
-        public Katana playerWeap => playerWeapon;
-
-
-        public bool HasAuthority => player.HasStateAuthority;
-        public int cachedTick { get; private set; }
-        public float deltaTime { get; private set; }
-        public float tickRate => 1f / deltaTime;
 
         public InputInterpreter input;
 
+        [Networked] public PlayerStateBase.StateType currentStateType { get; set; }
+
         private IState currentState;
 
-        private Action<string, int, float> rpcRunMotion;
-        private Action<PlayerStateBase.StateType> syncState;
-
-        public void Initialized(Player player, SimpleKCC cc, Animator anim, Action<string, int, float> rpcRunMotion, Action<PlayerStateBase.StateType> syncState, Katana playerWeapon)
+        public void Initialized(Player player, SimpleKCC cc, Animator anim, Katana playerWeapon)
         {
-            this.playerUnit = player;
-            kcc = cc;
-            animator = anim;
             input = new();
             this.playerWeapon = playerWeapon;
 
-            this.rpcRunMotion = rpcRunMotion;
-            this.syncState = syncState;
             stateMap = new();
 
             foreach (var state in stateArray)
             {
-                state.InjectFSM(this);
-                stateMap[state.stateType] = state;
+                state.Initialize(this, cc, anim);
+                stateMap[state.GetStateType()] = state;
             }
 
             SetState<PlayerMovementState>();
+
+            isInitialized = true;
         }
 
-        public void RPC_SyncState(PlayerStateBase.StateType stateType) => syncState?.Invoke(stateType);
-
-        public void RPC_RunMotion(string motionName, int startTick, float transitionTime) => rpcRunMotion?.Invoke(motionName, startTick, transitionTime);
-
-
-        public void AdjustSetState(PlayerStateBase.StateType stateType)
+        public void SetState(PlayerStateBase.StateType stateType)
         {
-            if (HasAuthority) return;
-
-            if (stateMap.TryGetValue(stateType, out var state))
+            if (stateType == PlayerStateBase.StateType.Hit)
             {
-                currentState = state;
+                SetState<PlayerHitState>();
             }
         }
 
         public void SetState<T>() where T : class, IState
         {
-            if (!HasAuthority) return;
+            if (!HasStateAuthority) return;
 
             for (int index = 0, max = stateArray.Length; index < max; ++index)
             {
@@ -86,27 +61,33 @@ namespace Unit
                     currentState?.ExitState();
                     currentState = state;
                     currentState?.EnterState();
+                    break;
                 }
             }
+            currentStateType = currentState.GetStateType();
         }
 
-        public void UpdateTick(InputData newInput, int tick, float deltaTime)
-        {
-            input.Update(newInput);
-            this.cachedTick = tick;
-            this.deltaTime = deltaTime;
+        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        public void RPC_SyncState(PlayerStateBase.StateType stateType) => currentState = stateMap[stateType];
 
-            currentState?.OnState();
-        }
-
-        public void UpdateRender()
+        public override void Render()
         {
+            if (isInitialized == false) return;
+
+            if (!HasStateAuthority)
+                currentState = stateMap[currentStateType];
+
             currentState?.OnRender();
         }
 
-        public void OnAnimEvent(string param)
+        public override void FixedUpdateNetwork()
         {
-            currentState?.OnAnimEvent(param);
+            if (isInitialized == false) return;
+
+            if (GetInput<InputData>(out var newInput) == false) return;
+            input.Update(newInput);
+
+            currentState?.OnState();
         }
     }
 }

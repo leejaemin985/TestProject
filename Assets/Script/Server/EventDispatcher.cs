@@ -19,7 +19,7 @@ public class EventDispatcher : MasterSingleton<EventDispatcher>
         var targetUser = PlayerRegistry.Instance.RegistedUsers.FirstOrDefault(x => x.Key.Equals(user)).Value;
         if (targetUser != null)
         {
-
+            targetUser.RequestSetState(stateType);
         }
     }
 }

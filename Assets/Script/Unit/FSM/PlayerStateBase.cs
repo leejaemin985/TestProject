@@ -1,10 +1,11 @@
+using Fusion;
 using Fusion.Addons.SimpleKCC;
 using System.Data;
 using UnityEngine;
 
 namespace Unit
 {
-    public abstract class PlayerStateBase : MonoBehaviour, IState
+    public abstract class PlayerStateBase : NetworkBehaviour, IState
     {
         public enum StateType
         {
@@ -13,23 +14,20 @@ namespace Unit
             Hit
         }
 
-        public abstract StateType stateType { get; }
-
         protected PlayerFSM fsm;
-        protected KCC cc => fsm.cc;
-        protected Animator anim => fsm.anim;
+        protected SimpleKCC cc;
+        protected Animator anim;
 
-        [SerializeField] protected string animState;
-
-        public void InjectFSM(PlayerFSM fsm)
+        public virtual void Initialize(PlayerFSM fsm, SimpleKCC cc, Animator anim)
         {
             this.fsm = fsm;
+            this.cc = cc;
+            this.anim = anim;
         }
 
-        protected virtual void EnterState()
-        {
-            fsm.RPC_SyncState(stateType);
-        }
+        public abstract StateType GetStateType();
+
+        protected virtual void EnterState() { }
 
         protected virtual void OnState() { }
 

@@ -2,6 +2,8 @@ namespace Unit
 {
     public interface IState
     {
+        PlayerStateBase.StateType GetStateType();
+
         void EnterState();
 
         void OnState();

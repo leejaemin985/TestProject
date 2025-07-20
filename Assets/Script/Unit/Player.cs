@@ -17,24 +17,18 @@ namespace Unit
         [Networked] 
         public PlayerRef userRef { get; private set; }
 
-        [Networked]
-        public Vector3 moveAnimDir { get; set; }
-
-        [Networked]
-        public float runWeight { get; set; }
-
-
+        [SerializeField] private PlayerFSM fsm;
         [SerializeField] private SimpleKCC cc;
         [SerializeField] private PlayerCam playerCam;
         [SerializeField] private Animator anim;
 
         [SerializeField] private PlayerAnimEventer animEventer;
         [SerializeField] private Katana weapon;
+
         private HitBox playerHitBox;
         private readonly Vector3 hitBoxLocalPos = new Vector3(0, 1, 0);
         private readonly Vector3 hitBoxScale = new Vector3(.7f, 2, .7f);
 
-        private PlayerFSM fsm;
 
         private IEnumerator CamSettingHandle = default;
 
@@ -65,55 +59,32 @@ namespace Unit
         {
             StartCamSet();
             
-            if (Runner.IsSharedModeMasterClient)
-            {
-                playerHitBox = new GameObject("PlayerHitBox").AddComponent<HitBox>();
-                playerHitBox.physicsShapeType = PhysicsObject.PhysicsShapeType.CAPSULE;
-                playerHitBox.transform.SetParent(transform);
-                playerHitBox.transform.localPosition = hitBoxLocalPos;
-                playerHitBox.transform.localScale = hitBoxScale;
+            //if (Runner.IsSharedModeMasterClient)
+            //{
+            //    playerHitBox = new GameObject("PlayerHitBox").AddComponent<HitBox>();
+            //    playerHitBox.physicsShapeType = PhysicsObject.PhysicsShapeType.CAPSULE;
+            //    playerHitBox.transform.SetParent(transform);
+            //    playerHitBox.transform.localPosition = hitBoxLocalPos;
+            //    playerHitBox.transform.localScale = hitBoxScale;
 
 
-                playerHitBox.Initialize(HitEvent);
-                playerHitBox.SetActive(true);
-            }
+            //    playerHitBox.Initialize(HitEvent);
+            //    playerHitBox.SetActive(true);
+            //}
 
-            weapon.Initialize(Runner.IsSharedModeMasterClient, playerHitBox);
+            //weapon.Initialize(Runner.IsSharedModeMasterClient, playerHitBox);
 
-            fsm = Instantiate(Resources.Load<PlayerFSM>(PlayerFSM.RESOURCES_PATH));
-            fsm.transform.SetParent(transform, false);
-            fsm.Initialized(this, cc, anim, RPC_RunMotion, RPC_SyncState, weapon);
-
-            animEventer.Initialize(fsm.OnAnimEvent);
+            fsm.Initialized(this, cc, anim, weapon);
         }
 
-        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-        private void RPC_RunMotion(string motionName, int startTick, float transitionTime)
+        public void RequestSetState(PlayerStateBase.StateType stateType)
         {
-            fsm?.anim.CrossFadeInFixedTime(motionName, transitionTime, 0, 0);
-        }
-
-        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-        private void RPC_SyncState(PlayerStateBase.StateType stateType)
-        {
-            fsm?.AdjustSetState(stateType);
+            //fsm?.SetState(stateType);
         }
 
         private void HitEvent(HitInfo hitInfo)
         {
-            //EventDispatcher.Instance.SetStateEvent(userRef, PlayerFSM.StateType.Hit);
-        }
-
-        public override void Render()
-        {
-            fsm?.UpdateRender();
-        }
-
-        public override void FixedUpdateNetwork()
-        {
-            if (GetInput<InputData>(out var input) == false) return;
-            
-            fsm?.UpdateTick(input, Runner.Tick, Runner.DeltaTime);
+            EventDispatcher.Instance.SetStateEvent(userRef, PlayerStateBase.StateType.Hit);
         }
 
         #region Cam
