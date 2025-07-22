@@ -23,6 +23,20 @@ namespace Unit
 
         private IState currentState;
 
+        public override void Spawned()
+        {
+            if (initSequencerHandle != null) StopCoroutine(initSequencerHandle);
+            StartCoroutine(initSequencerHandle = InitSequencer());
+        }
+
+        private IEnumerator initSequencerHandle = null;
+
+        private IEnumerator InitSequencer()
+        {
+            yield return new WaitUntil(() => isInitialized);
+            currentState = stateMap[currentStateType];
+        }
+
         public void Initialized(Player player, SimpleKCC cc, Animator anim, Katana playerWeapon)
         {
             input = new();
@@ -45,37 +59,41 @@ namespace Unit
         {
             if (stateType == PlayerStateBase.StateType.Hit)
             {
-                SetState<PlayerHitState>();
+                SetState<PlayerHitState>(false);
             }
         }
 
-        public void SetState<T>() where T : class, IState
+        public void SetState<T>(bool sync = true) where T : class, IState
         {
-            if (!HasStateAuthority) return;
-
             for (int index = 0, max = stateArray.Length; index < max; ++index)
             {
                 if (stateArray[index] is T state)
                 {
                     currentState?.ExitState();
                     currentState = state;
-                    currentState?.EnterState();
+                    currentState?.EnterState(sync);
                     break;
                 }
             }
+
             currentStateType = currentState.GetStateType();
+            if (sync) RPC_SyncState();
+        }
+
+        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        public void RPC_SyncState()
+        {
+            currentState = stateMap[currentStateType];
         }
 
         public override void Render()
         {
             if (isInitialized == false) return;
 
-            if (!HasStateAuthority)
-                currentState = stateMap[currentStateType];
-
             currentState?.OnRender();
         }
 
+        #region TestCode
         private bool attack = true;
 
         private IEnumerator Test()
@@ -86,7 +104,7 @@ namespace Unit
                 attack = !attack;
             }
         }
-
+        #endregion
 
         public override void FixedUpdateNetwork()
         {

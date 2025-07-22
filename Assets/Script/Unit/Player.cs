@@ -4,19 +4,11 @@ using System;
 using System.Collections;
 using UnityEngine;
 using Physics;
-using System.Linq;
-using System.Collections.Generic;
-using System.Data;
 
 namespace Unit
 {
     public class Player : Unit
     {
-        private PlayerRef cachedPlayerRef;
-
-        [Networked] 
-        public PlayerRef userRef { get; private set; }
-
         [SerializeField] private PlayerFSM fsm;
         [SerializeField] private SimpleKCC cc;
         [SerializeField] private PlayerCam playerCam;
@@ -29,15 +21,8 @@ namespace Unit
 
         private IEnumerator CamSettingHandle = default;
 
-        public void PreSpawnInitialize(PlayerRef userRef)
-        {
-            this.cachedPlayerRef = userRef;
-        }
-
         public override void Spawned()
         {
-            if (HasStateAuthority) userRef = cachedPlayerRef;
-
             if (initSequencerHandle != null) StopCoroutine(initSequencerHandle);
             StartCoroutine(initSequencerHandle = InitSequencer());
         }
@@ -48,7 +33,7 @@ namespace Unit
         {
             yield return new WaitUntil(() => GameManager.Instance.isInitialized);
             
-            PlayerRegistry.Instance.RegisterPlayer(userRef, this);
+            PlayerRegistry.Instance.RegisterPlayer(Object.InputAuthority, this);
             Initialize();
         }
 
@@ -87,7 +72,7 @@ namespace Unit
 
         private void HitEvent(HitInfo hitInfo)
         {
-            EventDispatcher.Instance.SetStateEvent(userRef, PlayerStateBase.StateType.Hit);
+            EventDispatcher.Instance.SetStateEvent(Object.InputAuthority, PlayerStateBase.StateType.Hit);
         }
 
         #region Cam

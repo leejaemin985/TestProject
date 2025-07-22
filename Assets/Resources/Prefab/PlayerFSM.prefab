@@ -44,7 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 288dc7b5efdc2d146b929a48d1eec9c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animState: _Movement
   walkSpeed: 65
   runSpeed: 150
   curveSpeed: 10
@@ -131,6 +130,7 @@ MonoBehaviour:
   - {fileID: 8254595142628485093}
   - {fileID: 3582036955177075393}
   - {fileID: 4087575080389429064}
+  _currentStateType: 0
 --- !u!1 &5479725625136348996
 GameObject:
   m_ObjectHideFlags: 0
@@ -175,7 +175,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df3d4eff99d694e4195775e5ffc508a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animState: _HitF
   hitMotionDuration: 1
 --- !u!1 &6052761579268680511
 GameObject:
@@ -221,7 +220,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1ca471c0ecee334384b003a0b31be70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animState: 
   attackMotionInfos:
   - clip: {fileID: 7400000, guid: a58e30832143e334fa2c2fdfcf35b878, type: 2}
     motionName: _LightAttack_0

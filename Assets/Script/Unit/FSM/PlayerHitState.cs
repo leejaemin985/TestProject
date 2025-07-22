@@ -10,13 +10,13 @@ namespace Unit
         [SerializeField] private float hitMotionDuration;
         private int hitEndTick;
 
-        protected override void EnterState()
+        protected override void EnterState(bool sync = true)
         {
             base.EnterState();
 
             hitEndTick = Runner.Tick + Mathf.RoundToInt(hitMotionDuration * Runner.TickRate);
 
-            PlayAnim("_HitF", 0);
+            PlayAnim("_HitF", 0, sync);
         }
 
         protected override void OnState()

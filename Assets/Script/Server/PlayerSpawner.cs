@@ -29,14 +29,7 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
             playerPrefab,
             Vector3.up,
             Quaternion.identity,
-            player,
-            (runner, obj) =>
-            {
-                var user = obj.GetComponent<Player>();
-                if (user == null) return;
-
-                user.PreSpawnInitialize(player);
-            });
+            player);
 
 
     }

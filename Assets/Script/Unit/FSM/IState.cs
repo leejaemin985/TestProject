@@ -4,7 +4,7 @@ namespace Unit
     {
         PlayerStateBase.StateType GetStateType();
 
-        void EnterState();
+        void EnterState(bool syncMotion);
 
         void OnState();
 

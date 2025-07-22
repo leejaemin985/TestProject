@@ -19,14 +19,14 @@ namespace Unit
         [Networked] private Vector3 moveAnimDir { get; set; }
         [Networked] private float runWeight { get; set; }
 
-        protected override void EnterState()
+        protected override void EnterState(bool sync = true)
         {
             base.EnterState();
 
             currentMoveDir = Vector3.zero;
             currentMoveSpeed = walkSpeed;
 
-            PlayAnim("_Movement", .2f);
+            PlayAnim("_Movement", .2f, sync);
         }
 
         protected override void OnState()

@@ -31,7 +31,7 @@ namespace Unit
 
         public abstract StateType GetStateType();
 
-        protected virtual void EnterState() { }
+        protected virtual void EnterState(bool sync = true) { }
 
         protected virtual void OnState() { }
 
@@ -44,9 +44,16 @@ namespace Unit
         private float remainingCorrectionTime = 0f;
         private const float ANIM_CORRECTION_WINDOW = .01f;
 
-        protected void PlayAnim(string stateName, float fixedTransitionDuration)
+        protected void PlayAnim(string stateName, float fixedTransitionDuration, bool sync)
         {
-            RPC_AnimCrossFadeInFixedTime(stateName, fixedTransitionDuration, Runner.Tick);
+            if (!HasStateAuthority || sync == false)
+            {
+                anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration);
+            }
+            else
+            {
+                RPC_AnimCrossFadeInFixedTime(stateName, fixedTransitionDuration, Runner.Tick);
+            }
         }
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
@@ -72,7 +79,7 @@ namespace Unit
         }
 
 
-        void IState.EnterState() => EnterState();
+        void IState.EnterState(bool sync) => EnterState(sync);
 
         void IState.OnState() => OnState();
 

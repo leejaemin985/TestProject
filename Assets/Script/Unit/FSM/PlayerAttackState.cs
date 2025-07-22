@@ -30,7 +30,7 @@ namespace Unit
         private Vector3 currentAttackMove;
         private float attackMoveSpeed = 65f;
 
-        protected override void EnterState()
+        protected override void EnterState(bool sync = true)
         {
             base.EnterState();
 
@@ -43,7 +43,9 @@ namespace Unit
             attackEndTick = Runner.Tick + Mathf.RoundToInt(currentMotion.motionDuration * tickRate);
             attackRetryTick = attackEndTick - Mathf.RoundToInt(attackTryWindowTime * tickRate);
 
-            PlayAnim(currentMotion.motionName, 0f);
+            PlayAnim(currentMotion.motionName, 0f, sync);
+
+            weap.SetCollisionActive(false);
 
             var enemy = FindEnemy();
             if (enemy != null)
@@ -77,7 +79,7 @@ namespace Unit
 
         private Player FindEnemy()
         {
-            return PlayerRegistry.Instance.RegistedUsers.FirstOrDefault(x => x.Key.Equals(player.userRef) == false).Value;
+            return PlayerRegistry.Instance.RegistedUsers.FirstOrDefault(x => x.Key.Equals(Object.InputAuthority) == false).Value;
         }
 
 
