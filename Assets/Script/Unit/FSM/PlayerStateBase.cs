@@ -60,24 +60,24 @@ namespace Unit
         public void RPC_AnimCrossFadeInFixedTime(string stateName, float fixedTransitionDuration, int tick)
         {
             float latency = (Runner.Tick - tick) * Runner.DeltaTime;
-            anim.speed = 1f + (latency / ANIM_CORRECTION_WINDOW);
-            remainingCorrectionTime = ANIM_CORRECTION_WINDOW;
+            //anim.speed = 1f + (latency / ANIM_CORRECTION_WINDOW);
+            //remainingCorrectionTime = ANIM_CORRECTION_WINDOW;
 
-            anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration);
+            //anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration);
+            anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, latency);
         }
 
         public override void Render()
         {
-            if (remainingCorrectionTime > 0f)
-            {
-                remainingCorrectionTime -= Time.deltaTime;
-                if (remainingCorrectionTime <= 0f)
-                {
-                    anim.speed = 1f;
-                }
-            }
+            //if (remainingCorrectionTime > 0f)
+            //{
+            //    remainingCorrectionTime -= Time.deltaTime;
+            //    if (remainingCorrectionTime <= 0f)
+            //    {
+            //        anim.speed = 1f;
+            //    }
+            //}
         }
-
 
         void IState.EnterState(bool sync) => EnterState(sync);
 

@@ -48,7 +48,7 @@ namespace Unit
                 stateMap[state.GetStateType()] = state;
             }
 
-            SetState<PlayerMovementState>();
+            SetState<PlayerMovementState>();// SetSyncccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
             isInitialized = true;
 
