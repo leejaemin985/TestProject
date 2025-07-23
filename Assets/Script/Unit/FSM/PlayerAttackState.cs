@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Linq;
 using UnityEngine;
 
@@ -30,12 +31,23 @@ namespace Unit
         private Vector3 currentAttackMove;
         private float attackMoveSpeed = 65f;
 
+
+        private const float COMBO_DELAY_TIME = 1f;
+        private IEnumerator comboDelayHandle = null;
+
+        private IEnumerator ComboDelay(float sec)
+        {
+            yield return new WaitForSeconds(sec);
+            currentCombo = 0;
+        }
+
         protected override void EnterState(bool sync = true)
         {
-            base.EnterState();
-
             var currentMotion = attackMotionInfos[currentCombo % attackMotionInfos.Length];
             currentCombo++;
+
+            if (comboDelayHandle != null) StopCoroutine(comboDelayHandle);
+            StartCoroutine(comboDelayHandle = ComboDelay(currentMotion.motionDuration + COMBO_DELAY_TIME));
 
             currentAttackMove = Vector3.zero;
 

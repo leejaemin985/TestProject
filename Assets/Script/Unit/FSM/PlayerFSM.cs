@@ -56,10 +56,24 @@ namespace Unit
 
         public void SetState(PlayerStateBase.StateType stateType)
         {
-            if (stateType == PlayerStateBase.StateType.Hit)
+            if (stateType == PlayerStateBase.StateType.Hit && currentStateType != PlayerStateBase.StateType.Defense)
             {
                 SetState<PlayerHitState>(false);
+                if (Runner.IsSharedModeMasterClient)
+                {
+                    isHitState = true;
+                    if (testHandle != null) StartCoroutine(testHandle);
+                    StartCoroutine(testHandle = HitTest());
+                }
             }
+        }
+
+        private bool isHitState = false;
+        private IEnumerator testHandle = null;
+        private IEnumerator HitTest()
+        {
+            yield return new WaitForSeconds(.7f);
+            isHitState = false;
         }
 
         public void SetState<T>(bool sync = true) where T : class, IState
@@ -82,6 +96,7 @@ namespace Unit
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
         public void RPC_SyncState()
         {
+            if (Runner.IsSharedModeMasterClient && isHitState) return;
             currentState = stateMap[currentStateType];
         }
 

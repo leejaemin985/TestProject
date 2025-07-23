@@ -11,7 +11,8 @@ namespace Unit
         {
             Move = 0,
             Attack = 1,
-            Hit = 2
+            Defense = 2,
+            Hit = 3
         }
 
         protected Player player;
@@ -55,12 +56,12 @@ namespace Unit
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
         public void RPC_AnimCrossFadeInFixedTime(string stateName, float fixedTransitionDuration, int tick)
         {
-            //float latency = (Runner.Tick - tick) * Runner.DeltaTime;
+            float latency = (Runner.Tick - tick) * Runner.DeltaTime;
             //anim.speed = 1f + (latency / ANIM_CORRECTION_WINDOW);
             //remainingCorrectionTime = ANIM_CORRECTION_WINDOW;
 
-            anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration);
-            //anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, latency);
+            //anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration);
+            anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, latency);
         }
 
         public override void Render()

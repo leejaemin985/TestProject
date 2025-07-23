@@ -7,6 +7,7 @@ public struct InputData : INetworkInput
     public Vector2 moveDir;
     public bool dash;
     public bool attack;
+    public bool defense;
 }
 
 public class InputInterpreter

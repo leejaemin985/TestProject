@@ -29,6 +29,8 @@ public class InputHandle : MonoBehaviour, INetworkRunnerCallbacks
 
         if (Input.GetKey(KeyCode.LeftShift)) data.dash = true;
 
+        if (Input.GetKey(KeyCode.Mouse1)) data.defense = true;
+
         input.Set(data);
     }
 

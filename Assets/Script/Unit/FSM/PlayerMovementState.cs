@@ -38,6 +38,11 @@ namespace Unit
                 fsm.SetState<PlayerAttackState>();
                 return;
             }
+            else if (fsm.input.IsSet(x => x.defense))
+            {
+                fsm.SetState<PlayerDefenseState>();
+                return;
+            }
 
             Vector3 inputDir = new Vector3(fsm.input.Current.moveDir.x, 0, fsm.input.Current.moveDir.y);
 
