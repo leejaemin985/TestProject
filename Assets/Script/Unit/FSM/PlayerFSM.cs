@@ -47,7 +47,7 @@ namespace Unit
                 stateMap[state.GetStateType()] = state;
             }
 
-            SetState<PlayerMovementState>();
+            SetState(currentStateType);
 
             isInitialized = true;
 
@@ -64,8 +64,6 @@ namespace Unit
 
         public void SetState<T>(bool sync = true) where T : class, IState
         {
-            if (!HasStateAuthority) return;
-
             for (int index = 0, max = stateArray.Length; index < max; ++index)
             {
                 if (stateArray[index] is T state)
@@ -77,8 +75,8 @@ namespace Unit
                 }
             }
 
-            currentStateType = currentState.GetStateType();
-            RPC_SyncState();
+            if (HasStateAuthority) currentStateType = currentState.GetStateType();
+            if (sync) RPC_SyncState();
         }
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]

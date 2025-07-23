@@ -9,9 +9,9 @@ namespace Unit
     {
         public enum StateType
         {
-            Move,
-            Attack,
-            Hit
+            Move = 0,
+            Attack = 1,
+            Hit = 2
         }
 
         protected Player player;
@@ -46,15 +46,10 @@ namespace Unit
 
         protected void PlayAnim(string stateName, float fixedTransitionDuration, bool sync)
         {
-            //if (!HasStateAuthority || sync == false)
-            //{
-            //    anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration);
-            //}
-            //else
-            //{
-            //    RPC_AnimCrossFadeInFixedTime(stateName, fixedTransitionDuration, Runner.Tick);
-            //}
-            RPC_AnimCrossFadeInFixedTime(stateName, fixedTransitionDuration, Runner.Tick);
+            if (!HasStateAuthority || sync == false)
+                anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration);
+            else
+                RPC_AnimCrossFadeInFixedTime(stateName, fixedTransitionDuration, Runner.Tick);
         }
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]

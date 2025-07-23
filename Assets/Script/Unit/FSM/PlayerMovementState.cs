@@ -22,7 +22,7 @@ namespace Unit
         protected override void EnterState(bool sync = true)
         {
             base.EnterState();
-
+            
             currentMoveDir = Vector3.zero;
             currentMoveSpeed = walkSpeed;
 
