@@ -41,7 +41,7 @@ namespace Physics
         public override void SetActive(bool set)
         {
             base.SetActive(set);
-            if (set == false) checkedHitableUIDs.Clear();
+            checkedHitableUIDs.Clear();
         }
     }
 }

@@ -31,6 +31,5 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
             Quaternion.identity,
             player);
 
-
     }
 }

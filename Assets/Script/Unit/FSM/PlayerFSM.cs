@@ -1,11 +1,10 @@
-using Fusion;
-using Fusion.Addons.SimpleKCC;
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+
+using Fusion;
+using Fusion.Addons.SimpleKCC;
+
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Unit
 {
@@ -48,7 +47,7 @@ namespace Unit
                 stateMap[state.GetStateType()] = state;
             }
 
-            SetState<PlayerMovementState>();// SetSyncccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+            SetState<PlayerMovementState>();
 
             isInitialized = true;
 
@@ -65,6 +64,8 @@ namespace Unit
 
         public void SetState<T>(bool sync = true) where T : class, IState
         {
+            if (!HasStateAuthority) return;
+
             for (int index = 0, max = stateArray.Length; index < max; ++index)
             {
                 if (stateArray[index] is T state)
@@ -77,7 +78,7 @@ namespace Unit
             }
 
             currentStateType = currentState.GetStateType();
-            if (sync) RPC_SyncState();
+            RPC_SyncState();
         }
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]

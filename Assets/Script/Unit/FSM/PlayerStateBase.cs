@@ -42,41 +42,42 @@ namespace Unit
         protected virtual void OnAnimEvent(string param) { }
 
         private float remainingCorrectionTime = 0f;
-        private const float ANIM_CORRECTION_WINDOW = .01f;
+        private const float ANIM_CORRECTION_WINDOW = .05f;
 
         protected void PlayAnim(string stateName, float fixedTransitionDuration, bool sync)
         {
-            if (!HasStateAuthority || sync == false)
-            {
-                anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration);
-            }
-            else
-            {
-                RPC_AnimCrossFadeInFixedTime(stateName, fixedTransitionDuration, Runner.Tick);
-            }
+            //if (!HasStateAuthority || sync == false)
+            //{
+            //    anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration);
+            //}
+            //else
+            //{
+            //    RPC_AnimCrossFadeInFixedTime(stateName, fixedTransitionDuration, Runner.Tick);
+            //}
+            RPC_AnimCrossFadeInFixedTime(stateName, fixedTransitionDuration, Runner.Tick);
         }
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
         public void RPC_AnimCrossFadeInFixedTime(string stateName, float fixedTransitionDuration, int tick)
         {
-            float latency = (Runner.Tick - tick) * Runner.DeltaTime;
+            //float latency = (Runner.Tick - tick) * Runner.DeltaTime;
             //anim.speed = 1f + (latency / ANIM_CORRECTION_WINDOW);
             //remainingCorrectionTime = ANIM_CORRECTION_WINDOW;
 
-            //anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration);
-            anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, latency);
+            anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration);
+            //anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, latency);
         }
 
         public override void Render()
         {
-            //if (remainingCorrectionTime > 0f)
-            //{
-            //    remainingCorrectionTime -= Time.deltaTime;
-            //    if (remainingCorrectionTime <= 0f)
-            //    {
-            //        anim.speed = 1f;
-            //    }
-            //}
+            if (remainingCorrectionTime > 0f)
+            {
+                remainingCorrectionTime -= Time.deltaTime;
+                if (remainingCorrectionTime <= 0f)
+                {
+                    anim.speed = 1f;
+                }
+            }
         }
 
         void IState.EnterState(bool sync) => EnterState(sync);
