@@ -413,6 +413,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df3d4eff99d694e4195775e5ffc508a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitMotionInfos:
+  - clip: {fileID: 7400000, guid: 979533f277366d54aa873edf2460d708, type: 2}
+    motionName: _HitF
+    motionDuration: 0.7
+    direction: 0
+  - clip: {fileID: 7400000, guid: e3a0e1d9c0b54f446a6e46db58349d4a, type: 2}
+    motionName: _HitFL
+    motionDuration: 0.7
+    direction: 0
+  - clip: {fileID: 7400000, guid: 62eb87b0e780f104a8984678229d6d19, type: 2}
+    motionName: _HitFR
+    motionDuration: 0.7
+    direction: 0
+  - clip: {fileID: 7400000, guid: ce3ec86fb55d4c947bceb5cd1aa71c27, type: 2}
+    motionName: _HitB
+    motionDuration: 0.7
+    direction: 1
 --- !u!1 &7238041486482526272
 GameObject:
   m_ObjectHideFlags: 0
@@ -495,6 +512,7 @@ MonoBehaviour:
     weight: 1
     attackType: 1
   attackTryWindowTime: 0.1
+  _currentMotionIndex: 0
 --- !u!1 &8345124330114409181
 GameObject:
   m_ObjectHideFlags: 0

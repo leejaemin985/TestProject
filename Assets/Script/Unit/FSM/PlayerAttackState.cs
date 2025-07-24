@@ -164,7 +164,8 @@ namespace Unit
             {
                 damaged = attackMotionInfos[currentMotionIndex].damage,
                 weight = attackMotionInfos[currentMotionIndex].weight,
-                attackType = attackMotionInfos[currentMotionIndex].attackType
+                attackType = attackMotionInfos[currentMotionIndex].attackType,
+                attackerPos = player.transform.position
             });
         }
     }

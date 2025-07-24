@@ -1,5 +1,6 @@
 using Fusion;
 using System;
+using UnityEngine;
 
 public enum AttackType
 {
@@ -13,4 +14,5 @@ public struct HitInfo : INetworkStruct
     public float damaged;
     public float weight;
     public AttackType attackType;
+    public Vector3 attackerPos;
 };
