@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
+using Fusion;
 
 namespace Unit
 {
@@ -11,6 +12,10 @@ namespace Unit
         public AnimationClip clip;
         public string motionName;
         public float motionDuration;
+
+        public float damage;
+        public float weight;
+        public AttackType attackType;
     }
 
     public class PlayerAttackState : PlayerStateBase
@@ -20,6 +25,8 @@ namespace Unit
         [SerializeField] AttackMotionInfo[] attackMotionInfos;
 
         [SerializeField] private float attackTryWindowTime = .1f;
+
+        [Networked] public int currentMotionIndex { get; set; }
 
         private int attackEndTick;
         private int attackRetryTick;
@@ -43,7 +50,8 @@ namespace Unit
 
         protected override void EnterState(bool sync = true)
         {
-            var currentMotion = attackMotionInfos[currentCombo % attackMotionInfos.Length];
+            currentMotionIndex = currentCombo % attackMotionInfos.Length;
+            var currentMotion = attackMotionInfos[currentMotionIndex];
             currentCombo++;
 
             if (comboDelayHandle != null) StopCoroutine(comboDelayHandle);
@@ -152,6 +160,12 @@ namespace Unit
         private void SetWeaponCollision(string param)
         {
             weap.SetCollisionActive(string.Equals(param, "0") ? false : true);
+            weap.SetHitInfo(new()
+            {
+                damaged = attackMotionInfos[currentMotionIndex].damage,
+                weight = attackMotionInfos[currentMotionIndex].weight,
+                attackType = attackMotionInfos[currentMotionIndex].attackType
+            });
         }
     }
 }

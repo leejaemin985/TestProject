@@ -57,7 +57,7 @@ namespace Unit
         public void OnHitState(HitInfo hitInfo)
         {
             if (currentStateType == PlayerStateBase.StateType.Defense) return;
-            SetState<PlayerHitState>(false);
+            SetState<PlayerHitState, HitInfo>(hitInfo, false);
 
             OnStateLock(PlayerHitState.hitMotionDuration);
         }
@@ -87,6 +87,26 @@ namespace Unit
                 {
                     currentState?.ExitState();
                     currentState = state;
+                    currentState?.EnterState(sync);
+                    break;
+                }
+            }
+
+            if (HasStateAuthority) currentStateType = currentState.GetStateType();
+            if (sync) RPC_SyncState();
+        }
+
+        public void SetState<TState, TInfo>(TInfo info, bool sync = true)
+            where TState : PlayerStateBase, IState
+            where TInfo:struct, INetworkStruct
+        {
+            for (int index = 0, max = stateArray.Length; index < max; ++index)
+            {
+                if (stateArray[index] is TState state)
+                {
+                    currentState?.ExitState();
+                    currentState = state;
+                    currentState.SetInfo(info);
                     currentState?.EnterState(sync);
                     break;
                 }

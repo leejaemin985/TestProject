@@ -1,8 +1,12 @@
+using Fusion;
+
 namespace Unit
 {
     public interface IState
     {
         PlayerStateBase.StateType GetStateType();
+
+        void SetInfo(INetworkStruct info);
 
         void EnterState(bool syncMotion);
 

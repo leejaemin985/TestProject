@@ -413,7 +413,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df3d4eff99d694e4195775e5ffc508a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitMotionDuration: 1
 --- !u!1 &7238041486482526272
 GameObject:
   m_ObjectHideFlags: 0
@@ -462,21 +461,39 @@ MonoBehaviour:
   - clip: {fileID: 7400000, guid: a58e30832143e334fa2c2fdfcf35b878, type: 2}
     motionName: _LightAttack_0
     motionDuration: 0.6
+    damage: 100
+    weight: 1
+    attackType: 1
   - clip: {fileID: 7400000, guid: 8f2e64a1e30240f4aa18b1322d9ac783, type: 2}
     motionName: _LightAttack_1
     motionDuration: 0.6
+    damage: 101
+    weight: 1
+    attackType: 1
   - clip: {fileID: 7400000, guid: 86a8aa2004603d542a167f8c96562bfc, type: 2}
     motionName: _LightAttack_2
     motionDuration: 0.7
+    damage: 102
+    weight: 1
+    attackType: 1
   - clip: {fileID: 7400000, guid: 4e9bea3a5b518984ca2e0ad071993fd0, type: 2}
     motionName: _LightAttack_3
     motionDuration: 0.7
+    damage: 103
+    weight: 1
+    attackType: 1
   - clip: {fileID: 7400000, guid: b8e22e79770fb6147bd8bfe7b2018305, type: 2}
     motionName: _LightAttack_4
     motionDuration: 1
+    damage: 104
+    weight: 1
+    attackType: 1
   - clip: {fileID: 7400000, guid: 6f624e36d26cbeb4f9e4e99937040679, type: 2}
     motionName: _LightAttack_5
     motionDuration: 1
+    damage: 105
+    weight: 1
+    attackType: 1
   attackTryWindowTime: 0.1
 --- !u!1 &8345124330114409181
 GameObject:

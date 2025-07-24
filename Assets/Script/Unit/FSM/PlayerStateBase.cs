@@ -1,6 +1,6 @@
 using Fusion;
 using Fusion.Addons.SimpleKCC;
-using System.Data;
+
 using UnityEngine;
 
 namespace Unit
@@ -31,6 +31,8 @@ namespace Unit
         }
 
         public abstract StateType GetStateType();
+
+        protected virtual void SetInfo(INetworkStruct info) { }
 
         protected virtual void EnterState(bool sync = true) { }
 
@@ -76,6 +78,8 @@ namespace Unit
                 }
             }
         }
+
+        void IState.SetInfo(INetworkStruct info) => SetInfo(info);
 
         void IState.EnterState(bool sync) => EnterState(sync);
 

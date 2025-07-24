@@ -25,6 +25,7 @@ public class Katana : MonoBehaviour
 
     public void SetCollisionActive(bool set) => collisionBox.SetActive(set);
 
+    public void SetHitInfo(HitInfo hitInfo) => this.hitInfo = hitInfo;
 
     private void OnHit(CollisionInfos collisionInfos)
     {
