@@ -50,9 +50,9 @@ namespace Unit
             animEventer.Initialize(fsm.AnimEvent);
         }
 
-        public void RequestSetState(PlayerStateBase.StateType stateType)
+        public void RequestOnHitState(HitInfo hitInfo)
         {
-            fsm?.SetState(stateType);
+            fsm?.OnHitState(hitInfo);
         }
 
         private HitBox InitPlayerHitBox()
@@ -72,7 +72,7 @@ namespace Unit
 
         private void HitEvent(HitInfo hitInfo)
         {
-            EventDispatcher.Instance.SetStateEvent(Object.InputAuthority, PlayerStateBase.StateType.Hit);
+            EventDispatcher.Instance.RequestOnHitUser(Object.InputAuthority, hitInfo);
         }
 
         #region Cam

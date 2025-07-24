@@ -56,6 +56,7 @@ namespace Unit
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
         public void RPC_AnimCrossFadeInFixedTime(string stateName, float fixedTransitionDuration, int tick)
         {
+            if (fsm.isStateLockActive) return;
             float latency = (Runner.Tick - tick) * Runner.DeltaTime;
             //anim.speed = 1f + (latency / ANIM_CORRECTION_WINDOW);
             //remainingCorrectionTime = ANIM_CORRECTION_WINDOW;

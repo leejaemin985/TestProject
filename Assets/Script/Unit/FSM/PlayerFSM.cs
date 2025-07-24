@@ -47,33 +47,36 @@ namespace Unit
                 stateMap[state.GetStateType()] = state;
             }
 
-            SetState(currentStateType);
+            currentState = stateMap[currentStateType];
 
             isInitialized = true;
 
             StartCoroutine(Test());
         }
 
-        public void SetState(PlayerStateBase.StateType stateType)
+        public void OnHitState(HitInfo hitInfo)
         {
-            if (stateType == PlayerStateBase.StateType.Hit && currentStateType != PlayerStateBase.StateType.Defense)
-            {
-                SetState<PlayerHitState>(false);
-                if (Runner.IsSharedModeMasterClient)
-                {
-                    isHitState = true;
-                    if (testHandle != null) StartCoroutine(testHandle);
-                    StartCoroutine(testHandle = HitTest());
-                }
-            }
+            if (currentStateType == PlayerStateBase.StateType.Defense) return;
+            SetState<PlayerHitState>(false);
+
+            OnStateLock(PlayerHitState.hitMotionDuration);
         }
 
-        private bool isHitState = false;
-        private IEnumerator testHandle = null;
-        private IEnumerator HitTest()
+        private void OnStateLock(float sec)
         {
-            yield return new WaitForSeconds(.7f);
-            isHitState = false;
+            if (!Runner.IsSharedModeMasterClient) return;
+
+            isStateLockActive = true;
+            if (stateLockCoroutineHandle != null) StartCoroutine(stateLockCoroutineHandle);
+            StartCoroutine(stateLockCoroutineHandle = StateLockCoroutine(sec));
+        }
+
+        public bool isStateLockActive { get; private set; }
+        private IEnumerator stateLockCoroutineHandle = null;
+        private IEnumerator StateLockCoroutine(float sec)
+        {
+            yield return new WaitForSeconds(sec);
+            isStateLockActive = false;
         }
 
         public void SetState<T>(bool sync = true) where T : class, IState
@@ -96,7 +99,7 @@ namespace Unit
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
         public void RPC_SyncState()
         {
-            if (Runner.IsSharedModeMasterClient && isHitState) return;
+            if (isStateLockActive) return;
             currentState = stateMap[currentStateType];
         }
 

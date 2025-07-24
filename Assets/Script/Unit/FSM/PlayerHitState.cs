@@ -7,7 +7,7 @@ namespace Unit
     {
         public override StateType GetStateType() => StateType.Hit;
 
-        [SerializeField] private float hitMotionDuration;
+        public const float hitMotionDuration = 1f;
         private int hitEndTick;
 
         protected override void EnterState(bool sync = true)
