@@ -128,6 +128,8 @@ namespace Unit
             if (isInitialized == false) return;
 
             currentState?.OnRender();
+
+            if (Runner.IsSharedModeMasterClient) currentState?.OnMasterTick();
         }
 
         #region TestCode

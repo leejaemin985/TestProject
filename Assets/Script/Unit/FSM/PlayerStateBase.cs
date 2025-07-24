@@ -2,6 +2,7 @@ using Fusion;
 using Fusion.Addons.SimpleKCC;
 
 using UnityEngine;
+using UnityEngine.Animations;
 
 namespace Unit
 {
@@ -42,10 +43,9 @@ namespace Unit
 
         protected virtual void OnRender() { }
 
-        protected virtual void OnAnimEvent(string param) { }
+        protected virtual void OnMasterTick() { }
 
-        private float remainingCorrectionTime = 0f;
-        private const float ANIM_CORRECTION_WINDOW = .05f;
+        protected virtual void OnAnimEvent(string param) { }
 
         protected void PlayAnim(string stateName, float fixedTransitionDuration, bool sync)
         {
@@ -59,25 +59,11 @@ namespace Unit
         public void RPC_AnimCrossFadeInFixedTime(string stateName, float fixedTransitionDuration, int tick)
         {
             if (fsm.isStateLockActive) return;
-            float latency = (Runner.Tick - tick) * Runner.DeltaTime;
-            //anim.speed = 1f + (latency / ANIM_CORRECTION_WINDOW);
-            //remainingCorrectionTime = ANIM_CORRECTION_WINDOW;
 
-            //anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration);
+            float latency = (Runner.Tick - tick) * Runner.DeltaTime;
             anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, latency);
         }
 
-        public override void Render()
-        {
-            if (remainingCorrectionTime > 0f)
-            {
-                remainingCorrectionTime -= Time.deltaTime;
-                if (remainingCorrectionTime <= 0f)
-                {
-                    anim.speed = 1f;
-                }
-            }
-        }
 
         void IState.SetInfo(INetworkStruct info) => SetInfo(info);
 
@@ -90,5 +76,7 @@ namespace Unit
         void IState.OnRender() => OnRender();
 
         void IState.OnAnimEvent(string param) => OnAnimEvent(param);
+
+        void IState.OnMasterTick() => OnMasterTick();
     }
 }

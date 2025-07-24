@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Fusion;
@@ -16,6 +17,15 @@ namespace Unit
         public float damage;
         public float weight;
         public AttackType attackType;
+
+        public List<AttackBoxActiveInfo> attackBoxTimings;
+    }
+
+    [Serializable]
+    public class AttackBoxActiveInfo
+    {
+        public int startTick;
+        public int endTick;
     }
 
     public class PlayerAttackState : PlayerStateBase
@@ -50,6 +60,8 @@ namespace Unit
 
         protected override void EnterState(bool sync = true)
         {
+            weap.SetCollisionActive(false);
+
             currentMotionIndex = currentCombo % attackMotionInfos.Length;
             var currentMotion = attackMotionInfos[currentMotionIndex];
             currentCombo++;
@@ -65,7 +77,6 @@ namespace Unit
 
             PlayAnim(currentMotion.motionName, 0f, sync);
 
-            weap.SetCollisionActive(false);
 
             var enemy = FindEnemy();
             if (enemy != null)
@@ -167,6 +178,11 @@ namespace Unit
                 attackType = attackMotionInfos[currentMotionIndex].attackType,
                 attackerPos = player.transform.position
             });
+        }
+
+        protected override void OnMasterTick()
+        {
+            asjhdasjkdjjkasndjkasndjk
         }
     }
 }

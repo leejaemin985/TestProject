@@ -16,6 +16,8 @@ namespace Unit
 
         void OnRender();
 
+        void OnMasterTick();
+
         void OnAnimEvent(string param);
     }
 }
