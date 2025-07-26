@@ -481,38 +481,57 @@ MonoBehaviour:
     damage: 100
     weight: 1
     attackType: 1
+    attackBoxTimings:
+    - startTick: 23
+      endTick: 45
   - clip: {fileID: 7400000, guid: 8f2e64a1e30240f4aa18b1322d9ac783, type: 2}
     motionName: _LightAttack_1
     motionDuration: 0.6
     damage: 101
     weight: 1
     attackType: 1
+    attackBoxTimings:
+    - startTick: 32
+      endTick: 50
   - clip: {fileID: 7400000, guid: 86a8aa2004603d542a167f8c96562bfc, type: 2}
     motionName: _LightAttack_2
     motionDuration: 0.7
     damage: 102
     weight: 1
     attackType: 1
+    attackBoxTimings:
+    - startTick: 39
+      endTick: 70
   - clip: {fileID: 7400000, guid: 4e9bea3a5b518984ca2e0ad071993fd0, type: 2}
     motionName: _LightAttack_3
     motionDuration: 0.7
     damage: 103
     weight: 1
     attackType: 1
+    attackBoxTimings:
+    - startTick: 47
+      endTick: 71
   - clip: {fileID: 7400000, guid: b8e22e79770fb6147bd8bfe7b2018305, type: 2}
     motionName: _LightAttack_4
     motionDuration: 1
     damage: 104
     weight: 1
     attackType: 1
+    attackBoxTimings:
+    - startTick: 52
+      endTick: 78
   - clip: {fileID: 7400000, guid: 6f624e36d26cbeb4f9e4e99937040679, type: 2}
     motionName: _LightAttack_5
     motionDuration: 1
     damage: 105
     weight: 1
     attackType: 1
+    attackBoxTimings:
+    - startTick: 57
+      endTick: 95
   attackTryWindowTime: 0.1
   _currentMotionIndex: 0
+  _currentMotionStartTick: 0
 --- !u!1 &8345124330114409181
 GameObject:
   m_ObjectHideFlags: 0

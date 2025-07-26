@@ -37,6 +37,7 @@ namespace Unit
         [SerializeField] private float attackTryWindowTime = .1f;
 
         [Networked] public int currentMotionIndex { get; set; }
+        [Networked] public int currentMotionStartTick { get; set; }
 
         private int attackEndTick;
         private int attackRetryTick;
@@ -60,9 +61,9 @@ namespace Unit
 
         protected override void EnterState(bool sync = true)
         {
-            weap.SetCollisionActive(false);
-
             currentMotionIndex = currentCombo % attackMotionInfos.Length;
+            currentMotionStartTick = Runner.Tick;
+
             var currentMotion = attackMotionInfos[currentMotionIndex];
             currentCombo++;
 
@@ -170,19 +171,47 @@ namespace Unit
 
         private void SetWeaponCollision(string param)
         {
-            weap.SetCollisionActive(string.Equals(param, "0") ? false : true);
-            weap.SetHitInfo(new()
-            {
-                damaged = attackMotionInfos[currentMotionIndex].damage,
-                weight = attackMotionInfos[currentMotionIndex].weight,
-                attackType = attackMotionInfos[currentMotionIndex].attackType,
-                attackerPos = player.transform.position
-            });
+            //weap.SetCollisionActive(string.Equals(param, "0") ? false : true);
+            //weap.SetHitInfo(new()
+            //{
+            //    damaged = attackMotionInfos[currentMotionIndex].damage,
+            //    weight = attackMotionInfos[currentMotionIndex].weight,
+            //    attackType = attackMotionInfos[currentMotionIndex].attackType,
+            //    attackerPos = player.transform.position
+            //});
         }
 
         protected override void OnMasterTick()
         {
-            asjhdasjkdjjkasndjkasndjk
+            var currentMotion = attackMotionInfos[currentMotionIndex];
+            foreach (var timing in currentMotion.attackBoxTimings)
+            {
+                float startTime = timing.startTick / currentMotion.clip.frameRate;
+                float endTime = timing.endTick / currentMotion.clip.frameRate;
+
+                int startTick = currentMotionStartTick + Mathf.RoundToInt(startTime * Runner.TickRate);
+                int endTick = currentMotionStartTick + Mathf.RoundToInt(endTime * Runner.TickRate);
+
+                bool active = Runner.Tick > startTick && Runner.Tick < endTick;
+                if (active != weap.collisionActive)
+                {
+                    if (active)
+                    {
+                        weap.SetCollisionActive(true);
+                        weap.SetHitInfo(new()
+                        {
+                            damaged = attackMotionInfos[currentMotionIndex].damage,
+                            weight = attackMotionInfos[currentMotionIndex].weight,
+                            attackType = attackMotionInfos[currentMotionIndex].attackType,
+                            attackerPos = player.transform.position
+                        });
+                    }
+                    else
+                    {
+                        weap.SetCollisionActive(false);
+                    }
+                }
+            }
         }
     }
 }

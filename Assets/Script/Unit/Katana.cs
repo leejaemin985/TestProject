@@ -7,6 +7,7 @@ public class Katana : MonoBehaviour
 {
     [SerializeField] private AttackBox collisionBox;
     private HitInfo hitInfo;
+    public bool collisionActive => collisionBox.Active;
 
 
     public void Initialize(bool isMasterClient, PhysicsObject userPhysicsObject)
