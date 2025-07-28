@@ -64,7 +64,7 @@ namespace Unit
 
         private void OnStateLock(float sec)
         {
-            if (!Runner.IsSharedModeMasterClient) return;
+            if (!Runner.IsSharedModeMasterClient || HasStateAuthority) return;
 
             isStateLockActive = true;
             if (stateLockCoroutineHandle != null) StartCoroutine(stateLockCoroutineHandle);
