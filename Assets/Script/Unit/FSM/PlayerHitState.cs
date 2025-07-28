@@ -72,6 +72,7 @@ namespace Unit
             if (Runner.Tick >= hitEndTick)
             {
                 fsm.SetState<PlayerMovementState>();
+                return;
             }
 
             cc.Move(currentHitMove * hitMoveSpeed * Runner.DeltaTime);
