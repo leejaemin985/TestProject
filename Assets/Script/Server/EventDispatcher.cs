@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unit;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class EventDispatcher : MasterSingleton<EventDispatcher>
@@ -23,4 +24,19 @@ public class EventDispatcher : MasterSingleton<EventDispatcher>
         }
     }
 
+    public void RequestOnParringUser(PlayerRef user)
+    {
+        if (!HasStateAuthority) return;
+        RPC_RequestOnParringUser(user);
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_RequestOnParringUser(PlayerRef user)
+    {
+        var targetUser = PlayerRegistry.Instance.RegistedUsers.FirstOrDefault(x => x.Key.Equals(user)).Value;
+        if (targetUser != null)
+        {
+            targetUser.RequestOnParringState();
+        }
+    }
 }

@@ -13,7 +13,8 @@ namespace Unit
             Move = 0,
             Attack = 1,
             Defense = 2,
-            Hit = 3
+            Parring = 3,
+            Hit
         }
 
         protected Player player;

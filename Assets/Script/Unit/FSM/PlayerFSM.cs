@@ -56,10 +56,14 @@ namespace Unit
 
         public void OnHitState(HitInfo hitInfo)
         {
-            if (currentStateType == PlayerStateBase.StateType.Defense) return;
             SetState<PlayerHitState, HitInfo>(hitInfo, false);
 
             OnStateLock(PlayerHitState.hitMotionDuration);
+        }
+
+        public void OnParringState()
+        {
+            SetState<PlayerParringState>(false);
         }
 
         private void OnStateLock(float sec)
