@@ -1,3 +1,4 @@
+using Fusion;
 using UnityEngine;
 
 namespace Unit
@@ -8,6 +9,15 @@ namespace Unit
         public const float parringMotionDuration = .5f;
 
         private int parringEndTick;
+
+        private HitInfo receivedHitInfo;
+
+        protected override void SetInfo(INetworkStruct info)
+        {
+            HitInfo hitInfo = (HitInfo)info;
+            receivedHitInfo = hitInfo;
+            Debug.Log($"Test - Update Pos : {hitInfo.attackerPos}");
+        }
 
         protected override void EnterState(bool sync = true)
         {
@@ -21,6 +31,9 @@ namespace Unit
         protected override void OnState()
         {
             if (!HasInputAuthority) return;
+
+            Debug.Log($"Test - {receivedHitInfo.attackerPos}");
+            cc.SetLookRotation(Quaternion.LookRotation(receivedHitInfo.attackerPos));
 
             if (Runner.Tick >= parringEndTick)
             {

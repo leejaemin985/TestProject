@@ -55,9 +55,9 @@ namespace Unit
             fsm?.OnHitState(hitInfo);
         }
 
-        public void RequestOnParringState()
+        public void RequestOnParringState(HitInfo hitInfo)
         {
-            fsm?.OnParringState();
+            fsm?.OnParringState(hitInfo);
         }
 
         private HitBox InitPlayerHitBox()
@@ -77,11 +77,17 @@ namespace Unit
 
         private void HitEvent(HitInfo hitInfo)
         {
-            if (fsm.currentStateType == PlayerStateBase.StateType.Defense ||
-                fsm.currentStateType == PlayerStateBase.StateType.Parring)
-                EventDispatcher.Instance.RequestOnParringUser(Object.InputAuthority);
-            else
-                EventDispatcher.Instance.RequestOnHitUser(Object.InputAuthority, hitInfo);
+            PlayerFSM.HitResultType result = fsm.CheckHittable(hitInfo);
+            switch (result)
+            {
+                case PlayerFSM.HitResultType.Hit:
+                    EventDispatcher.Instance.RequestOnHitUser(Object.InputAuthority, hitInfo);
+                    break;
+
+                case PlayerFSM.HitResultType.Parry:
+                    EventDispatcher.Instance.RequestOnParringUser(Object.InputAuthority, hitInfo);
+                    break;
+            }
         }
 
         #region Cam

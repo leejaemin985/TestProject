@@ -1,3 +1,4 @@
+using Fusion;
 using UnityEngine;
 
 namespace Unit
@@ -5,6 +6,7 @@ namespace Unit
     public class PlayerDefenseState : PlayerStateBase
     {
         public override StateType GetStateType() => StateType.Defense;
+        public const float defenseStartupTime = 0.1f;
 
         protected override void EnterState(bool sync = true)
         {

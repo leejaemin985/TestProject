@@ -10,6 +10,8 @@ namespace Unit
 {
     public class PlayerFSM : NetworkBehaviour, IMachineState
     {
+        private Player player;
+
         [SerializeField] private PlayerStateBase[] stateArray = default;
 
         private bool isInitialized = false;
@@ -17,6 +19,13 @@ namespace Unit
         private Dictionary<PlayerStateBase.StateType, PlayerStateBase> stateMap;
 
         public InputInterpreter input;
+
+        public enum HitResultType
+        {
+            Hit,
+            Parry,
+            Died
+        }
 
         [Networked] public PlayerStateBase.StateType currentStateType { get; set; }
 
@@ -38,6 +47,7 @@ namespace Unit
 
         public void Initialized(Player player, SimpleKCC cc, Animator anim, Katana playerWeapon)
         {
+            this.player = player;
             input = new();
 
             stateMap = new();
@@ -54,6 +64,21 @@ namespace Unit
             StartCoroutine(Test());
         }
 
+        public HitResultType CheckHittable(HitInfo hitInfo)
+        {
+            bool inDefense = 
+                currentStateType == PlayerStateBase.StateType.Defense || 
+                currentStateType == PlayerStateBase.StateType.Parring;
+
+            float dirDot = Vector3.Dot((hitInfo.attackerPos - player.transform.position).normalized, player.transform.forward);
+            bool attackIsForward = dirDot > 0;
+
+            if (inDefense && attackIsForward) return HitResultType.Parry;
+
+
+            return HitResultType.Hit;
+        }
+
         public void OnHitState(HitInfo hitInfo)
         {
             SetState<PlayerHitState, HitInfo>(hitInfo, false);
@@ -61,9 +86,10 @@ namespace Unit
             OnStateLock(PlayerHitState.hitMotionDuration);
         }
 
-        public void OnParringState()
+        public void OnParringState(HitInfo hitInfo)
         {
-            SetState<PlayerParringState>(false);
+            SetState<PlayerParringState, HitInfo>(hitInfo, false);
+            OnStateLock(PlayerParringState.parringMotionDuration);
         }
 
         private void OnStateLock(float sec)

@@ -24,19 +24,19 @@ public class EventDispatcher : MasterSingleton<EventDispatcher>
         }
     }
 
-    public void RequestOnParringUser(PlayerRef user)
+    public void RequestOnParringUser(PlayerRef user, HitInfo hitInfo)
     {
         if (!HasStateAuthority) return;
-        RPC_RequestOnParringUser(user);
+        RPC_RequestOnParringUser(user, hitInfo);
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_RequestOnParringUser(PlayerRef user)
+    private void RPC_RequestOnParringUser(PlayerRef user, HitInfo hitInfo)
     {
         var targetUser = PlayerRegistry.Instance.RegistedUsers.FirstOrDefault(x => x.Key.Equals(user)).Value;
         if (targetUser != null)
         {
-            targetUser.RequestOnParringState();
+            targetUser.RequestOnParringState(hitInfo);
         }
     }
 }

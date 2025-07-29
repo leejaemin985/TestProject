@@ -123,9 +123,6 @@ namespace Unit
                 case "AttackMove":
                     OnAttackMove(parts[1]);
                     break;
-                case "SetWeapCollision":
-                    SetWeaponCollision(parts[1]);
-                    break;
             }
         }
 
@@ -167,18 +164,6 @@ namespace Unit
 
                 currentAttackMove = worldMoveDir * moveRatio;
             }
-        }
-
-        private void SetWeaponCollision(string param)
-        {
-            //weap.SetCollisionActive(string.Equals(param, "0") ? false : true);
-            //weap.SetHitInfo(new()
-            //{
-            //    damaged = attackMotionInfos[currentMotionIndex].damage,
-            //    weight = attackMotionInfos[currentMotionIndex].weight,
-            //    attackType = attackMotionInfos[currentMotionIndex].attackType,
-            //    attackerPos = player.transform.position
-            //});
         }
 
         protected override void OnMasterTick()
