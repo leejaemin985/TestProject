@@ -33,6 +33,13 @@ namespace Unit
         {
             if (!HasStateAuthority) return;
 
+            if (fsm.input.WasPressed(x => x.jump))
+            {
+                //fsm.SetState<PlayerJumpState>();
+                cc.Move(Vector3.zero, 10);
+                return;
+            }
+
             if (fsm.input.IsSet(x => x.attack))
             {
                 fsm.SetState<PlayerAttackState>();

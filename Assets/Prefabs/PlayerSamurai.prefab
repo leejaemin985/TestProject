@@ -31,6 +31,51 @@ Transform:
   m_Children: []
   m_Father: {fileID: 801863879966483579}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &742730841203167897
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4192190398089814585}
+  - component: {fileID: 3379317830629106981}
+  m_Layer: 0
+  m_Name: JumpState
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4192190398089814585
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 742730841203167897}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4891781815831520554}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3379317830629106981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 742730841203167897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93f168f3207228447b95740a16a22bba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  jumpVelocity: 100
 --- !u!1 &1144485216713449374
 GameObject:
   m_ObjectHideFlags: 0
@@ -82,6 +127,7 @@ MonoBehaviour:
   - {fileID: 6677774022126578438}
   - {fileID: 1480151986322204072}
   - {fileID: 2406757227092788340}
+  - {fileID: 3379317830629106981}
   _currentStateType: 0
 --- !u!1 &1303623832662102651
 GameObject:
@@ -313,6 +359,7 @@ MonoBehaviour:
   - {fileID: 978523184684886547}
   - {fileID: 5601132550606417841}
   - {fileID: 9115356238606166732}
+  - {fileID: 3379317830629106981}
   - {fileID: 4144497015441670531}
   - {fileID: 6677774022126578438}
   - {fileID: 1480151986322204072}
@@ -610,6 +657,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1856634780031410300}
+  - {fileID: 4192190398089814585}
   - {fileID: 4355715396861701645}
   - {fileID: 2163807793309135879}
   - {fileID: 1578820734320562712}

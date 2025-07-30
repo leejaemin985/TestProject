@@ -11,9 +11,10 @@ namespace Unit
         public enum StateType
         {
             Move = 0,
-            Attack = 1,
-            Defense = 2,
-            Parring = 3,
+            Jump,
+            Attack,
+            Defense,
+            Parring,
             Hit
         }
 

@@ -45,7 +45,7 @@ namespace Unit
                 playerHitBox = InitPlayerHitBox();
 
             weapon.Initialize(Runner.IsSharedModeMasterClient, playerHitBox);
-
+            
             fsm.Initialized(this, cc, anim, weapon);
             animEventer.Initialize(fsm.AnimEvent);
         }
