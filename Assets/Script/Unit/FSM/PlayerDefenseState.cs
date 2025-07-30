@@ -10,7 +10,7 @@ namespace Unit
 
         protected override void EnterState(bool sync = true)
         {
-            PlayAnim("_Defense", .1f, true);
+            PlayAnim("_Defense", .15f, true);
         }
 
         protected override void OnState()

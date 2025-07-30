@@ -76,7 +76,7 @@ namespace Unit
             attackEndTick = Runner.Tick + Mathf.RoundToInt(currentMotion.motionDuration * tickRate);
             attackRetryTick = attackEndTick - Mathf.RoundToInt(attackTryWindowTime * tickRate);
 
-            PlayAnim(currentMotion.motionName, 0f, sync);
+            PlayAnim(currentMotion.motionName, .1f, sync);
 
 
             var enemy = FindEnemy();

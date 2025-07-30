@@ -13,6 +13,12 @@ namespace Unit
         private HitInfo receivedHitInfo;
         private float curvSpeed = 10;
 
+        private int parringPushEndTick;
+
+        private const float parringPushTime = .1f;
+        private float parringPushSpeed = 150f;
+        
+
         protected override void SetInfo(INetworkStruct info) => receivedHitInfo = (HitInfo)info;
 
         protected override void EnterState(bool sync = true)
@@ -21,6 +27,8 @@ namespace Unit
 
             parringEndTick = Runner.Tick + Mathf.RoundToInt(parringMotionDuration * Runner.TickRate);
             PlayAnim("_Parring_1", 0, sync);
+
+            parringPushEndTick = Runner.Tick + Mathf.RoundToInt(parringPushTime * Runner.TickRate);
         }
 
 
@@ -28,14 +36,19 @@ namespace Unit
         {
             if (!HasInputAuthority) return;
 
-            Vector3 dir = (receivedHitInfo.attackerPos - player.transform.position).normalized;
-            cc.SetLookRotation(Quaternion.Slerp(cc.transform.rotation, Quaternion.LookRotation(dir), curvSpeed * Runner.DeltaTime));
-
-
             if (Runner.Tick >= parringEndTick)
             {
                 fsm.SetState<PlayerDefenseState>();
                 return;
+            }
+
+            if (Runner.Tick < parringPushEndTick)
+            {
+                Vector3 dir = (receivedHitInfo.attackerPos - player.transform.position).normalized;
+                cc.SetLookRotation(Quaternion.Slerp(cc.transform.rotation, Quaternion.LookRotation(dir), curvSpeed * Runner.DeltaTime));
+
+                var targetDir = -dir * receivedHitInfo.weight;
+                cc.Move(targetDir * parringPushSpeed * Runner.DeltaTime);
             }
         }
     }
