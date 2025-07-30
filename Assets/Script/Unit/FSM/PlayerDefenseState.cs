@@ -8,9 +8,17 @@ namespace Unit
         public override StateType GetStateType() => StateType.Defense;
         public const float defenseStartupTime = 0.1f;
 
+        [SerializeField] private float defenseMoveSpeed;
+        [SerializeField] private float curvSpeed = 10;
+
+        private Vector3 currentMoveDir;
+
+
+        [Networked] private Vector3 moveAnimDir { get; set; }
+
         protected override void EnterState(bool sync = true)
         {
-            PlayAnim("_Defense", .15f, true);
+            PlayAnim("_DefenseMove", .15f, true);
         }
 
         protected override void OnState()
@@ -21,6 +29,35 @@ namespace Unit
                 fsm.SetState<PlayerMovementState>();
                 return;
             }
+
+            Vector3 inputDir = new Vector3(fsm.input.Current.moveDir.x, 0, fsm.input.Current.moveDir.y);
+            moveAnimDir = Vector3.Lerp(moveAnimDir, inputDir, curvSpeed * Runner.DeltaTime);
+
+            inputDir = Camera.main.transform.TransformDirection(inputDir);
+            inputDir.y = 0;
+            inputDir.Normalize();
+
+            currentMoveDir = Vector3.Lerp(currentMoveDir, inputDir, curvSpeed * Runner.DeltaTime);
+
+            if (inputDir.sqrMagnitude > .01f)
+            {
+                cc.SetLookRotation(Quaternion.Slerp(cc.transform.rotation, Camera.main.transform.rotation, curvSpeed * Runner.DeltaTime));
+            }
+            cc.Move(currentMoveDir * defenseMoveSpeed * Runner.DeltaTime);
+        }
+
+        protected override void OnRender()
+        {
+            const string HORIZONTAL = "_Horizontal";
+            const string VERTICAL = "_Vertical";
+
+            float curvSpeed = .1f;
+
+            float currentHorizontal = anim.GetFloat(HORIZONTAL);
+            float currentVertical = anim.GetFloat(VERTICAL);
+
+            anim.SetFloat(HORIZONTAL, Mathf.Lerp(currentHorizontal, moveAnimDir.x, curvSpeed));
+            anim.SetFloat(VERTICAL, Mathf.Lerp(currentVertical, moveAnimDir.z, curvSpeed));
         }
     }
 }
