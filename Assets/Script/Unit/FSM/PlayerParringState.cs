@@ -11,13 +11,9 @@ namespace Unit
         private int parringEndTick;
 
         private HitInfo receivedHitInfo;
+        private float curvSpeed = 10;
 
-        protected override void SetInfo(INetworkStruct info)
-        {
-            HitInfo hitInfo = (HitInfo)info;
-            receivedHitInfo = hitInfo;
-            Debug.Log($"Test - Update Pos : {hitInfo.attackerPos}");
-        }
+        protected override void SetInfo(INetworkStruct info) => receivedHitInfo = (HitInfo)info;
 
         protected override void EnterState(bool sync = true)
         {
@@ -32,8 +28,9 @@ namespace Unit
         {
             if (!HasInputAuthority) return;
 
-            Debug.Log($"Test - {receivedHitInfo.attackerPos}");
-            cc.SetLookRotation(Quaternion.LookRotation(receivedHitInfo.attackerPos));
+            Vector3 dir = (receivedHitInfo.attackerPos - player.transform.position).normalized;
+            cc.SetLookRotation(Quaternion.Slerp(cc.transform.rotation, Quaternion.LookRotation(dir), curvSpeed * Runner.DeltaTime));
+
 
             if (Runner.Tick >= parringEndTick)
             {
