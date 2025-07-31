@@ -11,6 +11,7 @@ namespace Unit
         public enum StateType
         {
             Move = 0,
+            Sprint,
             Jump,
             Attack,
             Defense,
