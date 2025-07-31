@@ -75,7 +75,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93f168f3207228447b95740a16a22bba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jumpVelocity: 100
+  jumpVelocity: 10
 --- !u!1 &1144485216713449374
 GameObject:
   m_ObjectHideFlags: 0
@@ -128,6 +128,7 @@ MonoBehaviour:
   - {fileID: 1480151986322204072}
   - {fileID: 2406757227092788340}
   - {fileID: 3379317830629106981}
+  - {fileID: 4148014755919145726}
   _currentStateType: 0
 --- !u!1 &1303623832662102651
 GameObject:
@@ -364,6 +365,7 @@ MonoBehaviour:
   - {fileID: 6677774022126578438}
   - {fileID: 1480151986322204072}
   - {fileID: 2406757227092788340}
+  - {fileID: 4148014755919145726}
   ForceRemoteRenderTimeframe: 0
 --- !u!54 &2429171034896933854
 Rigidbody:
@@ -525,6 +527,52 @@ MonoBehaviour:
     motionName: _HitB
     motionDuration: 0.7
     direction: 1
+--- !u!1 &6614317249968705175
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1386921708239240020}
+  - component: {fileID: 4148014755919145726}
+  m_Layer: 0
+  m_Name: Landing
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1386921708239240020
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6614317249968705175}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4891781815831520554}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4148014755919145726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6614317249968705175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2f05fd1c353f654bbcc4665f8c77327, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  landingMotionMinDuration: 0.1
+  landingMotionDuration: 0.3
 --- !u!1 &7238041486482526272
 GameObject:
   m_ObjectHideFlags: 0
@@ -662,6 +710,7 @@ Transform:
   - {fileID: 2163807793309135879}
   - {fileID: 1578820734320562712}
   - {fileID: 5224960361359099798}
+  - {fileID: 1386921708239240020}
   m_Father: {fileID: 3468013034680474919}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8973499107381494114

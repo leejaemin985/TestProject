@@ -35,8 +35,12 @@ namespace Unit
 
             if (fsm.input.WasPressed(x => x.jump))
             {
-                //fsm.SetState<PlayerJumpState>();
-                cc.Move(Vector3.zero, 10);
+                fsm.SetState<PlayerJumpState, MoveInfo>(
+                    new() 
+                    { 
+                        moveDir = currentMoveDir,
+                        velocity = currentMoveSpeed 
+                    }, true);
                 return;
             }
 

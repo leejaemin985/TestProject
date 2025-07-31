@@ -123,9 +123,11 @@ namespace Unit
                 case "AttackMove":
                     OnAttackMove(parts[1]);
                     break;
+                //case "SetWeapCollision":
+                //    SetWeapCollision(parts[1]);
+                //    break;
             }
         }
-
         private void OnAttackMove(string param)
         {
             if (string.IsNullOrEmpty(param) || param.Equals("0"))
@@ -153,6 +155,8 @@ namespace Unit
                 if (enemy != null)
                 {
                     Vector3 toEnemy = (enemy.transform.position - player.transform.position);
+                    toEnemy.y = 0;
+                    toEnemy.Normalize();
                 
                     forward = toEnemy.normalized;
                     moveRatio = Mathf.Clamp((toEnemy.magnitude - ATTACK_MOVE_DISTANCE_OFFSET) / 1f, 0, ATTACK_MOVE_RATIO_CLAMP_MAX);
@@ -164,6 +168,24 @@ namespace Unit
 
                 currentAttackMove = worldMoveDir * moveRatio;
             }
+        }
+
+        private void SetWeapCollision(string param)
+        {
+            if (param.Equals("0"))
+            {
+                weap.SetCollisionActive(false);
+                return;
+            }
+
+            weap.SetCollisionActive(true);
+            weap.SetHitInfo(new()
+            {
+                damaged = attackMotionInfos[currentMotionIndex].damage,
+                weight = attackMotionInfos[currentMotionIndex].weight,
+                attackType = attackMotionInfos[currentMotionIndex].attackType,
+                attackerPos = player.transform.position
+            });
         }
 
         protected override void OnMasterTick()
@@ -198,5 +220,6 @@ namespace Unit
                 }
             }
         }
+
     }
 }

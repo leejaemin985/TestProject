@@ -14,7 +14,7 @@ public class PlayerCam : MonoBehaviour
     private float row = 0f;
     private float yaw = 0f;
 
-    private float mouseSensitivity = 200f;
+    private float mouseSensitivity = 300f;
 
     private IEnumerator CamPositioningHandle = default;
 

@@ -34,7 +34,7 @@ namespace Unit
         private HitInfo currentHitInfo;
 
         private Vector3 currentHitMove;
-        private float hitMoveSpeed = 65f;
+        private float hitMoveSpeed = 120f;
 
         protected override void SetInfo(INetworkStruct info)
         {

@@ -15,8 +15,8 @@ namespace Unit
 
         private int parringPushEndTick;
 
-        private const float parringPushTime = .1f;
-        private float parringPushSpeed = 150f;
+        private const float parringPushTime = .15f;
+        private float parringPushSpeed = 200f;
         
 
         protected override void SetInfo(INetworkStruct info) => receivedHitInfo = (HitInfo)info;

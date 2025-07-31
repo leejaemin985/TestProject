@@ -32,7 +32,7 @@ namespace Unit
         private IEnumerator InitSequencer()
         {
             yield return new WaitUntil(() => GameManager.Instance.isInitialized);
-            
+
             PlayerRegistry.Instance.RegisterPlayer(Object.InputAuthority, this);
             Initialize();
         }

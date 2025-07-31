@@ -9,6 +9,15 @@ public struct InputData : INetworkInput
     public bool jump;
     public bool attack;
     public bool defense;
+
+    public bool IsInputEmpty()
+    {
+        return moveDir.sqrMagnitude < .001f &&
+            !dash &&
+            !jump &&
+            !attack &&
+            !defense;
+    }
 }
 
 public class InputInterpreter

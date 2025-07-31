@@ -15,6 +15,7 @@ namespace Unit
             Attack,
             Defense,
             Parring,
+            Land,
             Hit
         }
 

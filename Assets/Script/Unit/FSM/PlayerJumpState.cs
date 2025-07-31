@@ -1,5 +1,7 @@
 namespace Unit
 {
+    using Fusion;
+    using Unity.VisualScripting;
     using UnityEngine;
 
     public class PlayerJumpState : PlayerStateBase
@@ -8,16 +10,44 @@ namespace Unit
 
         [SerializeField] private float jumpVelocity;
 
-        private float currentVelocity;
+        [Networked] private float currentVelocity { get; set; }
+
+        private Vector3 currentMoveDir;
+        private float velocity;
+
+        protected override void SetInfo(INetworkStruct info)
+        {
+            MoveInfo moveInfo = (MoveInfo)info;
+            currentMoveDir = moveInfo.moveDir;
+            velocity = moveInfo.velocity;
+        }
 
         protected override void EnterState(bool sync = true)
         {
-            cc.Move(Vector3.zero, 10);
+            currentVelocity = 0;
+            PlayAnim("_Jump", .1f, true);
+
+            cc.Move(default, jumpVelocity);
         }
 
         protected override void OnState()
         {
-            cc.Move(Vector3.zero);
+            if (!HasInputAuthority) return;
+
+            if (cc.IsGrounded)
+            {
+                fsm.SetState<PlayerLandState>();
+                return;
+            }
+
+            cc.Move(currentMoveDir * velocity * Runner.DeltaTime);
+        }
+
+        protected override void OnRender()
+        {
+            currentVelocity = Mathf.Clamp01(currentVelocity - Runner.DeltaTime);
+
+            anim.SetFloat("_JumpVelocity", currentVelocity);
         }
     }
 }
