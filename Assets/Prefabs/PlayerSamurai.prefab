@@ -673,6 +673,16 @@ MonoBehaviour:
     attackBoxTimings:
     - startTick: 57
       endTick: 95
+  dashAttackMotionInfo:
+    clip: {fileID: 7400000, guid: b34f0ec5bf0a10f45853fea9d04241a9, type: 2}
+    motionName: _DashAttack
+    motionDuration: 1
+    damage: 2
+    weight: 1
+    attackType: 0
+    attackBoxTimings:
+    - startTick: 17
+      endTick: 27
   attackTryWindowTime: 0.1
   _currentMotionIndex: 0
   _currentMotionStartTick: 0

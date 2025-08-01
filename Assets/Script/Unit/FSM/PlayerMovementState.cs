@@ -44,7 +44,7 @@ namespace Unit
 
             if (fsm.input.IsSet(x => x.attack))
             {
-                fsm.SetState<PlayerAttackState>();
+                fsm.SetState<PlayerAttackState, AttackInfo>(new() { attackMotionType = AttackMotionType.None });
                 return;
             }
 

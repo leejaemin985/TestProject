@@ -39,6 +39,12 @@ namespace Unit
                 return;
             }
 
+            if (fsm.input.IsSet(x => x.attack))
+            {
+                fsm.SetState<PlayerAttackState, AttackInfo>(new() { attackMotionType = AttackMotionType.Dash });
+                return;
+            }
+
             Vector3 inputDir = new Vector3(fsm.input.Current.moveDir.x, 0, fsm.input.Current.moveDir.y);
             
             inputDir = Camera.main.transform.TransformDirection(inputDir);

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Fusion;
+using Unity.VisualScripting;
 
 namespace Unit
 {
@@ -32,7 +33,11 @@ namespace Unit
     {
         public override StateType GetStateType() => StateType.Attack;
 
-        [SerializeField] AttackMotionInfo[] attackMotionInfos;
+        private AttackInfo currentAttackMotionInfo;
+
+        [SerializeField] private AttackMotionInfo[] attackMotionInfos;
+
+        [SerializeField] private AttackMotionInfo dashAttackMotionInfo;
 
         [SerializeField] private float attackTryWindowTime = .1f;
 
@@ -59,18 +64,26 @@ namespace Unit
             currentCombo = 0;
         }
 
+        protected override void SetInfo(INetworkStruct info) => currentAttackMotionInfo = (AttackInfo)info;
+
         protected override void EnterState(bool sync = true)
         {
-            currentMotionIndex = currentCombo % attackMotionInfos.Length;
-            currentMotionStartTick = Runner.Tick;
+            AttackMotionInfo currentMotion = null;
+            if (currentAttackMotionInfo.attackMotionType == AttackMotionType.None)
+            {
+                currentMotionIndex = currentCombo % attackMotionInfos.Length;
+                currentMotionStartTick = Runner.Tick;
 
-            var currentMotion = attackMotionInfos[currentMotionIndex];
-            currentCombo++;
+                currentMotion = attackMotionInfos[currentMotionIndex];
+                currentCombo++;
 
-            if (comboDelayHandle != null) StopCoroutine(comboDelayHandle);
-            StartCoroutine(comboDelayHandle = ComboDelay(currentMotion.motionDuration + COMBO_DELAY_TIME));
-
-            currentAttackMove = Vector3.zero;
+                if (comboDelayHandle != null) StopCoroutine(comboDelayHandle);
+                StartCoroutine(comboDelayHandle = ComboDelay(currentMotion.motionDuration + COMBO_DELAY_TIME));
+            }
+            else if (currentAttackMotionInfo.attackMotionType == AttackMotionType.Dash)
+            {
+                currentMotion = dashAttackMotionInfo;
+            }
 
             float tickRate = 1 / Runner.DeltaTime;
             attackEndTick = Runner.Tick + Mathf.RoundToInt(currentMotion.motionDuration * tickRate);
@@ -78,6 +91,8 @@ namespace Unit
 
             PlayAnim(currentMotion.motionName, .1f, sync);
 
+
+            currentAttackMove = Vector3.zero;
 
             var enemy = FindEnemy();
             if (enemy != null)
@@ -123,11 +138,9 @@ namespace Unit
                 case "AttackMove":
                     OnAttackMove(parts[1]);
                     break;
-                //case "SetWeapCollision":
-                //    SetWeapCollision(parts[1]);
-                //    break;
             }
         }
+
         private void OnAttackMove(string param)
         {
             if (string.IsNullOrEmpty(param) || param.Equals("0"))
@@ -170,24 +183,6 @@ namespace Unit
             }
         }
 
-        private void SetWeapCollision(string param)
-        {
-            if (param.Equals("0"))
-            {
-                weap.SetCollisionActive(false);
-                return;
-            }
-
-            weap.SetCollisionActive(true);
-            weap.SetHitInfo(new()
-            {
-                damaged = attackMotionInfos[currentMotionIndex].damage,
-                weight = attackMotionInfos[currentMotionIndex].weight,
-                attackType = attackMotionInfos[currentMotionIndex].attackType,
-                attackerPos = player.transform.position
-            });
-        }
-
         protected override void OnMasterTick()
         {
             var currentMotion = attackMotionInfos[currentMotionIndex];
@@ -221,6 +216,5 @@ namespace Unit
             }
 
         }
-
     }
 }
