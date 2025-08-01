@@ -13,7 +13,6 @@ public struct InputData : INetworkInput
     public bool IsInputEmpty()
     {
         return moveDir.sqrMagnitude < .001f &&
-            !dash &&
             !jump &&
             !attack &&
             !defense;

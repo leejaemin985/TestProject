@@ -12,15 +12,9 @@ namespace Unit
 
         [Networked] private float currentVelocity { get; set; }
 
-        private Vector3 currentMoveDir;
-        private float velocity;
+        private MoveInfo currentMoveInfo;
 
-        protected override void SetInfo(INetworkStruct info)
-        {
-            MoveInfo moveInfo = (MoveInfo)info;
-            currentMoveDir = moveInfo.moveDir;
-            velocity = moveInfo.velocity;
-        }
+        protected override void SetInfo(INetworkStruct info) => currentMoveInfo = (MoveInfo)info;
 
         protected override void EnterState(bool sync = true)
         {
@@ -40,7 +34,7 @@ namespace Unit
                 return;
             }
 
-            cc.Move(currentMoveDir * velocity * Runner.DeltaTime);
+            cc.Move(currentMoveInfo.moveDir * currentMoveInfo.velocity * Runner.DeltaTime);
         }
 
         protected override void OnRender()

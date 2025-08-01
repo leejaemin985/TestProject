@@ -1,5 +1,6 @@
 namespace Unit
 {
+    using Fusion;
     using UnityEngine;
 
     public class PlayerLandState : PlayerStateBase
@@ -12,12 +13,17 @@ namespace Unit
         private int minLandingMotionEndTick;
         private int landingMotionEndTick;
 
+        private MoveInfo currentMoveInfo;
+
+        protected override void SetInfo(INetworkStruct info) => currentMoveInfo = (MoveInfo)info;
+
         protected override void EnterState(bool sync = true)
         {
             minLandingMotionEndTick = Runner.Tick + Mathf.RoundToInt(landingMotionMinDuration * Runner.TickRate);
             landingMotionEndTick = Runner.Tick + Mathf.RoundToInt(landingMotionDuration * Runner.TickRate);
 
-            PlayAnim("_Landing", .1f, true);
+            //bool running = currentMoveInfo.velocity > 110;
+            PlayAnim(true ? "_LandingWait" : "_LandingMove", .1f, true);
         }
 
         protected override void OnState()
@@ -29,6 +35,8 @@ namespace Unit
             {
                 fsm.SetState<PlayerMovementState>();
             }
+
+            //cc.Move(currentMoveInfo.moveDir * currentMoveInfo.velocity * Runner.DeltaTime);
         }
     }
 }

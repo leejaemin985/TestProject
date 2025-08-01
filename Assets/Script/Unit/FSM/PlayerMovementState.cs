@@ -8,23 +8,16 @@ namespace Unit
         public override StateType GetStateType() => StateType.Move;
 
         [SerializeField] private float walkSpeed;
-        [SerializeField] private float runSpeed;
-
         [SerializeField] private float curveSpeed = 10;
 
-        private Vector3 currentMoveDir;
-        private float currentMoveSpeed;
-
+        private MoveInfo currentMoveInfo;
 
         [Networked] private Vector3 moveAnimDir { get; set; }
         [Networked] private float runWeight { get; set; }
 
-        protected override void SetInfo(INetworkStruct info)
-        {
-            MoveInfo moveInfo = (MoveInfo)info;
-            currentMoveDir = moveInfo.moveDir;
-            currentMoveSpeed = moveInfo.velocity;
-        }
+        private const float walkRunWeight = 1;
+
+        protected override void SetInfo(INetworkStruct info) => currentMoveInfo = (MoveInfo)info;
 
         protected override void EnterState(bool sync = true)
         {
@@ -37,14 +30,15 @@ namespace Unit
         {
             if (!HasStateAuthority) return;
 
+            if (fsm.input.Current.moveDir.sqrMagnitude > .01f && fsm.input.IsSet(x => x.dash))
+            {
+                fsm.SetState<PlayerSprintState, MoveInfo>(currentMoveInfo, true);
+                return;
+            }
+
             if (fsm.input.WasPressed(x => x.jump))
             {
-                fsm.SetState<PlayerJumpState, MoveInfo>(
-                    new() 
-                    { 
-                        moveDir = currentMoveDir,
-                        velocity = currentMoveSpeed 
-                    }, true);
+                fsm.SetState<PlayerJumpState, MoveInfo>(currentMoveInfo, true);
                 return;
             }
 
@@ -53,7 +47,8 @@ namespace Unit
                 fsm.SetState<PlayerAttackState>();
                 return;
             }
-            else if (fsm.input.IsSet(x => x.defense))
+
+            if (fsm.input.IsSet(x => x.defense))
             {
                 fsm.SetState<PlayerDefenseState>();
                 return;
@@ -67,19 +62,20 @@ namespace Unit
             inputDir.y = 0;
             inputDir.Normalize();
 
-            currentMoveDir = Vector3.Lerp(currentMoveDir, inputDir, curveSpeed * Runner.DeltaTime);
+            currentMoveInfo.moveDir = Vector3.Lerp(currentMoveInfo.moveDir, inputDir, curveSpeed * Runner.DeltaTime);
 
-            float targetMoveSpeed = fsm.input.IsSet(x => x.dash) ? runSpeed : walkSpeed;
-            currentMoveSpeed = Mathf.Lerp(currentMoveSpeed, targetMoveSpeed, curveSpeed * Runner.DeltaTime);
+            float targetMoveSpeed = walkSpeed;
+            currentMoveInfo.velocity = Mathf.Lerp(currentMoveInfo.velocity, targetMoveSpeed, curveSpeed * Runner.DeltaTime);
 
-            runWeight = Mathf.Lerp(1f, 2f, Mathf.InverseLerp(walkSpeed, runSpeed, currentMoveSpeed));
+            float speedRatio = currentMoveInfo.velocity / walkSpeed;
+            runWeight = speedRatio * walkRunWeight;
 
             if (inputDir.sqrMagnitude > 0.01f)
             {
                 cc.SetLookRotation(Quaternion.Slerp(cc.transform.rotation, Camera.main.transform.rotation, curveSpeed * Runner.DeltaTime));
             }
 
-            cc.Move(inputDir * currentMoveSpeed * Runner.DeltaTime);
+            cc.Move(inputDir * currentMoveInfo.velocity * Runner.DeltaTime);
         }
 
         protected override void OnRender()
