@@ -84,7 +84,7 @@ namespace Unit
             const string VERTICAL = "_Vertical";
             const string RUNWEIGHT = "_RunWeight";
 
-            float curvSpeed = .1f;
+            float curvSpeed = .2f;
 
             float currentHorizontal = anim.GetFloat(HORIZONTAL);
             float currentVertical = anim.GetFloat(VERTICAL);

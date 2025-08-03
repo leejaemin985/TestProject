@@ -18,15 +18,6 @@ namespace Unit
         public float damage;
         public float weight;
         public AttackType attackType;
-
-        public List<AttackBoxActiveInfo> attackBoxTimings;
-    }
-
-    [Serializable]
-    public class AttackBoxActiveInfo
-    {
-        public int startTick;
-        public int endTick;
     }
 
     public class PlayerAttackState : PlayerStateBase
@@ -41,15 +32,15 @@ namespace Unit
 
         [SerializeField] private float attackTryWindowTime = .1f;
 
-        [Networked] public int currentMotionIndex { get; set; }
-        [Networked] public int currentMotionStartTick { get; set; }
+        [Networked] private int currentMotionIndex { get; set; }
+        [Networked] private int currentMotionStartTick { get; set; }
 
         private int attackEndTick;
         private int attackRetryTick;
         private int currentCombo;
 
-        private const float ATTACK_MOVE_DISTANCE_OFFSET = .7f;
-        private const float ATTACK_MOVE_RATIO_CLAMP_MAX = 1.2f;
+        private const float ATTACK_MOVE_DISTANCE_OFFSET = .5f;
+        private const float ATTACK_MOVE_RATIO_CLAMP_MAX = 2f;
 
         private Vector3 currentAttackMove;
         private float attackMoveSpeed = 65f;
@@ -83,6 +74,7 @@ namespace Unit
             else if (currentAttackMotionInfo.attackMotionType == AttackMotionType.Dash)
             {
                 currentMotion = dashAttackMotionInfo;
+                currentAttackMotionInfo.attackMotionType = AttackMotionType.None;
             }
 
             float tickRate = 1 / Runner.DeltaTime;
@@ -138,6 +130,9 @@ namespace Unit
                 case "AttackMove":
                     OnAttackMove(parts[1]);
                     break;
+                case "SetWeapCollision":
+                    SetWeapCollision(parts[1]);
+                    break;
             }
         }
 
@@ -183,38 +178,9 @@ namespace Unit
             }
         }
 
-        protected override void OnMasterTick()
+        private void SetWeapCollision(string param)
         {
-            var currentMotion = attackMotionInfos[currentMotionIndex];
-            foreach (var timing in currentMotion.attackBoxTimings)
-            {
-                float startTime = timing.startTick / currentMotion.clip.frameRate;
-                float endTime = timing.endTick / currentMotion.clip.frameRate;
-
-                int startTick = currentMotionStartTick + Mathf.RoundToInt(startTime * Runner.TickRate);
-                int endTick = currentMotionStartTick + Mathf.RoundToInt(endTime * Runner.TickRate);
-
-                bool active = Runner.Tick > startTick && Runner.Tick < endTick;
-                if (active != weap.collisionActive)
-                {
-                    if (active)
-                    {
-                        weap.SetCollisionActive(true);
-                        weap.SetHitInfo(new()
-                        {
-                            damaged = attackMotionInfos[currentMotionIndex].damage,
-                            weight = attackMotionInfos[currentMotionIndex].weight,
-                            attackType = attackMotionInfos[currentMotionIndex].attackType,
-                            attackerPos = player.transform.position
-                        });
-                    }
-                    else
-                    {
-                        weap.SetCollisionActive(false);
-                    }
-                }
-            }
-
+            weap.SetCollisionActive(param.Equals("0") == false);
         }
     }
 }
