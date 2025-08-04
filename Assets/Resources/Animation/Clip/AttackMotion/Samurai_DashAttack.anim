@@ -69287,7 +69287,14 @@ AnimationClip:
   m_Events:
   - time: 0
     functionName: OnEvent
-    data: AttackMove//0,0,7.5
+    data: AttackMove//0,0,5.5
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.3
+    functionName: OnEvent
+    data: SetSlashParticleEffect//1
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
@@ -69301,7 +69308,14 @@ AnimationClip:
     messageOptions: 0
   - time: 0.4
     functionName: OnEvent
-    data: AttackMove//0,0,4
+    data: AttackMove//0,0,3
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.5
+    functionName: OnEvent
+    data: SetSlashParticleEffect//0
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

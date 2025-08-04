@@ -45,7 +45,11 @@ namespace Unit
 
         protected virtual void ExitState() { }
 
+        protected virtual void OnEnterRender() { }
+
         protected virtual void OnRender() { }
+
+        protected virtual void OnExitRender() { }
 
         protected virtual void OnMasterTick() { }
 
@@ -64,7 +68,7 @@ namespace Unit
         {
             if (fsm.isStateLockActive) return;
 
-            float latency = (Runner.Tick - tick) * Runner.DeltaTime;
+            //float latency = (Runner.Tick - tick) * Runner.DeltaTime;
             anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration);
         }
 
@@ -77,7 +81,11 @@ namespace Unit
 
         void IState.ExitState() => ExitState();
 
+        void IState.OnEnterRender() => OnEnterRender();
+
         void IState.OnRender() => OnRender();
+
+        void IState.OnExitRender() => OnExitRender();
 
         void IState.OnAnimEvent(string param) => OnAnimEvent(param);
 

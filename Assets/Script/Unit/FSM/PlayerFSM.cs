@@ -116,8 +116,12 @@ namespace Unit
                 if (stateArray[index] is T state)
                 {
                     currentState?.ExitState();
+                    //if (sync) RPC_OnExitRender();
+
                     currentState = state;
                     currentState?.EnterState(sync);
+                    //if (sync) RPC_OnEnterRender();
+
                     break;
                 }
             }
@@ -135,9 +139,13 @@ namespace Unit
                 if (stateArray[index] is TState state)
                 {
                     currentState?.ExitState();
+                    //if (sync) RPC_OnExitRender();
+
                     currentState = state;
                     currentState.SetInfo(info);
                     currentState?.EnterState(sync);
+                    //if (sync) RPC_OnEnterRender();
+
                     break;
                 }
             }
@@ -152,6 +160,18 @@ namespace Unit
             if (isStateLockActive) return;
             currentState = stateMap[currentStateType];
         }
+
+        //[Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        //public void RPC_OnEnterRender()
+        //{
+        //    currentState?.OnEnterRender();
+        //}
+        //
+        //[Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        //public void RPC_OnExitRender()
+        //{
+        //    currentState?.OnExitRender();
+        //}
 
         public override void Render()
         {
@@ -181,7 +201,7 @@ namespace Unit
 
             if (GetInput<InputData>(out var newInput) == false) return;
 
-            //newInput.attack = attack;
+            newInput.attack = attack;
             
             input.Update(newInput);
 

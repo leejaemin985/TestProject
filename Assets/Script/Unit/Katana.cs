@@ -6,9 +6,13 @@ using UnityEngine;
 public class Katana : MonoBehaviour
 {
     [SerializeField] private AttackBox collisionBox;
+    [SerializeField] private GameObject slashParticleObject;
+    
     private HitInfo hitInfo;
     public bool collisionActive => collisionBox.Active;
 
+    private const float SLASH_PARTICLE_ACTIVE_VALUE = 40;
+    private ParticleSystem slashParticle;
 
     public void Initialize(bool isMasterClient, PhysicsObject userPhysicsObject)
     {
@@ -22,9 +26,14 @@ public class Katana : MonoBehaviour
         {
             collisionBox.gameObject.SetActive(false);
         }
+
+        InitEffect();
     }
 
-    public void SetCollisionActive(bool set) => collisionBox.SetActive(set);
+    public void SetCollisionActive(bool set)
+    {
+        collisionBox.SetActive(set);
+    }
 
     public void SetHitInfo(HitInfo hitInfo) => this.hitInfo = hitInfo;
 
@@ -34,5 +43,19 @@ public class Katana : MonoBehaviour
         {
             info.hitObject.OnHitEvent(this.hitInfo);
         }
+    }
+
+    private void InitEffect()
+    {
+        slashParticle = slashParticleObject.GetComponent<ParticleSystem>();
+        slashParticle.Play();
+        SetSlashParticleActive(false);
+    }
+
+    public void SetSlashParticleActive(bool set)
+    {
+        if (slashParticle == null) return;
+        var emission = slashParticle.emission;
+        emission.rateOverTime = set ? SLASH_PARTICLE_ACTIVE_VALUE : 0;
     }
 }

@@ -62,7 +62,7 @@ namespace Unit
         protected override void EnterState(bool sync = true)
         {
             var currentMotion = ResolveAttackMotion();
-            
+
             currentCombo++;
             var motionInfo = currentAttackMotionInfo;
             motionInfo.attackMotionType = AttackMotionType.None;
@@ -99,7 +99,7 @@ namespace Unit
         protected override void OnState()
         {
             if (!HasStateAuthority) return;
-            if (attackRetryTick <= Runner.Tick && fsm.input.IsSet(x => x.attack)) 
+            if (attackRetryTick <= Runner.Tick && fsm.input.IsSet(x => x.attack))
             {
                 fsm.SetState<PlayerAttackState>();
                 return;
@@ -123,6 +123,11 @@ namespace Unit
             return PlayerRegistry.Instance.RegistedUsers.FirstOrDefault(x => x.Key.Equals(Object.InputAuthority) == false).Value;
         }
 
+        protected override void OnExitRender()
+        {
+            weap.SetSlashParticleActive(false);
+        }
+
 
         protected override void OnAnimEvent(string param)
         {
@@ -134,6 +139,9 @@ namespace Unit
                     break;
                 case "SetWeapCollision":
                     SetWeapCollision(parts[1]);
+                    break;
+                case "SetSlashParticleEffect":
+                    SetSlashParticleAcitve(parts[1]);
                     break;
             }
         }
@@ -157,7 +165,7 @@ namespace Unit
                 float.TryParse(moveVector[2], out float z))
             {
                 Vector3 input = new Vector3(x, y, z);
-                
+
                 Vector3 forward = player.transform.forward;
                 float moveRatio = 1f;
 
@@ -167,7 +175,7 @@ namespace Unit
                     Vector3 toEnemy = (enemy.transform.position - player.transform.position);
                     toEnemy.y = 0;
                     toEnemy.Normalize();
-                
+
                     forward = toEnemy.normalized;
                     moveRatio = Mathf.Clamp((toEnemy.magnitude - ATTACK_MOVE_DISTANCE_OFFSET) / 1f, 0, ATTACK_MOVE_RATIO_CLAMP_MAX);
                 }
@@ -191,6 +199,11 @@ namespace Unit
                 attackType = currentMotion.attackType,
                 attackerPos = cc.transform.position
             });
+        }
+
+        private void SetSlashParticleAcitve(string param)
+        {
+            weap.SetSlashParticleActive(param.Equals("0") == false);
         }
     }
 }
