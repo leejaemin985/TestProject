@@ -5,35 +5,22 @@ using System.Linq;
 using UnityEngine;
 using Fusion;
 using Unity.VisualScripting;
+using Fusion.Addons.SimpleKCC;
 
 namespace Unit
 {
-    [Serializable]
-    public class AttackMotionInfo
-    {
-        public AnimationClip clip;
-        public string motionName;
-        public float motionDuration;
-
-        public float damage;
-        public float weight;
-        public AttackType attackType;
-    }
-
     public class PlayerAttackState : PlayerStateBase
     {
         public override StateType GetStateType() => StateType.Attack;
 
-        private AttackInfo currentAttackMotionInfo;
-
-        [SerializeField] private AttackMotionInfo[] attackMotionInfos;
-
-        [SerializeField] private AttackMotionInfo dashAttackMotionInfo;
 
         [SerializeField] private float attackTryWindowTime = .1f;
 
+        private Dictionary<AttackMotionType, List<AttackMotionInfo>> attackMotionInfos;
+
         [Networked] private int currentMotionIndex { get; set; }
-        [Networked] private int currentMotionStartTick { get; set; }
+        [Networked] private AttackInfo currentAttackMotionInfo { get; set; }
+
 
         private int attackEndTick;
         private int attackRetryTick;
@@ -43,7 +30,7 @@ namespace Unit
         private const float ATTACK_MOVE_RATIO_CLAMP_MAX = 2f;
 
         private Vector3 currentAttackMove;
-        private float attackMoveSpeed = 65f;
+        private float attackMoveSpeed = 100f;
 
 
         private const float COMBO_DELAY_TIME = 1f;
@@ -55,27 +42,35 @@ namespace Unit
             currentCombo = 0;
         }
 
+        public override void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator anim, Katana weap)
+        {
+            base.Initialize(player, fsm, cc, anim, weap);
+
+            attackMotionInfos = new();
+            foreach (var type in Enum.GetValues(typeof(AttackMotionType)))
+            {
+                const string KEY_BASE = "Scriptable/AttackMotionInfos_";
+                var scriptableMotionInfos = Resources.Load<PlayerAttackMotionInfoScriptable>($"{KEY_BASE}{type}").attackMotionInfos;
+
+                attackMotionInfos.Add((AttackMotionType)type, scriptableMotionInfos);
+            }
+        }
+
+
         protected override void SetInfo(INetworkStruct info) => currentAttackMotionInfo = (AttackInfo)info;
 
         protected override void EnterState(bool sync = true)
         {
-            AttackMotionInfo currentMotion = null;
-            if (currentAttackMotionInfo.attackMotionType == AttackMotionType.None)
-            {
-                currentMotionIndex = currentCombo % attackMotionInfos.Length;
-                currentMotionStartTick = Runner.Tick;
+            var currentMotion = ResolveAttackMotion();
+            
+            currentCombo++;
+            var motionInfo = currentAttackMotionInfo;
+            motionInfo.attackMotionType = AttackMotionType.None;
+            currentAttackMotionInfo = motionInfo;
 
-                currentMotion = attackMotionInfos[currentMotionIndex];
-                currentCombo++;
+            if (comboDelayHandle != null) StopCoroutine(comboDelayHandle);
+            StartCoroutine(comboDelayHandle = ComboDelay(currentMotion.motionDuration + COMBO_DELAY_TIME));
 
-                if (comboDelayHandle != null) StopCoroutine(comboDelayHandle);
-                StartCoroutine(comboDelayHandle = ComboDelay(currentMotion.motionDuration + COMBO_DELAY_TIME));
-            }
-            else if (currentAttackMotionInfo.attackMotionType == AttackMotionType.Dash)
-            {
-                currentMotion = dashAttackMotionInfo;
-                currentAttackMotionInfo.attackMotionType = AttackMotionType.None;
-            }
 
             float tickRate = 1 / Runner.DeltaTime;
             attackEndTick = Runner.Tick + Mathf.RoundToInt(currentMotion.motionDuration * tickRate);
@@ -92,6 +87,13 @@ namespace Unit
                 var dir = (enemy.transform.position - player.transform.position).normalized;
                 cc.SetLookRotation(Quaternion.LookRotation(dir));
             }
+        }
+
+        private AttackMotionInfo ResolveAttackMotion()
+        {
+            var targetList = attackMotionInfos[currentAttackMotionInfo.attackMotionType];
+            currentMotionIndex = currentCombo % targetList.Count;
+            return targetList[currentMotionIndex];
         }
 
         protected override void OnState()
@@ -181,6 +183,14 @@ namespace Unit
         private void SetWeapCollision(string param)
         {
             weap.SetCollisionActive(param.Equals("0") == false);
+            var currentMotion = ResolveAttackMotion();
+            weap.SetHitInfo(new()
+            {
+                damaged = currentMotion.damage,
+                weight = currentMotion.weight,
+                attackType = currentMotion.attackType,
+                attackerPos = cc.transform.position
+            });
         }
     }
 }

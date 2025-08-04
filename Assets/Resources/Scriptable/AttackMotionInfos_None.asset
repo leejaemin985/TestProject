@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c45287efa0254548a69c66dffdcde9b, type: 3}
+  m_Name: AttackMotionInfos_None
+  m_EditorClassIdentifier: 
+  attackMotionInfos:
+  - motionType: 0
+    clip: {fileID: 7400000, guid: a58e30832143e334fa2c2fdfcf35b878, type: 2}
+    motionName: _LightAttack_0
+    motionDuration: 0.6
+    damage: 101
+    weight: 1
+    attackType: 0
+  - motionType: 0
+    clip: {fileID: 7400000, guid: 8f2e64a1e30240f4aa18b1322d9ac783, type: 2}
+    motionName: _LightAttack_1
+    motionDuration: 0.6
+    damage: 102
+    weight: 1
+    attackType: 0
+  - motionType: 0
+    clip: {fileID: 7400000, guid: 86a8aa2004603d542a167f8c96562bfc, type: 2}
+    motionName: _LightAttack_2
+    motionDuration: 0.7
+    damage: 103
+    weight: 1
+    attackType: 0
+  - motionType: 0
+    clip: {fileID: 7400000, guid: 4e9bea3a5b518984ca2e0ad071993fd0, type: 2}
+    motionName: _LightAttack_3
+    motionDuration: 0.7
+    damage: 104
+    weight: 1
+    attackType: 0
+  - motionType: 0
+    clip: {fileID: 7400000, guid: b8e22e79770fb6147bd8bfe7b2018305, type: 2}
+    motionName: _LightAttack_4
+    motionDuration: 0.8
+    damage: 105
+    weight: 1
+    attackType: 0
+  - motionType: 0
+    clip: {fileID: 7400000, guid: 6f624e36d26cbeb4f9e4e99937040679, type: 2}
+    motionName: _LightAttack_5
+    motionDuration: 0.9
+    damage: 106
+    weight: 1
+    attackType: 0
