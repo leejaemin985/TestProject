@@ -29,6 +29,7 @@ namespace Unit
 
         [Networked] public PlayerStateBase.StateType currentStateType { get; set; }
 
+        private IState prevState;
         private IState currentState;
 
         public override void Spawned()
@@ -58,6 +59,7 @@ namespace Unit
             }
 
             currentState = stateMap[currentStateType];
+            prevState = currentState;
 
             isInitialized = true;
 
@@ -122,8 +124,11 @@ namespace Unit
                 }
             }
 
-            if (HasStateAuthority) currentStateType = currentState.GetStateType();
-            if (sync) RPC_SyncState();
+            if (HasStateAuthority)
+            {
+                currentStateType = currentState.GetStateType();
+                if (sync) RPC_SyncState();
+            }
         }
 
         public void SetState<TState, TInfo>(TInfo info, bool sync = true)
@@ -142,23 +147,30 @@ namespace Unit
                 }
             }
 
-            if (HasStateAuthority) currentStateType = currentState.GetStateType();
-            if (sync) RPC_SyncState();
+            if (HasStateAuthority)
+            {
+                currentStateType = currentState.GetStateType();
+                if (sync) RPC_SyncState();
+            }
         }
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
         public void RPC_SyncState()
         {
             if (isStateLockActive) return;
-            currentState?.OnExitRender();
             currentState = stateMap[currentStateType];
-            currentState?.OnEnterRender();
         }
 
         public override void Render()
         {
             if (isInitialized == false) return;
 
+            if (prevState.GetStateType() != currentState.GetStateType())
+            {
+                prevState.OnExitRender();
+                prevState = currentState;
+                currentState.OnEnterRender();
+            }
             currentState?.OnRender();
 
             if (Runner.IsSharedModeMasterClient) currentState?.OnMasterTick();
