@@ -113,12 +113,28 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5348251467950643698, guid: 3548cd223ab4b5040bed6b6d6a523557, type: 3}
+      propertyPath: InitialModule.startSize.scalar
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5348251467950643698, guid: 3548cd223ab4b5040bed6b6d6a523557, type: 3}
+      propertyPath: InitialModule.startSize.minScalar
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5348251467950643698, guid: 3548cd223ab4b5040bed6b6d6a523557, type: 3}
       propertyPath: EmissionModule.m_Bursts.Array.size
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5348251467950643698, guid: 3548cd223ab4b5040bed6b6d6a523557, type: 3}
       propertyPath: EmissionModule.rateOverTime.scalar
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5348251467950643698, guid: 3548cd223ab4b5040bed6b6d6a523557, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5348251467950643698, guid: 3548cd223ab4b5040bed6b6d6a523557, type: 3}
+      propertyPath: InitialModule.startLifetime.minScalar
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 5348251467950643698, guid: 3548cd223ab4b5040bed6b6d6a523557, type: 3}
       propertyPath: ColorModule.gradient.maxGradient.key0.b

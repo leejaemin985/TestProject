@@ -11,7 +11,7 @@ public class Katana : MonoBehaviour
     private HitInfo hitInfo;
     public bool collisionActive => collisionBox.Active;
 
-    private const float SLASH_PARTICLE_ACTIVE_VALUE = 40;
+    private const float SLASH_PARTICLE_ACTIVE_VALUE = 200;
     private ParticleSystem slashParticle;
 
     public void Initialize(bool isMasterClient, PhysicsObject userPhysicsObject)
