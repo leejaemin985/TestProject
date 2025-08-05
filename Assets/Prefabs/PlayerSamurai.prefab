@@ -130,6 +130,7 @@ MonoBehaviour:
   - {fileID: 3379317830629106981}
   - {fileID: 4148014755919145726}
   - {fileID: 4040872313053439787}
+  particleTest: {fileID: 3154529106487795422}
   _currentStateType: 0
 --- !u!1 &1303623832662102651
 GameObject:
@@ -337,6 +338,7 @@ Transform:
   - {fileID: 2269930843781202846}
   - {fileID: 1367516550763753737}
   - {fileID: 3468013034680474919}
+  - {fileID: 7756583922691499748}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3859715776970495495
@@ -528,6 +530,7 @@ MonoBehaviour:
     motionName: _HitB
     motionDuration: 0.7
     direction: 1
+  bloodEffectObject: {fileID: 3154529106487795422}
 --- !u!1 &6614317249968705175
 GameObject:
   m_ObjectHideFlags: 0
@@ -618,74 +621,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1ca471c0ecee334384b003a0b31be70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackMotionInfos:
-  - clip: {fileID: 7400000, guid: a58e30832143e334fa2c2fdfcf35b878, type: 2}
-    motionName: _LightAttack_0
-    motionDuration: 0.6
-    damage: 100
-    weight: 1
-    attackType: 1
-    attackBoxTimings:
-    - startTick: 23
-      endTick: 45
-  - clip: {fileID: 7400000, guid: 8f2e64a1e30240f4aa18b1322d9ac783, type: 2}
-    motionName: _LightAttack_1
-    motionDuration: 0.6
-    damage: 101
-    weight: 1
-    attackType: 1
-    attackBoxTimings:
-    - startTick: 32
-      endTick: 50
-  - clip: {fileID: 7400000, guid: 86a8aa2004603d542a167f8c96562bfc, type: 2}
-    motionName: _LightAttack_2
-    motionDuration: 0.7
-    damage: 102
-    weight: 1
-    attackType: 1
-    attackBoxTimings:
-    - startTick: 39
-      endTick: 70
-  - clip: {fileID: 7400000, guid: 4e9bea3a5b518984ca2e0ad071993fd0, type: 2}
-    motionName: _LightAttack_3
-    motionDuration: 0.7
-    damage: 103
-    weight: 1
-    attackType: 1
-    attackBoxTimings:
-    - startTick: 47
-      endTick: 71
-  - clip: {fileID: 7400000, guid: b8e22e79770fb6147bd8bfe7b2018305, type: 2}
-    motionName: _LightAttack_4
-    motionDuration: 0.8
-    damage: 104
-    weight: 1
-    attackType: 1
-    attackBoxTimings:
-    - startTick: 52
-      endTick: 78
-  - clip: {fileID: 7400000, guid: 6f624e36d26cbeb4f9e4e99937040679, type: 2}
-    motionName: _LightAttack_5
-    motionDuration: 0.9
-    damage: 105
-    weight: 1
-    attackType: 1
-    attackBoxTimings:
-    - startTick: 57
-      endTick: 95
-  dashAttackMotionInfo:
-    clip: {fileID: 7400000, guid: 4b686076e12a4ca429e60af108192cbf, type: 2}
-    motionName: _DashAttack
-    motionDuration: 1
-    damage: 2
-    weight: 1
-    attackType: 0
-    attackBoxTimings:
-    - startTick: 17
-      endTick: 27
   attackTryWindowTime: 0.1
-  _currentMotionIndex: 0
-  _currentMotionStartTick: 0
+--- !u!1 &7531057929506286677
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7756583922691499748}
+  m_Layer: 0
+  m_Name: Effect
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7756583922691499748
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7531057929506286677}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3155449062191938616}
+  m_Father: {fileID: 801863879966483579}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8345124330114409181
 GameObject:
   m_ObjectHideFlags: 0
@@ -875,6 +843,73 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13b3ef1406b18264a801bc0ea0fa7306, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1001 &3153896119273705292
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7756583922691499748}
+    m_Modifications:
+    - target: {fileID: 1055862917370258, guid: f284ebc5e3ded0340a355481d9ddea42, type: 3}
+      propertyPath: m_Name
+      value: BloodHit
+      objectReference: {fileID: 0}
+    - target: {fileID: 4094561387344756, guid: f284ebc5e3ded0340a355481d9ddea42, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4094561387344756, guid: f284ebc5e3ded0340a355481d9ddea42, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.218
+      objectReference: {fileID: 0}
+    - target: {fileID: 4094561387344756, guid: f284ebc5e3ded0340a355481d9ddea42, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.134
+      objectReference: {fileID: 0}
+    - target: {fileID: 4094561387344756, guid: f284ebc5e3ded0340a355481d9ddea42, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4094561387344756, guid: f284ebc5e3ded0340a355481d9ddea42, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4094561387344756, guid: f284ebc5e3ded0340a355481d9ddea42, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4094561387344756, guid: f284ebc5e3ded0340a355481d9ddea42, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4094561387344756, guid: f284ebc5e3ded0340a355481d9ddea42, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4094561387344756, guid: f284ebc5e3ded0340a355481d9ddea42, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4094561387344756, guid: f284ebc5e3ded0340a355481d9ddea42, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f284ebc5e3ded0340a355481d9ddea42, type: 3}
+--- !u!1 &3154529106487795422 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1055862917370258, guid: f284ebc5e3ded0340a355481d9ddea42, type: 3}
+  m_PrefabInstance: {fileID: 3153896119273705292}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &3155449062191938616 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4094561387344756, guid: f284ebc5e3ded0340a355481d9ddea42, type: 3}
+  m_PrefabInstance: {fileID: 3153896119273705292}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4791202284884431185
 PrefabInstance:
   m_ObjectHideFlags: 0

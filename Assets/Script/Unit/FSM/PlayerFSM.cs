@@ -29,8 +29,18 @@ namespace Unit
 
         [Networked] public PlayerStateBase.StateType currentStateType { get; set; }
 
-        private IState prevState;
         private IState currentState;
+
+        private IState CurrentState
+        {
+            get { return currentState; }
+            set
+            {
+                currentState?.OnExitRender();
+                currentState = value;
+                currentState?.OnEnterRender();
+            }
+        }
 
         public override void Spawned()
         {
@@ -43,7 +53,7 @@ namespace Unit
         private IEnumerator InitSequencer()
         {
             yield return new WaitUntil(() => isInitialized);
-            currentState = stateMap[currentStateType];
+            CurrentState = stateMap[currentStateType];
         }
 
         public void Initialized(Player player, SimpleKCC cc, Animator anim, Katana playerWeapon)
@@ -58,8 +68,7 @@ namespace Unit
                 stateMap[state.GetStateType()] = state;
             }
 
-            currentState = stateMap[currentStateType];
-            prevState = currentState;
+            CurrentState = stateMap[currentStateType];
 
             isInitialized = true;
 
@@ -117,16 +126,16 @@ namespace Unit
             {
                 if (stateArray[index] is T state)
                 {
-                    currentState?.ExitState();
-                    currentState = state;
-                    currentState?.EnterState(sync);
+                    CurrentState?.ExitState();
+                    CurrentState = state;
+                    CurrentState?.EnterState(sync);
                     break;
                 }
             }
 
             if (HasStateAuthority)
             {
-                currentStateType = currentState.GetStateType();
+                currentStateType = CurrentState.GetStateType();
                 if (sync) RPC_SyncState();
             }
         }
@@ -139,17 +148,17 @@ namespace Unit
             {
                 if (stateArray[index] is TState state)
                 {
-                    currentState?.ExitState();
-                    currentState = state;
-                    currentState.SetInfo(info);
-                    currentState?.EnterState(sync);
+                    CurrentState?.ExitState();
+                    CurrentState = state;
+                    CurrentState.SetInfo(info);
+                    CurrentState?.EnterState(sync);
                     break;
                 }
             }
 
             if (HasStateAuthority)
             {
-                currentStateType = currentState.GetStateType();
+                currentStateType = CurrentState.GetStateType();
                 if (sync) RPC_SyncState();
             }
         }
@@ -157,23 +166,17 @@ namespace Unit
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
         public void RPC_SyncState()
         {
-            if (isStateLockActive) return;
-            currentState = stateMap[currentStateType];
+            if (isStateLockActive || HasStateAuthority) return;
+            CurrentState = stateMap[currentStateType];
         }
 
         public override void Render()
         {
             if (isInitialized == false) return;
 
-            if (prevState.GetStateType() != currentState.GetStateType())
-            {
-                prevState.OnExitRender();
-                prevState = currentState;
-                currentState.OnEnterRender();
-            }
-            currentState?.OnRender();
+            CurrentState?.OnRender();
 
-            if (Runner.IsSharedModeMasterClient) currentState?.OnMasterTick();
+            if (Runner.IsSharedModeMasterClient) CurrentState?.OnMasterTick();
         }
 
         #region TestCode
@@ -199,12 +202,12 @@ namespace Unit
             
             input.Update(newInput);
 
-            currentState?.OnState();
+            CurrentState?.OnState();
         }
 
         public void AnimEvent(string param)
         {
-            currentState?.OnAnimEvent(param);
+            CurrentState?.OnAnimEvent(param);
         }
     }
 }

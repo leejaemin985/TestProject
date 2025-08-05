@@ -26,6 +26,9 @@ namespace Unit
     {
         public HitMotionInfo[] hitMotionInfos;
 
+        [SerializeField] private GameObject bloodEffectObject;
+        private ParticleSystem bloodEffect;
+
         public override StateType GetStateType() => StateType.Hit;
 
         public const float hitMotionDuration = 1f;
@@ -40,6 +43,12 @@ namespace Unit
         {
             HitInfo hitInfo = (HitInfo)info;
             currentHitInfo = hitInfo;
+        }
+
+        protected override void OnEnterRender()
+        {
+            if (bloodEffect == null) bloodEffect = bloodEffectObject.GetComponent<ParticleSystem>();
+            bloodEffect.Play();
         }
 
         protected override void EnterState(bool sync = true)
