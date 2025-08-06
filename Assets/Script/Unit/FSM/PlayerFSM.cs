@@ -5,6 +5,7 @@ using Fusion;
 using Fusion.Addons.SimpleKCC;
 
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Unit
 {
@@ -177,6 +178,12 @@ namespace Unit
             CurrentState?.OnRender();
 
             if (Runner.IsSharedModeMasterClient) CurrentState?.OnMasterTick();
+
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+                //Runner.UnloadScene(SceneRef.FromIndex(0), LoadSceneMode.)
+                Runner.LoadScene(SceneRef.FromIndex(1), LoadSceneMode.Single);
+            }
         }
 
         #region TestCode
