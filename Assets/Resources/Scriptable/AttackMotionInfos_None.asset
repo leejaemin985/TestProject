@@ -22,7 +22,7 @@ MonoBehaviour:
     attackType: 0
     attackTimings:
     - startTick: 23
-      endTick: 40
+      endTick: 45
   - motionType: 0
     clip: {fileID: 7400000, guid: 8f2e64a1e30240f4aa18b1322d9ac783, type: 2}
     motionName: _LightAttack_1
@@ -41,8 +41,8 @@ MonoBehaviour:
     weight: 1
     attackType: 0
     attackTimings:
-    - startTick: 39
-      endTick: 52
+    - startTick: 30
+      endTick: 70
   - motionType: 0
     clip: {fileID: 7400000, guid: 4e9bea3a5b518984ca2e0ad071993fd0, type: 2}
     motionName: _LightAttack_3
@@ -51,8 +51,8 @@ MonoBehaviour:
     weight: 1
     attackType: 0
     attackTimings:
-    - startTick: 47
-      endTick: 60
+    - startTick: 40
+      endTick: 71
   - motionType: 0
     clip: {fileID: 7400000, guid: b8e22e79770fb6147bd8bfe7b2018305, type: 2}
     motionName: _LightAttack_4
@@ -61,8 +61,8 @@ MonoBehaviour:
     weight: 1
     attackType: 0
     attackTimings:
-    - startTick: 52
-      endTick: 74
+    - startTick: 40
+      endTick: 78
   - motionType: 0
     clip: {fileID: 7400000, guid: 6f624e36d26cbeb4f9e4e99937040679, type: 2}
     motionName: _LightAttack_5
@@ -71,5 +71,5 @@ MonoBehaviour:
     weight: 1
     attackType: 0
     attackTimings:
-    - startTick: 57
+    - startTick: 40
       endTick: 80

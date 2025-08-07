@@ -34,7 +34,7 @@ namespace Unit
         private float attackMoveSpeed = 100f;
 
 
-        private const float COMBO_DELAY_TIME = 1f;
+        private const float COMBO_DELAY_TIME = 10f;
         private IEnumerator comboDelayHandle = null;
 
         private IEnumerator ComboDelay(float sec)
@@ -62,16 +62,11 @@ namespace Unit
 
         protected override void EnterState(bool sync = true)
         {
+            currentMotionIndex = currentCombo++ % attackMotionInfos[currentAttackMotionInfo.attackMotionType].Count;
             var currentMotion = ResolveAttackMotion();
-
-            currentCombo++;
-            var motionInfo = currentAttackMotionInfo;
-            motionInfo.attackMotionType = AttackMotionType.None;
-            currentAttackMotionInfo = motionInfo;
 
             if (comboDelayHandle != null) StopCoroutine(comboDelayHandle);
             StartCoroutine(comboDelayHandle = ComboDelay(currentMotion.motionDuration + COMBO_DELAY_TIME));
-
 
             float tickRate = 1 / Runner.DeltaTime;
             attackEndTick = Runner.Tick + Mathf.RoundToInt(currentMotion.motionDuration * tickRate);
@@ -79,7 +74,6 @@ namespace Unit
 
             attackMotionStartTick = Runner.Tick;
             PlayAnim(currentMotion.motionName, .1f, sync);
-
 
             currentAttackMove = Vector3.zero;
 
@@ -94,7 +88,6 @@ namespace Unit
         private AttackMotionInfo ResolveAttackMotion()
         {
             var targetList = attackMotionInfos[currentAttackMotionInfo.attackMotionType];
-            currentMotionIndex = currentCombo % targetList.Count;
             return targetList[currentMotionIndex];
         }
 
@@ -118,6 +111,10 @@ namespace Unit
         protected override void ExitState()
         {
             weap.SetCollisionActive(false);
+
+            var motionInfo = currentAttackMotionInfo;
+            motionInfo.attackMotionType = AttackMotionType.None;
+            currentAttackMotionInfo = motionInfo;
         }
 
         private Player FindEnemy()
@@ -139,8 +136,6 @@ namespace Unit
                 int endTick = attackMotionStartTick + ConvertFrameToTick(timing.endTick, currentMotion.clip, Runner.TickRate);
 
                 bool active = Runner.Tick >= startTick && Runner.Tick <= endTick;
-                Debug.Log($"Test - active: {active}");
-
                 if (active != weap.collisionActive)
                 {
                     if (active)

@@ -22,4 +22,4 @@ MonoBehaviour:
     attackType: 0
     attackTimings:
     - startTick: 10
-      endTick: 16
+      endTick: 17
