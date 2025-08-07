@@ -54,7 +54,13 @@ public class InputHandle : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnSceneLoadStart(NetworkRunner runner) { }
 
-    public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) { }
+    public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList)
+    {
+        foreach (var session in sessionList)
+        {
+            Debug.Log($"Test - sessionName: {session.Name}");
+        }
+    }
 
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) { }
 
