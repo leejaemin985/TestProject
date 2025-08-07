@@ -22,5 +22,14 @@ namespace Unit
         public float damage;
         public float weight;
         public AttackType attackType;
+
+        public List<AttackTiming> attackTimings;
+    }
+
+    [Serializable]
+    public class AttackTiming
+    {
+        public int startTick;
+        public int endTick;
     }
 }

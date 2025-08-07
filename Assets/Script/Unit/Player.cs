@@ -17,6 +17,9 @@ namespace Unit
         [SerializeField] private PlayerAnimEventer animEventer;
         [SerializeField] private Katana weapon;
 
+        [SerializeField] private Animator ghostHitAnim;
+        [SerializeField] private Katana ghostHitWeapon;
+
         private HitBox playerHitBox;
 
         private IEnumerator CamSettingHandle = default;

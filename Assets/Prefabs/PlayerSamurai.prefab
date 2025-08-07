@@ -130,7 +130,6 @@ MonoBehaviour:
   - {fileID: 3379317830629106981}
   - {fileID: 4148014755919145726}
   - {fileID: 4040872313053439787}
-  particleTest: {fileID: 3154529106487795422}
   _currentStateType: 0
 --- !u!1 &1303623832662102651
 GameObject:
@@ -450,6 +449,7 @@ MonoBehaviour:
   cc: {fileID: 3435419628776310831}
   playerCam: {fileID: 3164321590918008309}
   anim: {fileID: 1375656988801969344}
+  ghostHitAnim: {fileID: 0}
   animEventer: {fileID: 4856505887737920011}
   weapon: {fileID: 6689455410829703739}
 --- !u!114 &3164321590918008309

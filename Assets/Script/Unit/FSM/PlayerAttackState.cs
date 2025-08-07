@@ -18,6 +18,7 @@ namespace Unit
 
         private Dictionary<AttackMotionType, List<AttackMotionInfo>> attackMotionInfos;
 
+        [Networked] private int attackMotionStartTick { get; set; }
         [Networked] private int currentMotionIndex { get; set; }
         [Networked] private AttackInfo currentAttackMotionInfo { get; set; }
 
@@ -76,6 +77,7 @@ namespace Unit
             attackEndTick = Runner.Tick + Mathf.RoundToInt(currentMotion.motionDuration * tickRate);
             attackRetryTick = attackEndTick - Mathf.RoundToInt(attackTryWindowTime * tickRate);
 
+            attackMotionStartTick = Runner.Tick;
             PlayAnim(currentMotion.motionName, .1f, sync);
 
 
@@ -126,6 +128,44 @@ namespace Unit
         protected override void OnExitRender()
         {
             weap.SetSlashParticleActive(false);
+        }
+
+        protected override void OnMasterTick()
+        {
+            var currentMotion = ResolveAttackMotion();
+            foreach (var timing in currentMotion.attackTimings)
+            {
+                int startTick = attackMotionStartTick + ConvertFrameToTick(timing.startTick, currentMotion.clip, Runner.TickRate);
+                int endTick = attackMotionStartTick + ConvertFrameToTick(timing.endTick, currentMotion.clip, Runner.TickRate);
+
+                bool active = Runner.Tick >= startTick && Runner.Tick <= endTick;
+                Debug.Log($"Test - active: {active}");
+
+                if (active != weap.collisionActive)
+                {
+                    if (active)
+                    {
+                        weap.SetCollisionActive(true);
+                        weap.SetHitInfo(new()
+                        {
+                            damaged = currentMotion.damage,
+                            weight = currentMotion.weight,
+                            attackType = currentMotion.attackType,
+                            attackerPos = cc.transform.position
+                        });
+                    }
+                    else
+                    {
+                        weap.SetCollisionActive(false);
+                    }
+                }
+            }
+        }
+
+        private int ConvertFrameToTick(int frame, AnimationClip clip, float tickRate)
+        {
+            float sec = frame / clip.frameRate;
+            return Mathf.RoundToInt(sec * tickRate);
         }
 
 
@@ -190,6 +230,7 @@ namespace Unit
 
         private void SetWeapCollision(string param)
         {
+            return;
             weap.SetCollisionActive(param.Equals("0") == false);
             var currentMotion = ResolveAttackMotion();
             weap.SetHitInfo(new()

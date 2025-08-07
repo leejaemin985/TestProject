@@ -68,9 +68,9 @@ namespace Unit
         {
             if (fsm.isStateLockActive) return;
 
-            //float latency = (Runner.Tick - tick) * Runner.DeltaTime;
-            //anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, latency);
-            anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, 0);
+            float latency = (Runner.Tick - tick) * Runner.DeltaTime;
+            anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, latency);
+            //anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, 0);
         }
 
 
