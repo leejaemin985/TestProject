@@ -13,7 +13,8 @@ GameObject:
   - component: {fileID: 4760136153160853431}
   - component: {fileID: 9108228118840112567}
   - component: {fileID: -6034545295954548476}
-  - component: {fileID: 5562726448808876085}
+  - component: {fileID: 6019457807019584877}
+  - component: {fileID: 2160180104892517849}
   m_Layer: 0
   m_Name: Prototype Runner
   m_TagString: Untagged
@@ -148,7 +149,7 @@ MonoBehaviour:
   IsSceneTakeOverEnabled: 1
   LogSceneLoadErrors: 1
   DestroySpawnedPrefabsOnSceneUnload: 1
---- !u!114 &5562726448808876085
+--- !u!114 &6019457807019584877
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -157,6 +158,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 4371852192162889020}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 057ed2e79b3c2a948b7c0c75d2e73c00, type: 3}
+  m_Script: {fileID: 11500000, guid: 44d3726c5cf417c439d6437645ce3ef8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2160180104892517849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4371852192162889020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 200fda0988d43b348ac042d060fedc7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

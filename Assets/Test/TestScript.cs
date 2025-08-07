@@ -13,13 +13,6 @@ public class TestScript : MonoBehaviour
     [SerializeField] private NetworkRunner runnerPrefab;
     private NetworkRunner runner;
 
-    [SerializeField] private PhotonAppSettings photonAppSettings;
-
-    private string appID => photonAppSettings.AppSettings.AppIdFusion;
-    private string region => "asia";
-
-    private LoadBalancingClient realtimeClient;
-
     // Start is called before the first frame update
     private async void Start()
     {
