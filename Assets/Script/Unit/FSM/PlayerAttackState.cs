@@ -18,14 +18,15 @@ namespace Unit
 
         private Dictionary<AttackMotionType, List<AttackMotionInfo>> attackMotionInfos;
 
-        [Networked] private int attackMotionStartTick { get; set; }
+        [Networked] private int currentMotionStartTick { get; set; }
         [Networked] private int currentMotionIndex { get; set; }
-        [Networked] private AttackInfo currentAttackMotionInfo { get; set; }
+        [Networked] private AttackInfo currentMotionInfo { get; set; }
 
 
         private int attackEndTick;
         private int attackRetryTick;
         private int currentCombo;
+
 
         private const float ATTACK_MOVE_DISTANCE_OFFSET = .5f;
         private const float ATTACK_MOVE_RATIO_CLAMP_MAX = 2f;
@@ -34,14 +35,9 @@ namespace Unit
         private float attackMoveSpeed = 100f;
 
 
-        private const float COMBO_DELAY_TIME = 10f;
+        private const float COMBO_DELAY_TIME = 1f;
         private IEnumerator comboDelayHandle = null;
 
-        private IEnumerator ComboDelay(float sec)
-        {
-            yield return new WaitForSeconds(sec);
-            currentCombo = 0;
-        }
 
         public override void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator anim, Katana weap)
         {
@@ -57,12 +53,11 @@ namespace Unit
             }
         }
 
-
-        protected override void SetInfo(INetworkStruct info) => currentAttackMotionInfo = (AttackInfo)info;
+        protected override void SetInfo(INetworkStruct info) => currentMotionInfo = (AttackInfo)info;
 
         protected override void EnterState(bool sync = true)
         {
-            currentMotionIndex = currentCombo++ % attackMotionInfos[currentAttackMotionInfo.attackMotionType].Count;
+            currentMotionIndex = currentCombo++ % attackMotionInfos[currentMotionInfo.attackMotionType].Count;
             var currentMotion = ResolveAttackMotion();
 
             if (comboDelayHandle != null) StopCoroutine(comboDelayHandle);
@@ -72,7 +67,7 @@ namespace Unit
             attackEndTick = Runner.Tick + Mathf.RoundToInt(currentMotion.motionDuration * tickRate);
             attackRetryTick = attackEndTick - Mathf.RoundToInt(attackTryWindowTime * tickRate);
 
-            attackMotionStartTick = Runner.Tick;
+            currentMotionStartTick = Runner.Tick;
             PlayAnim(currentMotion.motionName, .1f, sync);
 
             currentAttackMove = Vector3.zero;
@@ -85,9 +80,15 @@ namespace Unit
             }
         }
 
+        private IEnumerator ComboDelay(float sec)
+        {
+            yield return new WaitForSeconds(sec);
+            currentCombo = 0;
+        }
+
         private AttackMotionInfo ResolveAttackMotion()
         {
-            var targetList = attackMotionInfos[currentAttackMotionInfo.attackMotionType];
+            var targetList = attackMotionInfos[currentMotionInfo.attackMotionType];
             return targetList[currentMotionIndex];
         }
 
@@ -112,9 +113,9 @@ namespace Unit
         {
             weap.SetCollisionActive(false);
 
-            var motionInfo = currentAttackMotionInfo;
+            var motionInfo = currentMotionInfo;
             motionInfo.attackMotionType = AttackMotionType.None;
-            currentAttackMotionInfo = motionInfo;
+            currentMotionInfo = motionInfo;
         }
 
         private Player FindEnemy()
@@ -132,8 +133,8 @@ namespace Unit
             var currentMotion = ResolveAttackMotion();
             foreach (var timing in currentMotion.attackTimings)
             {
-                int startTick = attackMotionStartTick + ConvertFrameToTick(timing.startTick, currentMotion.clip, Runner.TickRate);
-                int endTick = attackMotionStartTick + ConvertFrameToTick(timing.endTick, currentMotion.clip, Runner.TickRate);
+                int startTick = currentMotionStartTick + ConvertFrameToTick(timing.startTick, currentMotion.clip, Runner.TickRate);
+                int endTick = currentMotionStartTick + ConvertFrameToTick(timing.endTick, currentMotion.clip, Runner.TickRate);
 
                 bool active = Runner.Tick >= startTick && Runner.Tick <= endTick;
                 if (active != weap.collisionActive)
@@ -172,9 +173,9 @@ namespace Unit
                 case "AttackMove":
                     OnAttackMove(parts[1]);
                     break;
-                case "SetWeapCollision":
-                    SetWeapCollision(parts[1]);
-                    break;
+                //case "SetWeapCollision":
+                //    SetWeapCollision(parts[1]);
+                //    break;
                 case "SetSlashParticleEffect":
                     SetSlashParticleAcitve(parts[1]);
                     break;
@@ -223,19 +224,18 @@ namespace Unit
             }
         }
 
-        private void SetWeapCollision(string param)
-        {
-            return;
-            weap.SetCollisionActive(param.Equals("0") == false);
-            var currentMotion = ResolveAttackMotion();
-            weap.SetHitInfo(new()
-            {
-                damaged = currentMotion.damage,
-                weight = currentMotion.weight,
-                attackType = currentMotion.attackType,
-                attackerPos = cc.transform.position
-            });
-        }
+        //private void SetWeapCollision(string param)
+        //{
+        //    weap.SetCollisionActive(param.Equals("0") == false);
+        //    var currentMotion = ResolveAttackMotion();
+        //    weap.SetHitInfo(new()
+        //    {
+        //        damaged = currentMotion.damage,
+        //        weight = currentMotion.weight,
+        //        attackType = currentMotion.attackType,
+        //        attackerPos = cc.transform.position
+        //    });
+        //}
 
         private void SetSlashParticleAcitve(string param)
         {
