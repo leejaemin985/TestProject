@@ -57,7 +57,7 @@ namespace Unit
             CurrentState = stateMap[currentStateType];
         }
 
-        public void Initialized(Player player, SimpleKCC cc, Animator anim, Katana playerWeapon)
+        public void Initialized(Player player, SimpleKCC cc, Animator anim, Animator interpolatedAnim, Katana playerWeapon)
         {
             this.player = player;
             input = new();
@@ -65,7 +65,7 @@ namespace Unit
             stateMap = new();
             foreach (var state in stateArray)
             {
-                state.Initialize(player, this, cc, anim, playerWeapon);
+                state.Initialize(player, this, cc, anim, interpolatedAnim, playerWeapon);
                 stateMap[state.GetStateType()] = state;
             }
 

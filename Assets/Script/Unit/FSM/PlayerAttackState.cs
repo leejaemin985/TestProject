@@ -39,9 +39,9 @@ namespace Unit
         private IEnumerator comboDelayHandle = null;
 
 
-        public override void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator anim, Katana weap)
+        public override void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator anim, Animator interpolatedAnim, Katana weap)
         {
-            base.Initialize(player, fsm, cc, anim, weap);
+            base.Initialize(player, fsm, cc, anim, interpolatedAnim, weap);
 
             attackMotionInfos = new();
             foreach (var type in Enum.GetValues(typeof(AttackMotionType)))

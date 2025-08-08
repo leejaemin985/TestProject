@@ -17,8 +17,8 @@ namespace Unit
         [SerializeField] private PlayerAnimEventer animEventer;
         [SerializeField] private Katana weapon;
 
-        [SerializeField] private Animator ghostHitAnim;
-        [SerializeField] private Katana ghostHitWeapon;
+        [SerializeField] private Animator latencyInterpolatedAnim;
+        [SerializeField] private Transform latencyInterpolatedWeapPos;
 
         private HitBox playerHitBox;
 
@@ -46,10 +46,16 @@ namespace Unit
             
             if (Runner.IsSharedModeMasterClient)
                 playerHitBox = InitPlayerHitBox();
+            else
+            {
+                //latencyInterpolatedAnim.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
+                latencyInterpolatedAnim.gameObject.SetActive(false);
+            }
 
             weapon.Initialize(Runner.IsSharedModeMasterClient, playerHitBox);
+            weapon.SetCollisionPos(latencyInterpolatedWeapPos);
             
-            fsm.Initialized(this, cc, anim, weapon);
+            fsm.Initialized(this, cc, anim, latencyInterpolatedAnim, weapon);
             animEventer.Initialize(fsm.AnimEvent);
         }
 
@@ -98,6 +104,7 @@ namespace Unit
         {
             if (CamSettingHandle != null) StopCoroutine(CamSettingHandle);
             StartCoroutine(CamSettingHandle = CamSetting());
+
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }

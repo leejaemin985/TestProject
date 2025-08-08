@@ -58,4 +58,9 @@ public class Katana : MonoBehaviour
         var emission = slashParticle.emission;
         emission.rateOverTime = set ? SLASH_PARTICLE_ACTIVE_VALUE : 0;
     }
+
+    public void SetCollisionPos(Transform targetParent)
+    {
+        collisionBox.transform.SetParent(targetParent);
+    }
 }

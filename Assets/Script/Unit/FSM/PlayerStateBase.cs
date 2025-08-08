@@ -24,14 +24,16 @@ namespace Unit
         protected PlayerFSM fsm;
         protected SimpleKCC cc;
         protected Animator anim;
+        protected Animator interpolatedAnim;
         protected Katana weap;
 
-        public virtual void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator anim, Katana weap)
+        public virtual void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator anim, Animator interpolatedAnim, Katana weap)
         {
             this.player = player;
             this.fsm = fsm;
             this.cc = cc;
             this.anim = anim;
+            this.interpolatedAnim = interpolatedAnim;
             this.weap = weap;
         }
 
@@ -69,8 +71,9 @@ namespace Unit
             if (fsm.isStateLockActive) return;
 
             float latency = (Runner.Tick - tick) * Runner.DeltaTime;
-            anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, latency);
-            //anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, 0);
+            interpolatedAnim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, latency);
+
+            anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, 0);
         }
 
 
