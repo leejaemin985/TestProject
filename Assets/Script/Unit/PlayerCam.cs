@@ -21,7 +21,6 @@ public class PlayerCam : MonoBehaviour
     public void SetCam()
     {
         Camera cam = Camera.main;
-        cam.cullingMask = ~0 & ~(1 << LayerMask.NameToLayer("LatencyInterpolated"));
 
         cam.transform.SetParent(camPos);
         cam.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
