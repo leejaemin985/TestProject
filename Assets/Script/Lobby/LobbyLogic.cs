@@ -2,6 +2,7 @@ using Fusion;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LobbyLogic : MonoBehaviour
 {
@@ -19,7 +20,7 @@ public class LobbyLogic : MonoBehaviour
         sessionReceiver.SetSessionUpdateListener(UpdateSessionList);
 
         var result = await runner.JoinSessionLobby(SessionLobby.ClientServer, null);
-
+        
         UIInitialize();
     }
 
@@ -52,13 +53,14 @@ public class LobbyLogic : MonoBehaviour
 
     private void TryEntryRoom(string sessionName)
     {
-        uiHandle.gameObject.SetActive(false);
-        runner.StartGame(new()
-        {
-            GameMode = GameMode.Shared,
-            SessionName = sessionName,
-            PlayerCount = 2
-        });
+        SceneManager.LoadScene("Scenes/InGame", LoadSceneMode.Single);
+        //uiHandle.gameObject.SetActive(false);
+        //runner.StartGame(new()
+        //{
+        //    GameMode = GameMode.Shared,
+        //    SessionName = sessionName,
+        //    PlayerCount = 2
+        //});
     }
 
 }
