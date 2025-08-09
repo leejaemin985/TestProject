@@ -1,4 +1,5 @@
 using Fusion;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,7 +14,9 @@ public class GameNetworkManager : MonoSingleton<GameNetworkManager>
     public NetworkRunner runner { get; private set; }
 
     private List<SessionInfo> currentSessionInfo;
-    public IReadOnlyList<SessionInfo> sessionList => currentSessionInfo;
+    public List<SessionInfo> sessionList => currentSessionInfo;
+
+    private Action<List<SessionInfo>> onEventSessionUpdateListener { get; set; }
 
     public async Task Initialize()
     {
@@ -36,9 +39,15 @@ public class GameNetworkManager : MonoSingleton<GameNetworkManager>
         isInitialized = true;
     }
 
+    public void SetSessionUpdateEventListener(Action<List<SessionInfo>> eventListener)
+    {
+        onEventSessionUpdateListener = eventListener;
+    }
+
     private void UpdateSessionList(List<SessionInfo> newList)
     {
         currentSessionInfo = newList;
+        onEventSessionUpdateListener?.Invoke(currentSessionInfo);
     }
 
 }

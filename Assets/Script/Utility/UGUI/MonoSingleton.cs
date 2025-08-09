@@ -26,4 +26,21 @@ public class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
             return instance;
         }
     }
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this as T;
+        }
+        else
+        {
+            if (instance != this as T)
+            {
+                Destroy(this);
+            }
+        }
+
+        DontDestroyOnLoad(instance);
+    }
 }

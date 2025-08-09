@@ -1,24 +1,30 @@
-using Fusion;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class LocalInitialize : MonoBehaviour
+using Fusion;
+
+using Utility.Spinner;
+
+namespace Localinitialize
 {
-    private const int TRY_CONNECTION_DELAY_MS = 1000;
-
-    private async void Start()
+    public class LocalInitialize : MonoBehaviour
     {
-        while (true)
+        private const int TRY_CONNECTION_DELAY_MS = 1000;
+
+        private async void Start()
         {
-            Debug.Log($"Try initialize");
-            await GameNetworkManager.Instance.Initialize();
-            if (GameNetworkManager.Instance.isInitialized == true) break;
+            Spinner.Instance.OnSpinner(() => GameNetworkManager.Instance.isInitialized);
 
-            await Task.Delay(TRY_CONNECTION_DELAY_MS);
+            while (GameNetworkManager.Instance.isInitialized == false)
+            {
+                await GameNetworkManager.Instance.Initialize();
+
+                await Task.Delay(TRY_CONNECTION_DELAY_MS);
+            }
+
+            SceneManager.LoadScene(SceneType.SceneType.Lobby.id, LoadSceneMode.Single);
         }
-
-        Debug.Log($"Done initialized");
     }
 }

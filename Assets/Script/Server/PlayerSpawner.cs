@@ -15,6 +15,8 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
 
     public void PlayerJoined(PlayerRef player)
     {
+        return;
+
         bool masterClient = Runner.IsSharedModeMasterClient;
         if (masterClient)
         {
