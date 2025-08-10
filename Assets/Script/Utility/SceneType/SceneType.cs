@@ -16,7 +16,9 @@ namespace SceneType
         
         public static SceneType Lobby { get; private set; } = new(1, "Lobby");
 
-        public static SceneType InGame { get; private set; } = new(2, "InGame");
+        public static SceneType WaitingRoom { get; private set; } = new(2, "WaitingRoom");
+
+        public static SceneType InGame { get; private set; } = new(3, "InGame");
          
     }
 }

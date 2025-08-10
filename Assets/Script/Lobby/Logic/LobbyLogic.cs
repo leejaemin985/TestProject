@@ -3,7 +3,7 @@ using System;
 
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
+using UnityEngine.UIElements;
 using Utility.Spinner;
 
 namespace Lobby
@@ -28,7 +28,7 @@ namespace Lobby
         {
             isEnteringSession = true;
             Spinner.Instance.OnSpinner(() => isEnteringSession == false);
-            await GameNetworkManager.Instance.runner.StartGame(new()
+            var joinResult = await GameNetworkManager.Instance.runner.StartGame(new()
             {
                 GameMode = GameMode.Shared,
                 SessionName = sessionName,
@@ -36,7 +36,14 @@ namespace Lobby
             });
 
             isEnteringSession = false;
-            SceneManager.LoadScene(SceneType.SceneType.InGame.id, LoadSceneMode.Single);
+
+            if (joinResult.Ok == false)
+            {
+                Debug.Log($"Lobby Logic - Failed Join Session (SessionName: {sessionName})");
+                return;
+            }
+
+            SceneManager.LoadScene(SceneType.SceneType.WaitingRoom.id, LoadSceneMode.Single);
         }
 
         private void UIInitialize()
