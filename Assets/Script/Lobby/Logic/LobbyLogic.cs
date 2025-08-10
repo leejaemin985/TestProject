@@ -1,9 +1,9 @@
 using Fusion;
 using System;
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
+
 using Utility.Spinner;
 
 namespace Lobby
@@ -17,14 +17,14 @@ namespace Lobby
 
         private void Start()
         {
-            sessionScrollController.Initialize(TryEnterSession);
+            sessionScrollController.Initialize(TryJoinSession);
             GameNetworkManager.Instance.SetSessionUpdateEventListener((list) => sessionScrollController.UpdateSessionList(list));
             sessionScrollController.UpdateSessionList(GameNetworkManager.Instance.sessionList);
 
             UIInitialize();
         }
 
-        private async void TryEnterSession(string sessionName)
+        private async void EnterSession(string sessionName)
         {
             isEnteringSession = true;
             Spinner.Instance.OnSpinner(() => isEnteringSession == false);
@@ -52,68 +52,44 @@ namespace Lobby
             uiHandle.onClickMakeRoomPopupCancelListener = () => SetMakeRoomPopup(false);
         }
 
-        private bool CanEnterSession(SessionInfo sessionInfo)
-        {
-            return sessionInfo.PlayerCount < sessionInfo.MaxPlayers;
-        }
-
-        private string MakeSessionName(string customName)
+        private string MakeNewSessionName(string customName)
         {
             Guid sessionUid = Guid.NewGuid();
             return $"{sessionUid}//{customName}";
+        }
+
+        private void TryJoinSession(SessionInfo info)
+        {
+            if (GameNetworkManager.Instance.CanEnterSession(info) == false) return;
+            EnterSession(info.Name);
         }
 
         private void TryQuickStart()
         {
             foreach (var session in GameNetworkManager.Instance.sessionList)
             {
-                if (CanEnterSession(session))
+                if (GameNetworkManager.Instance.CanEnterSession(session))
                 {
-                    TryEnterSession(session.Name);
+                    EnterSession(session.Name);
                     return;
                 }
             }
 
-            string sessionName = MakeSessionName("Test Session Name");
-            TryEnterSession(sessionName);
+            string sessionName = MakeNewSessionName("New Session");
+            EnterSession(sessionName);
         }
 
         private void TryMakeRoom()
         {
-            string sessionName = MakeSessionName(uiHandle.GetSessionNameInputFieldText());
-            TryEnterSession(sessionName);
+            string sessionName = MakeNewSessionName(uiHandle.GetSessionNameInputFieldText());
+            EnterSession(sessionName);
         }
+
 
         private void SetMakeRoomPopup(bool set)
         {
             uiHandle.SetSessionNameInputFieldText(string.Empty);
             uiHandle.SetMakeRoomPopup(set);
         }
-
-
-        #region Old
-
-
-        //private void QuickStart()
-        //{
-        //    //if (cachedSessionInfo == null || cachedSessionInfo.Count == 0) return;
-        //    //TryEntryRoom(cachedSessionInfo[0].Name);
-        //}
-
-        //private void SetMakeRoomPopup(bool set) => uiHandle.SetMakeRoomPopup(set);
-
-        //private void TryEntryRoom(string sessionName)
-        //{
-        //    //SceneManager.LoadScene("Scenes/InGame", LoadSceneMode.Single);
-        //    //uiHandle.gameObject.SetActive(false);
-        //    //runner.StartGame(new()
-        //    //{
-        //    //    GameMode = GameMode.Shared,
-        //    //    SessionName = sessionName,
-        //    //    PlayerCount = 2
-        //    //});
-        //}
-
-        #endregion
     }
 }

@@ -50,4 +50,12 @@ public class GameNetworkManager : MonoSingleton<GameNetworkManager>
         onEventSessionUpdateListener?.Invoke(currentSessionInfo);
     }
 
+    public bool CanEnterSession(SessionInfo info)
+    {
+        return 
+            info.IsValid &&
+            info.IsVisible &&
+            info.PlayerCount < info.MaxPlayers;
+    }
+
 }

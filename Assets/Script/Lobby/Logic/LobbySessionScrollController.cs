@@ -13,9 +13,9 @@ namespace Lobby
         [SerializeField] private LobbySessionScrollCellView cellPrefab;
 
         private List<SessionInfo> datas = default;
-        private Action<string> onClickCellEvent = default;
+        private Action<SessionInfo> onClickCellEvent = default;
 
-        public void Initialize(Action<string> onClickCellEvent)
+        public void Initialize(Action<SessionInfo> onClickCellEvent)
         {
             this.onClickCellEvent = onClickCellEvent;
             scroller.Delegate = this;

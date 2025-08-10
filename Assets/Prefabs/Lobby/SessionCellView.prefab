@@ -366,6 +366,8 @@ MonoBehaviour:
   cellIdentifier: SessionInfoCell
   sessionName: {fileID: 1556463314973477890}
   playerCount: {fileID: 6021047962542193264}
+  validColor: {r: 1, g: 1, b: 1, a: 1}
+  invalidColor: {r: 0.6415094, g: 0.6415094, b: 0.6415094, a: 1}
 --- !u!114 &921732578511670775
 MonoBehaviour:
   m_ObjectHideFlags: 0
