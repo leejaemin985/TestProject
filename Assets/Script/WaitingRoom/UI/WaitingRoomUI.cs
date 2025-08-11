@@ -7,12 +7,15 @@ using UnityEngine.UI;
 
 public class WaitingRoomUI : MonoBehaviour
 {
-    [SerializeField] private TMP_Text GameEntryButtonText = default;
+    [SerializeField] private Image gameEntryButton = default;
+    [SerializeField] private TMP_Text gameEntryButtonText = default;
+
     [SerializeField] private RectTransform opponentStateRect = default;
+    [SerializeField] private TMP_Text opponentStateText = default;
     [SerializeField] private Image opponentReadyImage = default;
 
-    private Color readyColor = new Color(1, 1, 1, 1);
-    private Color unreadyColor = new Color(.1f, .1f, .1f, 1);
+    [SerializeField] private Color[] readyButtonColors = default;
+    [SerializeField] private Color[] userReadyCheckColors = default;
 
 
     public Action onClickedGameEntryButtonListener { get; set; }
@@ -21,21 +24,28 @@ public class WaitingRoomUI : MonoBehaviour
 
     public void Initialize()
     {
-        SetText();
-        opponentStateRect.gameObject.SetActive(GameNetworkManager.Instance.runner.IsSharedModeMasterClient);
-    }
-
-    private void SetText()
-    {
-        GameEntryButtonText.text = GameNetworkManager.Instance.runner.IsSharedModeMasterClient ? "Start" : "Ready";
+        // Default Settings
+        SetGameEntryButton(false);
+        SetOpponentSlotActive(false);
+        SetOpponentReadyCheck(false);
     }
 
     public void OnClickedGameEntryButtonEvent() => onClickedGameEntryButtonListener?.Invoke();
 
     public void OnClickedExitButtonEvent() => onClickedExitButtonListener?.Invoke();
 
+    public void SetGameEntryButton(bool isReady)
+    {
+        // 현재상태가 Ready -> Unready 색상, Text
+        gameEntryButton.color = readyButtonColors[isReady ? 0 : 1];
+        gameEntryButtonText.text = isReady ? "UnReady" : "Ready";
+    }
+
+    public void SetOpponentSlotActive(bool set) => opponentStateRect.gameObject.SetActive(set);
+
     public void SetOpponentReadyCheck(bool isReady)
     {
-        opponentReadyImage.color = isReady ? readyColor : unreadyColor;
+        opponentStateText.color = userReadyCheckColors[isReady ? 1 : 0];
+        opponentReadyImage.color = userReadyCheckColors[isReady ? 1 : 0];
     }
 }

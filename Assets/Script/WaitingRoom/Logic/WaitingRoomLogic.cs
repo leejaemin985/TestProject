@@ -19,29 +19,32 @@ public class WaitingRoomLogic : MonoBehaviour
 
     private Dictionary<PlayerRef, WaitingRoomUserHandle> userHandles = new();
 
+    private NetworkRunner runner => GameNetworkManager.Instance.runner;
+
     private void Start()
     {
-        GameNetworkManager.Instance.runner.Spawn(
+        runner.Spawn(
             waitingRoomUserHandlePrefab,
             Vector3.zero,
             Quaternion.identity,
-            GameNetworkManager.Instance.runner.LocalPlayer);
+            runner.LocalPlayer);
 
+        UIInitialize();
         RefreshStatus();
-        GameNetworkManager.Instance.SetJoinedUserEventListener((userRef) => RefreshStatus());
-        GameNetworkManager.Instance.SetLeftUserEventListener((userRef) => RefreshStatus());
+        //GameNetworkManager.Instance.SetJoinedUserEventListener((userRef) => RefreshStatus());
+        //GameNetworkManager.Instance.SetLeftUserEventListener((userRef) => RefreshStatus());
     }
 
     private void UIInitialize()
     {
-        uiHandle.Initialize();
         uiHandle.onClickedGameEntryButtonListener = GameEntry;
         uiHandle.onClickedExitButtonListener = ExitSession;
     }
 
     private void GameEntry()
     {
-        userHandles[GameNetworkManager.Instance.runner.LocalPlayer].ChangedReadyState();
+        var userHandle = GetLocalHandle();
+        if (userHandle != null) userHandle.ChangedReadyState();
     }
 
     private async void ExitSession()
@@ -56,50 +59,82 @@ public class WaitingRoomLogic : MonoBehaviour
 
     private void UpdateOpponentModelActive()
     {
-        opponentModel.SetActive(GameNetworkManager.Instance.connectedUsers.Count > 1);
+        opponentModel.SetActive(GetOpponentHandle() != null);
     }
 
     private void RefreshStatus()
     {
-        UIInitialize();
         UpdateOpponentModelActive();
+        CheckUsersReadyState();
+    }
+
+    private WaitingRoomUserHandle GetLocalHandle()
+    {
+        return userHandles.FirstOrDefault(x => x.Key == runner.LocalPlayer).Value;
+    }
+
+    private WaitingRoomUserHandle GetOpponentHandle()
+    {
+        return userHandles.FirstOrDefault(x => x.Key != runner.LocalPlayer).Value;
     }
 
     public void RegisterUserHandle(PlayerRef userRef, WaitingRoomUserHandle userHandle)
     {
         userHandles.Add(userRef, userHandle);
         userHandle.SetChangedReadyStateListener(CheckUsersReadyState);
+
+        RefreshStatus();
     }
 
     public void UnregisterUserHandle(PlayerRef userRef, WaitingRoomUserHandle userHandle)
     {
         userHandles.Remove(userRef);
+
+        RefreshStatus();
     }
 
     private void CheckUsersReadyState()
     {
-        if (!GameNetworkManager.Instance.runner.IsSharedModeMasterClient) return;
+        WaitingRoomUserHandle userHandle = GetLocalHandle();
+        WaitingRoomUserHandle opponentHandle = GetOpponentHandle();
 
-        var opponentHandle = userHandles
-            .Where(kv => kv.Key != GameNetworkManager.Instance.runner.LocalPlayer)
-            .Select(kv => kv.Value)
-            .FirstOrDefault();
+        if (userHandle != null)
+            uiHandle.SetGameEntryButton(userHandle.readyState);
 
         if (opponentHandle != null)
         {
             uiHandle.SetOpponentReadyCheck(opponentHandle.readyState);
+            uiHandle.SetOpponentSlotActive(true);
+        }
+        else
+        {
+            uiHandle.SetOpponentSlotActive(false);
         }
 
-        bool fullSession = userHandles.Count == 2;
-        bool allReadyState = true;
-        foreach (var userHandle in userHandles)
+
+        CheckStartGame();
+    }
+
+    private void CheckStartGame()
+    {
+        if (!runner.IsSharedModeMasterClient) return;
+
+        var userHandle = GetLocalHandle();
+        var opponentHandle = GetOpponentHandle();
+
+        bool fullSession = userHandle != null && opponentHandle != null;
+
+        bool allUsersReady = 
+            fullSession &&
+            userHandle.readyState && opponentHandle.readyState;
+
+        bool isMaster = runner.IsSharedModeMasterClient;
+
+        if (fullSession && allUsersReady && isMaster)
         {
-            if (!userHandle.Value.readyState) allReadyState = false;
+            //SceneManager.LoadScene(SceneType.SceneType.InGame.id, LoadSceneMode.Single);
+            runner.SceneManager.LoadScene(SceneRef.FromIndex(SceneType.SceneType.InGame.id), LoadSceneMode.Single);
         }
 
-        if (fullSession && allReadyState)
-        {
-            Debug.Log($"Test - StartGame!");
-        }
     }
 }
