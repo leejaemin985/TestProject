@@ -19,6 +19,9 @@ public class WaitingRoomLogic : MonoBehaviour
     {
         UIInitialize();
 
+        UpdateOpponentModelActive();
+        GameNetworkManager.Instance.SetJoinedUserEventListener((userRef) => UpdateOpponentModelActive());
+        GameNetworkManager.Instance.SetLeftUserEventListener((userRef) => UpdateOpponentModelActive());
     }
 
     private void UIInitialize()
@@ -37,5 +40,10 @@ public class WaitingRoomLogic : MonoBehaviour
     {
         await GameNetworkManager.Instance.runner.Shutdown();
         SceneManager.LoadScene(SceneType.SceneType.Localinitialize.id, LoadSceneMode.Single);
+    }
+
+    private void UpdateOpponentModelActive()
+    {
+        opponentModel.SetActive(GameNetworkManager.Instance.connectedUsers.Count > 1);
     }
 }

@@ -30,7 +30,7 @@ public class GameNetworkManager : MonoSingleton<GameNetworkManager>
 
 
     private List<PlayerRef> currentConnectedUsers;
-    public List<PlayerRef> connectedUsers;
+    public List<PlayerRef> connectedUsers => currentConnectedUsers;
     private Action<PlayerRef> onEventJoinedUserListener { get; set; }
     private Action<PlayerRef> onEventLeftUserListener { get; set; }
 
@@ -145,6 +145,9 @@ public class GameNetworkManager : MonoSingleton<GameNetworkManager>
     private void Clear()
     {
         isInitialized = false;
+
+        currentSessionInfo = null;
+        currentConnectedUsers = null;
 
         onEventSessionUpdateListener = null;
         onEventJoinedUserListener = null;
