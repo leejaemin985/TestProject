@@ -26,10 +26,8 @@ namespace Lobby
             datas = new();
             foreach (var session in sessionList)
             {
-                var prop = session.Properties;
-                if (prop.ContainsKey("Started") && prop["Started"] == false) datas.Add(session);
+                if (session.IsOpen) datas.Add(session);
             }
-            //datas = sessionList;
             scroller.ReloadData();
         }
 

@@ -29,17 +29,11 @@ namespace Lobby
             isEnteringSession = true;
             Spinner.Instance.OnSpinner(() => isEnteringSession == false);
 
-            var customprop = new Dictionary<string, SessionProperty>()
-            {
-                { "Started", false }
-            };
-
             var joinResult = await GameNetworkManager.Instance.runner.StartGame(new()
             {
                 GameMode = GameMode.Shared,
                 SessionName = sessionName,
                 PlayerCount = 2,
-                SessionProperties = customprop
             });
 
             isEnteringSession = false;
