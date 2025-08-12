@@ -9,6 +9,13 @@ namespace Unit
 {
     public class Player : Unit
     {
+        #region Base Set
+
+        protected override float MaxHP => 100;
+
+        #endregion
+
+        [Header("Player")]
         [SerializeField] private PlayerFSM fsm;
         [SerializeField] private SimpleKCC cc;
         [SerializeField] private PlayerCam playerCam;
@@ -36,19 +43,20 @@ namespace Unit
         {
             yield return new WaitUntil(() => GameManager.Instance.isInitialized);
 
-            PlayerRegistry.Instance.RegisterPlayer(Object.InputAuthority, this);
+            PlayerRegistry.Instance.RegisterPlayer(Object.StateAuthority, this);
             Initialize();
         }
 
-        private void Initialize()
+        protected override void Initialize()
         {
+            base.Initialize();
+
             StartCamSet();
             
             if (Runner.IsSharedModeMasterClient)
                 playerHitBox = InitPlayerHitBox();
             else
             {
-                //latencyInterpolatedAnim.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
                 latencyInterpolatedAnim.gameObject.SetActive(false);
             }
 
@@ -62,6 +70,8 @@ namespace Unit
         public void RequestOnHitState(HitInfo hitInfo)
         {
             fsm?.OnHitState(hitInfo);
+
+            if (HasStateAuthority) OnDamaged(hitInfo.damaged);
         }
 
         public void RequestOnParringState(HitInfo hitInfo)

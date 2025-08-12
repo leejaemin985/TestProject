@@ -16,7 +16,7 @@ public class WaitingRoomUserHandle : NetworkBehaviour
         InitSequencer();
     }
 
-    private async Task InitSequencer()
+    private async void InitSequencer()
     {
         const int FIND_DELAY_MS = 100;
 
