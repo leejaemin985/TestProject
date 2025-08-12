@@ -123,7 +123,8 @@ public class WaitingRoomLogic : MonoBehaviour
         if (fullSession && allUsersReady && isMaster)
         {
             runner.LoadScene(SceneRef.FromIndex(SceneType.SceneType.InGame.id), LoadSceneMode.Single);
+            runner.SessionInfo.UpdateCustomProperties(new Dictionary<string, SessionProperty>() { { "Started", true } });
+            
         }
-
     }
 }

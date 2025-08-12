@@ -1,9 +1,9 @@
 using Fusion;
 using System;
-
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
+
 using Utility.Spinner;
 
 namespace Lobby
@@ -18,8 +18,8 @@ namespace Lobby
         private void Start()
         {
             sessionScrollController.Initialize(TryJoinSession);
-            GameNetworkManager.Instance.SetSessionUpdateEventListener((list) => sessionScrollController.UpdateSessionList(list));
             sessionScrollController.UpdateSessionList(GameNetworkManager.Instance.sessionList);
+            GameNetworkManager.Instance.SetSessionUpdateEventListener((list) => sessionScrollController.UpdateSessionList(list));
 
             UIInitialize();
         }
@@ -28,11 +28,18 @@ namespace Lobby
         {
             isEnteringSession = true;
             Spinner.Instance.OnSpinner(() => isEnteringSession == false);
+
+            var customprop = new Dictionary<string, SessionProperty>()
+            {
+                { "Started", false }
+            };
+
             var joinResult = await GameNetworkManager.Instance.runner.StartGame(new()
             {
                 GameMode = GameMode.Shared,
                 SessionName = sessionName,
-                PlayerCount = 2
+                PlayerCount = 2,
+                SessionProperties = customprop
             });
 
             isEnteringSession = false;
