@@ -21,6 +21,9 @@ public class WaitingRoomLogic : MonoBehaviour
 
     private NetworkRunner runner => GameNetworkManager.Instance.runner;
 
+    private WaitingRoomUserHandle userHandle = null;
+    private WaitingRoomUserHandle opponentHandle = null;
+
     private void Start()
     {
         runner.Spawn(
@@ -31,8 +34,6 @@ public class WaitingRoomLogic : MonoBehaviour
 
         UIInitialize();
         RefreshStatus();
-        //GameNetworkManager.Instance.SetJoinedUserEventListener((userRef) => RefreshStatus());
-        //GameNetworkManager.Instance.SetLeftUserEventListener((userRef) => RefreshStatus());
     }
 
     private void UIInitialize()
@@ -43,7 +44,6 @@ public class WaitingRoomLogic : MonoBehaviour
 
     private void GameEntry()
     {
-        var userHandle = GetLocalHandle();
         if (userHandle != null) userHandle.ChangedReadyState();
     }
 
@@ -59,7 +59,7 @@ public class WaitingRoomLogic : MonoBehaviour
 
     private void UpdateOpponentModelActive()
     {
-        opponentModel.SetActive(GetOpponentHandle() != null);
+        opponentModel.SetActive(opponentHandle != null);
     }
 
     private void RefreshStatus()
@@ -68,20 +68,13 @@ public class WaitingRoomLogic : MonoBehaviour
         CheckUsersReadyState();
     }
 
-    private WaitingRoomUserHandle GetLocalHandle()
-    {
-        return userHandles.FirstOrDefault(x => x.Key == runner.LocalPlayer).Value;
-    }
-
-    private WaitingRoomUserHandle GetOpponentHandle()
-    {
-        return userHandles.FirstOrDefault(x => x.Key != runner.LocalPlayer).Value;
-    }
-
     public void RegisterUserHandle(PlayerRef userRef, WaitingRoomUserHandle userHandle)
     {
         userHandles.Add(userRef, userHandle);
         userHandle.SetChangedReadyStateListener(CheckUsersReadyState);
+
+        if (userRef == runner.LocalPlayer) this.userHandle = userHandle;
+        else opponentHandle = userHandle;
 
         RefreshStatus();
     }
@@ -90,14 +83,14 @@ public class WaitingRoomLogic : MonoBehaviour
     {
         userHandles.Remove(userRef);
 
+        if (userRef == runner.LocalPlayer) this.userHandle = null;
+        else opponentHandle = null;
+
         RefreshStatus();
     }
 
     private void CheckUsersReadyState()
     {
-        WaitingRoomUserHandle userHandle = GetLocalHandle();
-        WaitingRoomUserHandle opponentHandle = GetOpponentHandle();
-
         if (userHandle != null)
             uiHandle.SetGameEntryButton(userHandle.readyState);
 
@@ -119,9 +112,6 @@ public class WaitingRoomLogic : MonoBehaviour
     {
         if (!runner.IsSharedModeMasterClient) return;
 
-        var userHandle = GetLocalHandle();
-        var opponentHandle = GetOpponentHandle();
-
         bool fullSession = userHandle != null && opponentHandle != null;
 
         bool allUsersReady = 
@@ -132,8 +122,7 @@ public class WaitingRoomLogic : MonoBehaviour
 
         if (fullSession && allUsersReady && isMaster)
         {
-            //SceneManager.LoadScene(SceneType.SceneType.InGame.id, LoadSceneMode.Single);
-            runner.SceneManager.LoadScene(SceneRef.FromIndex(SceneType.SceneType.InGame.id), LoadSceneMode.Single);
+            runner.LoadScene(SceneRef.FromIndex(SceneType.SceneType.InGame.id), LoadSceneMode.Single);
         }
 
     }

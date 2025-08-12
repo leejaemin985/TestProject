@@ -30,8 +30,7 @@ public class WaitingRoomUserHandle : NetworkBehaviour
 
     public override void Despawned(NetworkRunner runner, bool hasState)
     {
-        Debug.Log($"Test - is User: {Runner.LocalPlayer == Object.StateAuthority}");
-        waitingRoomMainLogic.UnregisterUserHandle(Object.StateAuthority, this);
+        if (waitingRoomMainLogic != null) waitingRoomMainLogic.UnregisterUserHandle(Object.StateAuthority, this);
     }
 
     public void SetChangedReadyStateListener(Action eventListener) => onChangedReadyStateListener = eventListener;
