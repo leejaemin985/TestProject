@@ -114,7 +114,7 @@ public class WaitingRoomLogic : MonoBehaviour
 
         bool fullSession = userHandle != null && opponentHandle != null;
 
-        bool allUsersReady = 
+        bool allUsersReady =
             fullSession &&
             userHandle.readyState && opponentHandle.readyState;
 
