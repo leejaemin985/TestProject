@@ -6,7 +6,7 @@ using Unit;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class EventDispatcher : MasterSingleton<EventDispatcher>
+public class EventDispatcher : SessionSingleton<EventDispatcher>
 {
     public void RequestOnHitUser(PlayerRef user, HitInfo hitInfo)
     {

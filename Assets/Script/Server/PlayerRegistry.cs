@@ -4,7 +4,7 @@ using UnityEngine;
 using Fusion;
 
 
-public class PlayerRegistry : MasterSingleton<PlayerRegistry>
+public class PlayerRegistry : SessionSingleton<PlayerRegistry>
 {
     private Dictionary<PlayerRef, Player> registedUsers = new();
     private List<Player> registerTest = new();

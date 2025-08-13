@@ -3,7 +3,7 @@ using Fusion;
 using UnityEngine;
 using Unit;
 
-public class PhysicsEventHandler : MasterSingleton<PhysicsEventHandler>
+public class PhysicsEventHandler : SessionSingleton<PhysicsEventHandler>
 {
 
 }

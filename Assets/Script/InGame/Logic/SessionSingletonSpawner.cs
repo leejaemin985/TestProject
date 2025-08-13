@@ -10,7 +10,7 @@ using InGame.UI;
 using Unit;
 using UnityEngine.UIElements;
 
-public class PlayerSpawner : SimulationBehaviour
+public class SessionSingletonSpawner : SimulationBehaviour
 {
     private NetworkRunner runner => GameNetworkManager.Instance.runner;
 
@@ -18,16 +18,11 @@ public class PlayerSpawner : SimulationBehaviour
     [SerializeField] private PlayerRegistry PlayerRegistry;
     [SerializeField] private PhysicsEventHandler physicsEventHandler;
     [SerializeField] private EventDispatcher eventDispatcher;
-    [SerializeField] private Player playerPrefab;
-
-
-    [Header("Setting")]
-    [SerializeField] private Transform[] spawnPos = default;
 
     public async Task Spawn()
-        => await Task.WhenAll(SetMasterSingleton(), SpawnPlayer());
+        => await SetSessionSingleton();
 
-    private async Task SetMasterSingleton()
+    private async Task SetSessionSingleton()
     {
         if (!runner.IsSharedModeMasterClient) return;
 
@@ -49,19 +44,5 @@ public class PlayerSpawner : SimulationBehaviour
 
     private async Task SpawnEventDispatcher()
         => await runner.SpawnAsync(eventDispatcher, Vector3.zero, Quaternion.identity, runner.LocalPlayer);
-
-
-    private async Task SpawnPlayer()
-    {
-        Transform spawnPos = this.spawnPos[runner.IsSharedModeMasterClient ? 0 : 1];
-
-        await runner.SpawnAsync(
-            prefab: playerPrefab,
-            position: spawnPos.position,
-            rotation: spawnPos.rotation,
-            inputAuthority: runner.LocalPlayer,
-            onCompleted: (result) => UnityEngine.Debug.Log("Spawned Done"));
-
-    }
 
 }

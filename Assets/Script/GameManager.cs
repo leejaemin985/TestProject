@@ -40,15 +40,15 @@ public class GameManager : MonoBehaviour
     public bool isInitialized { get; private set; } = false;
 
     private const float CHECK_INTERVAL = 0.2f;
-    private IEnumerator checkMasterSingletonHandle = default;
+    private IEnumerator checkSessionSingletonHandle = default;
 
     private void Start()
     {
-        if (checkMasterSingletonHandle != null) StopCoroutine(checkMasterSingletonHandle);
-        StartCoroutine(checkMasterSingletonHandle = CheckMasterSingletonsReady());       
+        if (checkSessionSingletonHandle != null) StopCoroutine(checkSessionSingletonHandle);
+        StartCoroutine(checkSessionSingletonHandle = CheckSessionSingletonsReady());       
     }
 
-    private IEnumerator CheckMasterSingletonsReady()
+    private IEnumerator CheckSessionSingletonsReady()
     {
         bool CheckRegistryInitialized() => PlayerRegistry.Instance != null && PlayerRegistry.Instance.Initialized;
         bool CheckPhysicsEventHandlerInitialized() => PhysicsEventHandler.Instance != null && PhysicsEventHandler.Instance.Initialized;

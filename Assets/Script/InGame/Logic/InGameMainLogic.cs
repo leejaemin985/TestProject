@@ -12,7 +12,9 @@ namespace InGame.Logic
     public class InGameMainLogic : SimulationBehaviour
     {
         [Header("Network")]
-        [SerializeField] private PlayerSpawner spawner;
+        [SerializeField] private SessionSingletonSpawner spawner;
+        [SerializeField] private PlayerSpawner playerSpawner;
+
 
         [Header("Setting")]
         [SerializeField] private InGameBattleUI battleUI;
@@ -22,6 +24,8 @@ namespace InGame.Logic
         private async void Entry()
         {
             await spawner.Spawn();
+
+            await playerSpawner.Spawn();
         }
     }
 }

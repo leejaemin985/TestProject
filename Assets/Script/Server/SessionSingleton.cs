@@ -1,6 +1,6 @@
 using Fusion;
 
-public abstract class MasterSingleton<T> : NetworkBehaviour where T : MasterSingleton<T>
+public abstract class SessionSingleton<T> : NetworkBehaviour where T : SessionSingleton<T>
 {
     protected static bool HasInstance => instance != null;
 
