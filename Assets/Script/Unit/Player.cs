@@ -4,13 +4,13 @@ using System;
 using System.Collections;
 using UnityEngine;
 using Physics;
+using InGame.Logic;
 
 namespace Unit
 {
     public class Player : Unit
     {
         #region Base Set
-
         protected override float MaxHP => 100;
 
         #endregion
@@ -109,9 +109,16 @@ namespace Unit
             }
         }
 
+        protected override void OnHpEvent(float currentHp, float maxHp)
+        {
+
+        }
+
         #region Cam
         private void StartCamSet()
         {
+            if (HasInputAuthority == false) return;
+
             if (CamSettingHandle != null) StopCoroutine(CamSettingHandle);
             StartCoroutine(CamSettingHandle = CamSetting());
 
@@ -121,7 +128,6 @@ namespace Unit
 
         private IEnumerator CamSetting()
         {
-            if (HasInputAuthority == false) yield break;
             yield return new WaitUntil(() => Runner.IsRunning);
 
             playerCam.SetCam();

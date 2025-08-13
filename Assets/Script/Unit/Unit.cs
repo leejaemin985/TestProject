@@ -14,6 +14,7 @@ namespace Unit
         protected virtual void Initialize()
         {
             status.Initialize(MaxHP);
+            status.hpEventListener = OnHpEvent;
         }
 
         public float GetHp() => status.hp;
@@ -23,5 +24,8 @@ namespace Unit
             if (damage < 0) return;
             status.hp = Mathf.Clamp(status.hp - damage, 0, MaxHP);
         }
+
+        protected virtual void OnHpEvent(float currentHp, float maxHp) { }
+
     }
 }

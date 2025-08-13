@@ -5,63 +5,23 @@ using System.Collections.Generic;
 using Unit;
 using UnityEngine;
 using System.Threading.Tasks;
+using InGame.UI;
 
-public class InGameMainLogic : SimulationBehaviour
+namespace InGame.Logic
 {
-    private NetworkRunner runner => GameNetworkManager.Instance.runner;
-
-    [Header("Prefab")]
-    [SerializeField] private PlayerRegistry PlayerRegistry;
-    [SerializeField] private PhysicsEventHandler physicsEventHandler;
-    [SerializeField] private EventDispatcher eventDispatcher;
-    [SerializeField] private Player playerPrefab;
-
-
-    [Header("Setting")]
-    [SerializeField] private Transform[] spawnPos = default;
-
-
-    // Start is called before the first frame update
-    private async void Start()
+    public class InGameMainLogic : SimulationBehaviour
     {
-        await SetMasterSingleton();
+        [Header("Network")]
+        [SerializeField] private PlayerSpawner spawner;
 
-        await SpawnPlayer();
-    }
+        [Header("Setting")]
+        [SerializeField] private InGameBattleUI battleUI;
 
-    private async Task SetMasterSingleton()
-    {
-        if (!runner.IsSharedModeMasterClient) return;
+        private void Start() => Entry();
 
-        List<Task> tasks = new()
+        private async void Entry()
         {
-            SpawnPlayerRegister(),
-            SpawnPhysicEventHandler(),
-            SpawnEventDispatcher()
-        };
-
-        await Task.WhenAll(tasks);
+            await spawner.Spawn();
+        }
     }
-
-    private async Task SpawnPlayerRegister()
-        => await runner.SpawnAsync(PlayerRegistry, Vector3.zero, Quaternion.identity, runner.LocalPlayer);
-
-    private async Task SpawnPhysicEventHandler()
-        => await runner.SpawnAsync(physicsEventHandler, Vector3.zero, Quaternion.identity, runner.LocalPlayer);
-
-    private async Task SpawnEventDispatcher()
-        => await runner.SpawnAsync(eventDispatcher, Vector3.zero, Quaternion.identity, runner.LocalPlayer);
-
-
-    private async Task SpawnPlayer()
-    {
-        Transform spawnPos = this.spawnPos[runner.IsSharedModeMasterClient ? 0 : 1];
-
-        await runner.SpawnAsync(
-            playerPrefab,
-            spawnPos.position,
-            spawnPos.rotation,
-            runner.LocalPlayer);
-    }
-
 }
