@@ -131,5 +131,11 @@ namespace Unit
             playerCam.SetCam();
         }
         #endregion
+
+        public override void Despawned(NetworkRunner runner, bool hasState)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
     }
 }

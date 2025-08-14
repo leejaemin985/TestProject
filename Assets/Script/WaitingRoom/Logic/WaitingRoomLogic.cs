@@ -26,7 +26,7 @@ public class WaitingRoomLogic : MonoBehaviour
 
     private void Start()
     {
-        runner.Spawn(
+        runner.SpawnAsync(
             waitingRoomUserHandlePrefab,
             Vector3.zero,
             Quaternion.identity,

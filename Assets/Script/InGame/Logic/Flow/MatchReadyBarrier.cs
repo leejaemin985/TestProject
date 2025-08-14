@@ -90,6 +90,25 @@ namespace InGame.Logic
 
             phase = MatchPhase.Playing;
         }
+
+        public override void FixedUpdateNetwork()
+        {
+            if (phase != MatchPhase.Playing) return;
+
+            bool userExit = GameNetworkManager.Instance.connectedUsers.Count < 2;
+            bool finishBattle = false;
+            foreach (var user in PlayerRegistry.Instance.RegistedUsers.Values)
+            {
+                if (user.GetHp() <= 0) finishBattle = true;
+            }
+
+            if (userExit || finishBattle)
+            {
+                Debug.Log("Finish Battle");
+
+                Runner.LoadScene(SceneRef.FromIndex(SceneType.SceneType.WaitingRoom.id), UnityEngine.SceneManagement.LoadSceneMode.Single);
+            }
+        }
     }
 
 }

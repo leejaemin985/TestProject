@@ -17,7 +17,7 @@ MonoBehaviour:
     clip: {fileID: 7400000, guid: a58e30832143e334fa2c2fdfcf35b878, type: 2}
     motionName: _LightAttack_0
     motionDuration: 0.6
-    damage: 3
+    damage: 200
     weight: 1
     attackType: 0
     attackTimings:
