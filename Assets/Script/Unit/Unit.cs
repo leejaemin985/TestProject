@@ -14,7 +14,10 @@ namespace Unit
         protected virtual void Initialize()
         {
             status.Initialize(MaxHP);
-            status.hpEventListener = OnHpEvent;
+            status.hpEventListener = (current, max)=>
+            {
+                if (HasStateAuthority) RPC_OnHpEvent(current, max);
+            };
         }
 
         public float GetHp() => status.hp;
@@ -23,6 +26,12 @@ namespace Unit
         {
             if (damage < 0) return;
             status.hp = Mathf.Clamp(status.hp - damage, 0, MaxHP);
+        }
+
+        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        private void RPC_OnHpEvent(float currentHp, float maxHp)
+        {
+            OnHpEvent(currentHp, maxHp);
         }
 
         protected virtual void OnHpEvent(float currentHp, float maxHp) { }

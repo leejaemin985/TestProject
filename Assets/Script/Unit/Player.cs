@@ -31,6 +31,8 @@ namespace Unit
 
         private IEnumerator CamSettingHandle = default;
 
+        private Action<float, float> hpEventListener { get; set; }
+        
         public override void Spawned()
         {
             PlayerRegistry.Instance.RegisterPlayer(Object.StateAuthority, this);
@@ -99,9 +101,15 @@ namespace Unit
             }
         }
 
+        public void AddHpEventListener(Action<float, float> eventListener)
+        {
+            hpEventListener -= eventListener;
+            hpEventListener += eventListener;
+        }
+
         protected override void OnHpEvent(float currentHp, float maxHp)
         {
-
+            hpEventListener?.Invoke(currentHp, maxHp);
         }
 
         #region Cam

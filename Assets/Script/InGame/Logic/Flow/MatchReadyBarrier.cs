@@ -76,7 +76,6 @@ namespace InGame.Logic
             if (!GameNetworkManager.Instance.connectedUsers.Contains(userRef)) return;
 
             userReadyFlags[userRef] = readyFlags;
-            Debug.Log($"Test - {userRef} - {readyFlags}");
 
             CheckUsersReadyFlag();
         }
@@ -89,7 +88,7 @@ namespace InGame.Logic
                     return;
             }
 
-            Debug.Log($"Test - Start Battle");
+            phase = MatchPhase.Playing;
         }
     }
 
