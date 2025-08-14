@@ -12,24 +12,27 @@ namespace InGame.Logic
         [Header("Prefab")]
         [SerializeField] private Player playerPrefab;
 
-        [Header("Setting")]
-        [SerializeField] private Transform[] spawnPos = default;
+        [Header("SpawnPoints")]
+        [SerializeField] private Transform[] spawnPoints = default;
 
+        private bool spawned = false;
 
-        public async Task Spawn()
+        public async Task SpawnAsync()
             => await SpawnPlayer();
 
 
         private async Task SpawnPlayer()
         {
-            Transform spawnPos = this.spawnPos[runner.IsSharedModeMasterClient ? 0 : 1];
+            if (spawned) return;
+            spawned = true;
+
+            Transform spawnPos = this.spawnPoints[runner.IsSharedModeMasterClient ? 0 : 1];
 
             await runner.SpawnAsync(
                 prefab: playerPrefab,
                 position: spawnPos.position,
                 rotation: spawnPos.rotation,
-                inputAuthority: runner.LocalPlayer,
-                onCompleted: (result) => UnityEngine.Debug.Log("Spawned Done"));
+                inputAuthority: runner.LocalPlayer);
 
         }
 

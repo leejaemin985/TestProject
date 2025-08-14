@@ -64,8 +64,18 @@ namespace Physics
 
         public void RegisterPhysicsObject(PhysicsObject physicsObject)
         {
+            if (physicsObject == null) return;
+
             if (physicsMap[physicsObject.physicsType].Contains(physicsObject) == true) return;
             physicsMap[physicsObject.physicsType].Add(physicsObject);
+        }
+
+        public void UnregisterPhysicsObject(PhysicsObject physicsObject)
+        {
+            if (physicsObject == null) return;
+
+            if (physicsMap[physicsObject.physicsType].Contains(physicsObject) == false) return;
+            physicsMap[physicsObject.physicsType].Remove(physicsObject);
         }
 
         private void LateUpdate()
@@ -85,7 +95,15 @@ namespace Physics
 
                 foreach (HitBox hitableOb in hittablePhysics)
                 {
-                    if (hitableOb.Active == false) continue;
+                    try
+                    {
+                        if (hitableOb.Active == false) continue;
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError($"Test - {e}");
+                    }
+
 
                     if (attackableOb.ignoreUid.Contains(hitableOb.uid) == true) continue;
                     if (attackableOb.checkedHitableUIDs.Contains(hitableOb.uid) == true) continue;

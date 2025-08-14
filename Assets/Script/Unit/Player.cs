@@ -33,16 +33,6 @@ namespace Unit
 
         public override void Spawned()
         {
-            if (initSequencerHandle != null) StopCoroutine(initSequencerHandle);
-            StartCoroutine(initSequencerHandle = InitSequencer());
-        }
-
-        private IEnumerator initSequencerHandle = null;
-
-        private IEnumerator InitSequencer()
-        {
-            yield return new WaitUntil(() => GameManager.Instance.isInitialized);
-
             PlayerRegistry.Instance.RegisterPlayer(Object.StateAuthority, this);
             Initialize();
         }

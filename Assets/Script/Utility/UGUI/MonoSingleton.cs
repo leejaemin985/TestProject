@@ -42,5 +42,10 @@ public class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
         }
 
         DontDestroyOnLoad(instance);
+
+        Initialize();
     }
+
+    protected virtual void Initialize() { }
+
 }

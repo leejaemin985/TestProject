@@ -104,7 +104,6 @@ public class WaitingRoomLogic : MonoBehaviour
             uiHandle.SetOpponentSlotActive(false);
         }
 
-
         CheckStartGame();
     }
 

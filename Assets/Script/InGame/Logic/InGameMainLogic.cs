@@ -23,9 +23,9 @@ namespace InGame.Logic
 
         private async void Entry()
         {
-            await spawner.Spawn();
+            await spawner.SpawnAsync();
 
-            await playerSpawner.Spawn();
+            await playerSpawner.SpawnAsync();
         }
     }
 }

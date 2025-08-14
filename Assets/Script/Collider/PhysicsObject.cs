@@ -387,6 +387,11 @@ namespace Physics
             PhysicsGenerator.Instance.RegisterPhysicsObject(this);
         }
 
+        private void OnDestroy()
+        {
+            PhysicsGenerator.Instance.UnregisterPhysicsObject(this);
+        }
+
         private IPhysicsShape CreateShape(PhysicsShapeType physicsShapeType)
         {
             return physicsShapeType switch

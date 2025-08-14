@@ -34,8 +34,8 @@ public class GameNetworkManager : MonoSingleton<GameNetworkManager>
     private Action<PlayerRef> onEventJoinedUserListener { get; set; }
     private Action<PlayerRef> onEventLeftUserListener { get; set; }
 
-
     private Action<ShutdownReason> onEventShutDownListener { get; set; }
+
 
     public async Task Initialize()
     {
