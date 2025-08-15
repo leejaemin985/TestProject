@@ -11,12 +11,12 @@ public class WaitingRoomUserHandle : NetworkBehaviour
     [Networked] public bool readyState { get; private set; }
     private Action onChangedReadyStateListener;
 
-    public override void Spawned()
+    public async override void Spawned()
     {
-        InitSequencer();
+        await InitSequencer();
     }
 
-    private async void InitSequencer()
+    private async Task InitSequencer()
     {
         const int FIND_DELAY_MS = 100;
 

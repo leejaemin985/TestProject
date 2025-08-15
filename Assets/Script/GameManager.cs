@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class GameManager : MonoSingleton<GameManager>
 {
-    protected override void Initialize()
+    protected override void OnAwake()
     {
         Application.targetFrameRate = 60;
     }

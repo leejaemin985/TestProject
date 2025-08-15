@@ -26,7 +26,8 @@ namespace InGame.Logic
             if (spawned) return;
             spawned = true;
 
-            Transform spawnPos = this.spawnPoints[runner.IsSharedModeMasterClient ? 0 : 1];
+            //Transform spawnPos = this.spawnPoints[runner.IsSharedModeMasterClient ? 0 : 1];
+            Transform spawnPos = transform;
 
             await runner.SpawnAsync(
                 prefab: playerPrefab,

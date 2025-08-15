@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class SafeAreaHelper : MonoSingleton<SafeAreaHelper>
 {
-    private void Awake()
+    protected override void OnAwake()
     {
         SceneManager.sceneLoaded -= RefreshSceneForSafeArea;
         SceneManager.sceneLoaded += RefreshSceneForSafeArea;

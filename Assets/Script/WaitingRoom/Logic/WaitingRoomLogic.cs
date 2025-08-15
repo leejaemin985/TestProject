@@ -107,6 +107,16 @@ public class WaitingRoomLogic : MonoBehaviour
         CheckStartGame();
     }
 
+
+    private bool test = false;
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            test = true;
+        }
+    }
+
     private void CheckStartGame()
     {
         if (!runner.IsSharedModeMasterClient) return;
@@ -118,6 +128,13 @@ public class WaitingRoomLogic : MonoBehaviour
             userHandle.readyState && opponentHandle.readyState;
 
         bool isMaster = runner.IsSharedModeMasterClient;
+
+        if (test)
+        {
+            runner.LoadScene(SceneRef.FromIndex(SceneType.SceneType.InGame.id), LoadSceneMode.Single);
+            runner.SessionInfo.IsOpen = false;
+            return;
+        }
 
         if (fullSession && allUsersReady && isMaster)
         {
