@@ -10,11 +10,6 @@ namespace Unit
 {
     public class Player : Unit
     {
-        #region Base Set
-        protected override float MaxHP => 100;
-
-        #endregion
-
         [Header("Player")]
         [SerializeField] private PlayerFSM fsm;
         [SerializeField] private SimpleKCC cc;
@@ -30,8 +25,6 @@ namespace Unit
         private HitBox playerHitBox;
 
         private IEnumerator CamSettingHandle = default;
-
-        private Action<float, float> hpEventListener { get; set; }
         
         public override void Spawned()
         {
@@ -62,8 +55,6 @@ namespace Unit
         public void RequestOnHitState(HitInfo hitInfo)
         {
             fsm?.OnHitState(hitInfo);
-
-            if (HasStateAuthority) OnDamaged(hitInfo.damaged);
         }
 
         public void RequestOnParringState(HitInfo hitInfo)
@@ -99,17 +90,6 @@ namespace Unit
                     EventDispatcher.Instance.RequestOnParringUser(Object.InputAuthority, hitInfo);
                     break;
             }
-        }
-
-        public void AddHpEventListener(Action<float, float> eventListener)
-        {
-            hpEventListener -= eventListener;
-            hpEventListener += eventListener;
-        }
-
-        protected override void OnHpEvent(float currentHp, float maxHp)
-        {
-            hpEventListener?.Invoke(currentHp, maxHp);
         }
 
         #region Cam

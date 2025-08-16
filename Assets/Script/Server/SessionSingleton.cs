@@ -1,23 +1,37 @@
+using System;
 using Fusion;
 
 public abstract class SessionSingleton<T> : NetworkBehaviour where T : SessionSingleton<T>
 {
-    protected static bool HasInstance => instance != null;
+    public static bool isInitialized { get; protected set; }
 
     private static T instance;
 
     public static T Instance => instance;
 
+    private static Action spawnedCallback;
 
-    public virtual bool Initialized { get; protected set; }
+    public static void AddSpawnedCallback(Action spawnedListener)
+    {
+        spawnedCallback -= spawnedListener;
+        spawnedCallback += spawnedListener;
+
+        if (isInitialized) spawnedCallback?.Invoke();
+    }
 
     public override void Spawned()
     {
         instance = (T)this;
         Initialize();
 
-        Initialized = HasInstance;
+        spawnedCallback?.Invoke();
     }
 
-    protected virtual void Initialize() { }
+    protected virtual void Initialize() => isInitialized = true;
+
+    public override void Despawned(NetworkRunner runner, bool hasState)
+    {
+        instance = null;
+        spawnedCallback = null;
+    }
 }

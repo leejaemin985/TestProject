@@ -1,5 +1,5 @@
-using UnityEngine;
 using Fusion;
+using UnityEngine;
 
 public class UserInputReceiver : RunnerCallbacksBase
 {

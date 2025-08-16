@@ -1,7 +1,7 @@
-using Fusion;
 using System;
-using System.Collections;
+using Fusion;
 using System.Collections.Generic;
+
 using UnityEngine;
 
 public class SessionListReceiver : RunnerCallbacksBase

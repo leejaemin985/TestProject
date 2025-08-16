@@ -15,14 +15,17 @@ namespace InGame.Logic.Flow
         private IClientPhase currentPhase;
 
         private Action<PhaseReport> phaseReportAction;
+        private Action<PlayerRef> phaseDoneAction;
 
-        public async void Initialize(Action<PhaseReport> phaseReportAction)
+        public async void Initialize(Action<PhaseReport> phaseReportAction, Action<PlayerRef> phaseDoneListener)
         {
             this.phaseReportAction = phaseReportAction;
-            
+            this.phaseDoneAction = phaseDoneListener;
+
             phaseMap = new();
-            foreach (IClientPhase phase in clientPhaseList)
+            foreach (ClientPhaseBase phase in clientPhaseList)
             {
+                phase.Initialize(UserPhaseDone);
                 phaseMap.Add(phase.phaseType, phase);
             }
 
@@ -32,14 +35,20 @@ namespace InGame.Logic.Flow
         private async Task SetPhase(FlowPhase phaseType)
         {
             await (currentPhase?.OnExit() ?? Task.CompletedTask);
-            currentPhase = phaseMap[phaseType];
-            await (currentPhase?.OnEnter() ?? Task.CompletedTask);
 
+            currentPhase = phaseMap[phaseType];
             phaseReportAction?.Invoke(new()
             {
-                userRef=runner.LocalPlayer,
+                userRef = runner.LocalPlayer,
                 phase = phaseType
             });
+
+            await (currentPhase?.OnEnter() ?? Task.CompletedTask);
+        }
+
+        private void UserPhaseDone()
+        {
+            phaseDoneAction?.Invoke(runner.LocalPlayer);
         }
 
         public async void ApplyPhase(PhaseDirective directiveInfo)

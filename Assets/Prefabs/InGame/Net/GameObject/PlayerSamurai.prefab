@@ -1,50 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &51163849377887943
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6087237602938026477}
-  - component: {fileID: 2826067954183031681}
-  m_Layer: 0
-  m_Name: UnitStatus
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6087237602938026477
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 51163849377887943}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 801863879966483579}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2826067954183031681
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 51163849377887943}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63e71db41af1ca04285cc33dd77fadd0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _hp: 0
 --- !u!1 &171980731874671851
 GameObject:
   m_ObjectHideFlags: 0
@@ -378,7 +333,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 6087237602938026477}
   - {fileID: 5041635105310701242}
   - {fileID: 9006812574426722428}
   - {fileID: 2269930843781202846}
@@ -406,7 +360,6 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 3435419628776310831}
   - {fileID: 978523184684886547}
-  - {fileID: 2826067954183031681}
   - {fileID: 5601132550606417841}
   - {fileID: 9115356238606166732}
   - {fileID: 3379317830629106981}
@@ -493,7 +446,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 472ac01af7f205e449da3900f52ca88f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  status: {fileID: 2826067954183031681}
   fsm: {fileID: 5601132550606417841}
   cc: {fileID: 3435419628776310831}
   playerCam: {fileID: 3164321590918008309}

@@ -17,7 +17,9 @@ namespace InGame.Logic
         {
             if (!runner.IsSharedModeMasterClient) return;
 
-            await runner.SpawnAsync(phaseSequencerPrefab);
+            await runner.SpawnAsync(
+                prefab: phaseSequencerPrefab,
+                inputAuthority: runner.LocalPlayer);
         }
 
 

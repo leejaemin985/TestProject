@@ -7,6 +7,8 @@ namespace Unit
     [CreateAssetMenu(fileName = "AttackMotionInfos",menuName = "Scriptable/AttackMotions")]
     public class PlayerAttackMotionInfoScriptable : ScriptableObject
     {
+        public const string KEY_BASE = "Scriptable/AttackMotionInfos_";
+
         public List<AttackMotionInfo> attackMotionInfos;
     }
 

@@ -1,13 +1,28 @@
+using Fusion;
+
 namespace InGame.Logic.Flow
 {
     public enum FlowPhase
     {
         Init = 0,
-        Spawn = 1,
-        Warmup = 2,
-        InBattle = 3,
-        Result = 4,
-        End = 5,
+        SessionSpawn = 1,
+        UnitInfoSpawn = 2,
+        UnitSpawn = 3,
+        Bind = 4,
+        WarmUp = 5,
+        InBattle = 6
+    }
+
+    public struct PhaseReport : INetworkStruct
+    {
+        public PlayerRef userRef;
+        public FlowPhase phase;
+    }
+
+    public struct PhaseDirective : INetworkStruct
+    {
+        public FlowPhase phase;
+
     }
 
 }

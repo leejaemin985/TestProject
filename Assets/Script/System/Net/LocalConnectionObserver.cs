@@ -1,8 +1,5 @@
-using Fusion;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Fusion;
 
 public class LocalConnectionObserver : RunnerCallbacksBase
 {

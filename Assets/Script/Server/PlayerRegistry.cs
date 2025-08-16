@@ -6,15 +6,17 @@ using Fusion;
 
 public class PlayerRegistry : SessionSingleton<PlayerRegistry>
 {
-    private Dictionary<PlayerRef, Player> registedUsers = new();
-    private List<Player> registerTest = new();
+    private Dictionary<PlayerRef, Player> registedUsers;
 
     public IReadOnlyDictionary<PlayerRef,Player> RegistedUsers => registedUsers;
 
     protected override void Initialize()
     {
-        base.Initialize();
+        registedUsers = new();
+
+        isInitialized = true;
     }
+
 
     public void RegisterPlayer(PlayerRef userRef, Player player)
     {

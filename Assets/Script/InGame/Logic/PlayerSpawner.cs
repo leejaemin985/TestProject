@@ -15,16 +15,13 @@ namespace InGame.Logic
         [Header("SpawnPoints")]
         [SerializeField] private Transform[] spawnPoints = default;
 
-        private bool spawned = false;
-
         public async Task SpawnAsync()
-            => await SpawnPlayer();
-
+        {
+            await SpawnPlayer();
+        }
 
         private async Task SpawnPlayer()
         {
-            if (spawned) return;
-            spawned = true;
 
             //Transform spawnPos = this.spawnPoints[runner.IsSharedModeMasterClient ? 0 : 1];
             Transform spawnPos = transform;

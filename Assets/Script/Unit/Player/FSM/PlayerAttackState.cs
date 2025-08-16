@@ -46,8 +46,7 @@ namespace Unit
             attackMotionInfos = new();
             foreach (var type in Enum.GetValues(typeof(AttackMotionType)))
             {
-                const string KEY_BASE = "Scriptable/AttackMotionInfos_";
-                var scriptableMotionInfos = Resources.Load<PlayerAttackMotionInfoScriptable>($"{KEY_BASE}{type}").attackMotionInfos;
+                var scriptableMotionInfos = Resources.Load<PlayerAttackMotionInfoScriptable>($"{PlayerAttackMotionInfoScriptable.KEY_BASE}{type}").attackMotionInfos;
 
                 attackMotionInfos.Add((AttackMotionType)type, scriptableMotionInfos);
             }
