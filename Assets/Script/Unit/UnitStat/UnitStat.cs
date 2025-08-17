@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using Fusion;
+using System.Linq;
 
 namespace Unit
 {
@@ -24,10 +25,22 @@ namespace Unit
 
     public abstract class UnitStat : NetworkBehaviour
     {
+        private static Dictionary<PlayerRef, UnitStat> spawnedUnitStatMap = new();
+
+        public static Dictionary<PlayerRef, Action<UnitStat>> spawnedCallbacks = new();
+
+        public static void AddSpawnedCallback(PlayerRef userRef, Action<UnitStat> spawnedListener)
+        {
+            spawnedCallbacks[userRef] -= spawnedListener;
+            spawnedCallbacks[userRef] += spawnedListener;
+
+            if (spawnedUnitStatMap.ContainsKey(userRef))
+                spawnedCallbacks[userRef]?.Invoke(spawnedUnitStatMap[userRef]);
+        }
+
+        public PlayerRef userRef { get; private set; }
+
         protected abstract UnitType unitType { get; }
-
-        private UnitStatInitData initData;
-
 
         [Networked, OnChangedRender(nameof(OnChangedMaxHp))] public float maxHp { get; private set; }
         [Networked, OnChangedRender(nameof(OnChangedHp))] public float hp { get; protected set; }
@@ -38,19 +51,29 @@ namespace Unit
 
         private Dictionary<StatId, Action> onStatEventListeners;
 
-        public void SetInitData(UnitStatInitData initData)
-        {
-            this.initData = initData;
-        }
+        private UnitStatScriptable initDataList;
 
-        public async override void Spawned()
+        public void SetUserRef(PlayerRef userRef) => this.userRef = userRef;
+
+        public override void Spawned()
         {
             if (HasStateAuthority)
             {
-                InitStat(this.initData);
+                if (initDataList == null)
+                    initDataList = Resources.Load<UnitStatScriptable>(UnitStatScriptable.RESOURCES_PATH);
+
+                InitStat(initDataList.unitStatusInitDatas.FirstOrDefault(data => data.unitType == this.unitType));
             }
 
             SetEventListener();
+
+            spawnedUnitStatMap[userRef] = this;
+            if (spawnedCallbacks.ContainsKey(userRef)) spawnedCallbacks[userRef]?.Invoke(this);
+        }
+
+        public override void Despawned(NetworkRunner runner, bool hasState)
+        {
+            spawnedUnitStatMap.Remove(userRef);
         }
 
         private void InitStat(UnitStatInitData initData)
@@ -62,7 +85,7 @@ namespace Unit
             posture = maxPosture;
         }
 
-        public void SetEventListener()
+        private void SetEventListener()
         {
             onStatEventListeners = new();
             foreach (var enumType in Enum.GetValues(typeof(StatId)))
@@ -70,6 +93,12 @@ namespace Unit
                 onStatEventListeners.Add((StatId)enumType, null);
             }
         }
+
+        private void OnChangedMaxHp() => onStatEventListeners[StatId.maxHp]?.Invoke();
+        private void OnChangedHp() => onStatEventListeners[StatId.hp]?.Invoke();
+        private void OnChangedMaxPosture() => onStatEventListeners[StatId.maxPosture]?.Invoke();
+        private void OnChangedPosture() => onStatEventListeners[StatId.posture]?.Invoke();
+
 
         public void AddStatEventListener(StatId statId, Action eventListener)
         {
@@ -79,13 +108,6 @@ namespace Unit
             onStatEventListeners[statId] += eventListener;
         }
 
-        private void OnChangedMaxHp() => onStatEventListeners[StatId.maxHp]?.Invoke();
-
-        private void OnChangedHp() => onStatEventListeners[StatId.hp]?.Invoke();
-
-        private void OnChangedMaxPosture() => onStatEventListeners[StatId.maxPosture]?.Invoke();
-
-        private void OnChangedPosture() => onStatEventListeners[StatId.posture]?.Invoke();
 
     }
 }

@@ -31,6 +31,8 @@ public abstract class SessionSingleton<T> : NetworkBehaviour where T : SessionSi
 
     public override void Despawned(NetworkRunner runner, bool hasState)
     {
+        isInitialized = false;
+
         instance = null;
         spawnedCallback = null;
     }

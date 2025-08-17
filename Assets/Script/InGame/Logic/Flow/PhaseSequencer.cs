@@ -50,7 +50,7 @@ namespace InGame.Logic.Flow
             phaseState.phase = reportInfo.phase;
             phaseState.isDone = false;
 
-            Debug.Log($"Test - Report {reportInfo.userRef} - {phaseState.phase}");
+            Debug.Log($"Test - Report {reportInfo.userRef} - {reportInfo.phase}");
         }
 
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -81,16 +81,14 @@ namespace InGame.Logic.Flow
 
             foreach (var phaseState in userPhases.Values)
             {
-                if (phaseState.isDone == false) return;
+                if (currentPhase != phaseState.phase || phaseState.isDone == false) return;
             }
 
-            if (currentPhase == FlowPhase.Init)
+            //if (currentPhase < FlowPhase.Count)
+            if (currentPhase < FlowPhase.UnitSpawn)
             {
-                currentPhase = FlowPhase.SessionSpawn;
-                RPC_ApplyPhase(new()
-                {
-                    phase = currentPhase
-                });
+                currentPhase = currentPhase + 1;
+                RPC_ApplyPhase(new() { phase = currentPhase });
             }
         }
     }
