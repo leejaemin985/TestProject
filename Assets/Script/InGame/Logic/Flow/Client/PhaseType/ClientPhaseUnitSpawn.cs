@@ -17,16 +17,17 @@ namespace InGame.Logic.Flow
         [SerializeField] private UnitStat unitStatPrefab;
         [SerializeField] private Player playerPrefab;
 
+        private Player spawnedPlayer;
 
         public override async Task OnEnter()
         {
-            if (runner.IsSharedModeMasterClient) SpawnUnitStat();
+            if (runner.IsSharedModeMasterClient) await SpawnUnitStat();
             
-
+            await SpawnPlayer();
         }
 
 
-        #region MasterClient
+        #region StateAuthority
 
         private async Task SpawnUnitStat()
         {
@@ -38,9 +39,9 @@ namespace InGame.Logic.Flow
                 {
                     statSpawnTasks.Add(SpawnUnitStat(userRef));
                 }
+
                 await Task.WhenAll(statSpawnTasks);
             }
-
         }
 
         private async Task SpawnUnitStat(PlayerRef userRef)
@@ -52,8 +53,29 @@ namespace InGame.Logic.Flow
                     obj.GetComponent<UnitStat>().SetUserRef(userRef);
                 });
 
+        private async Task SpawnPlayer()
+        {
+            var spawnedOb = await runner.SpawnAsync(
+                prefab: playerPrefab,
+                position: Vector3.up,
+                rotation: Quaternion.identity,
+                inputAuthority: runner.LocalPlayer);
+
+            spawnedPlayer = spawnedOb.GetComponent<Player>();
+        }
+
         #endregion
 
+
+        #region NonStateAuthority
+
+        private void BindUnitStat(UnitStat stat)
+        {
+            spawnedPlayer.BindUnitStat(stat);
+        }
+
+
+        #endregion
 
     }
 }

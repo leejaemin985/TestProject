@@ -11,7 +11,11 @@ namespace InGame.Logic.Flow
 
         public abstract FlowPhase phaseType { get; }
 
-        public virtual async Task OnEnter() { phaseDoneListener?.Invoke(); }
+        public virtual Task OnEnter()
+        {
+            phaseDoneListener?.Invoke();
+            return Task.CompletedTask;
+        }
 
         public virtual Task OnExit() => Task.CompletedTask;
 

@@ -30,6 +30,8 @@ namespace Unit
         {
             PlayerRegistry.Instance.RegisterPlayer(Object.StateAuthority, this);
             Initialize();
+
+            UnitStat.AddSpawnedCallback(Object.StateAuthority, BindUnitStat);
         }
 
         protected override void Initialize()
@@ -55,11 +57,15 @@ namespace Unit
         public void RequestOnHitState(HitInfo hitInfo)
         {
             fsm?.OnHitState(hitInfo);
+
+            OnDamaged(hitInfo.damaged);
         }
 
         public void RequestOnParringState(HitInfo hitInfo)
         {
             fsm?.OnParringState(hitInfo);
+
+            OnDecreasePosture(hitInfo.damaged);
         }
 
         private HitBox InitPlayerHitBox()

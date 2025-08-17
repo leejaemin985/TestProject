@@ -12,8 +12,8 @@ namespace InGame.Logic
         [Header("Prefab")]
         [SerializeField] private Player playerPrefab;
 
-        [Header("SpawnPoints")]
-        [SerializeField] private Transform[] spawnPoints = default;
+        //[Header("SpawnPoints")]
+        //[SerializeField] private Transform[] spawnPoints = default;
 
         public async Task SpawnAsync()
         {

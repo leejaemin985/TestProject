@@ -31,10 +31,14 @@ namespace Unit
 
         public static void AddSpawnedCallback(PlayerRef userRef, Action<UnitStat> spawnedListener)
         {
-            spawnedCallbacks[userRef] -= spawnedListener;
-            spawnedCallbacks[userRef] += spawnedListener;
+            spawnedCallbacks.TryGetValue(userRef, out var callBack);
 
-            if (spawnedUnitStatMap.ContainsKey(userRef))
+            callBack -= spawnedListener;
+            callBack += spawnedListener;
+
+            spawnedCallbacks[userRef] = callBack;
+
+            if (spawnedUnitStatMap[userRef] != null)
                 spawnedCallbacks[userRef]?.Invoke(spawnedUnitStatMap[userRef]);
         }
 
@@ -85,6 +89,8 @@ namespace Unit
             posture = maxPosture;
         }
 
+        #region Changed Value EventListener 
+
         private void SetEventListener()
         {
             onStatEventListeners = new();
@@ -108,6 +114,21 @@ namespace Unit
             onStatEventListeners[statId] += eventListener;
         }
 
+        #endregion
+
+        public void SetHp(float value)
+        {
+            if (HasStateAuthority == false) return;
+
+            hp = Mathf.Clamp(value, 0, maxHp);
+        }
+
+        public void SetPosture(float value)
+        {
+            if (HasStateAuthority == false) return;
+
+            posture = Mathf.Clamp(value, 0, maxPosture);
+        }
 
     }
 }
