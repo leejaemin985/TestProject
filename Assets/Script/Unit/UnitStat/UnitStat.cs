@@ -38,7 +38,7 @@ namespace Unit
 
             spawnedCallbacks[userRef] = callBack;
 
-            if (spawnedUnitStatMap[userRef] != null)
+            if (spawnedUnitStatMap.ContainsKey(userRef) && spawnedUnitStatMap[userRef] != null)
                 spawnedCallbacks[userRef]?.Invoke(spawnedUnitStatMap[userRef]);
         }
 

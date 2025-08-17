@@ -20,23 +20,20 @@ namespace InGame.UI
         [Header("Opponent")]
         [SerializeField] private Image opponentHpBar;
 
-        public async Task Initialize()
+        public void Initialize(Player user, Player opponent)
         {
-            const int WAIT_USER_DEALY_MS = 100;
-            while (PlayerRegistry.Instance != null || PlayerRegistry.Instance.RegistedUsers.Count != GameNetworkManager.Instance.connectedUsers.Count)
-            {
-                await Task.Delay(WAIT_USER_DEALY_MS);
-            }
-
-            
-
+            user.AddHpEventListener(SetUserHpBar);
+            opponent.AddHpEventListener(SetOpponentHpBar);
         }
 
-        private void SetHpBar()
+        private void SetUserHpBar(float currentHp, float maxHp)
         {
-            
+            userHpBar.fillAmount = currentHp / maxHp;
         }
 
-
+        private void SetOpponentHpBar(float currentHp, float maxHp)
+        {
+            opponentHpBar.fillAmount = currentHp / maxHp;
+        }
     }
 }
