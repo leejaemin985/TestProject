@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using Fusion;
 using Fusion.Addons.SimpleKCC;
-
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -88,7 +88,12 @@ namespace Unit
             if (inDefense && attackIsForward) return HitResultType.Parry;
 
 
-            return HitResultType.Hit;
+            bool isDied = player.GetHp() - hitInfo.damaged <= 0;
+
+            if (isDied)
+                return HitResultType.Died;
+            else
+                return HitResultType.Hit;
         }
 
         public void OnHitState(HitInfo hitInfo)
@@ -102,6 +107,12 @@ namespace Unit
         {
             SetState<PlayerParringState, HitInfo>(hitInfo, false);
             OnStateLock(PlayerParringState.parringMotionDuration);
+        }
+
+        public void OnDiedState(HitInfo hitInfo)
+        {
+            SetState<PlayerDiedState>(false);
+            OnStateLock(5);
         }
 
         private void OnStateLock(float sec)

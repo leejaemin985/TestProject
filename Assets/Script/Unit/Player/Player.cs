@@ -69,6 +69,13 @@ namespace Unit
             OnDecreasePosture(hitInfo.damaged);
         }
 
+        public void RequestOnDiedState(HitInfo hitInfo)
+        {
+            fsm?.OnDiedState(hitInfo);
+
+            OnDamaged(hitInfo.damaged);
+        }
+
         private HitBox InitPlayerHitBox()
         {
             var ret = new GameObject("PlayerHitBox").AddComponent<HitBox>();
@@ -95,6 +102,10 @@ namespace Unit
 
                 case PlayerFSM.HitResultType.Parry:
                     EventDispatcher.Instance.RequestOnParringUser(Object.InputAuthority, hitInfo);
+                    break;
+
+                default: // died
+                    EventDispatcher.Instance.RequestOnDiedUser(Object.InputAuthority, hitInfo);
                     break;
             }
         }

@@ -17,7 +17,8 @@ namespace Unit
             Defense,
             Parring,
             Land,
-            Hit
+            Hit,
+            Died
         }
 
         protected Player player;

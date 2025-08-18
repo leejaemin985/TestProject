@@ -17,7 +17,7 @@ MonoBehaviour:
     clip: {fileID: 7400000, guid: a58e30832143e334fa2c2fdfcf35b878, type: 2}
     motionName: _LightAttack_0
     motionDuration: 0.6
-    damage: 3
+    damage: 10
     weight: 1
     attackType: 0
     attackTimings:
@@ -27,7 +27,7 @@ MonoBehaviour:
     clip: {fileID: 7400000, guid: 8f2e64a1e30240f4aa18b1322d9ac783, type: 2}
     motionName: _LightAttack_1
     motionDuration: 0.6
-    damage: 3
+    damage: 10
     weight: 1
     attackType: 0
     attackTimings:
@@ -37,7 +37,7 @@ MonoBehaviour:
     clip: {fileID: 7400000, guid: 86a8aa2004603d542a167f8c96562bfc, type: 2}
     motionName: _LightAttack_2
     motionDuration: 0.7
-    damage: 3
+    damage: 10
     weight: 1
     attackType: 0
     attackTimings:
@@ -47,7 +47,7 @@ MonoBehaviour:
     clip: {fileID: 7400000, guid: 4e9bea3a5b518984ca2e0ad071993fd0, type: 2}
     motionName: _LightAttack_3
     motionDuration: 0.7
-    damage: 3
+    damage: 10
     weight: 1
     attackType: 0
     attackTimings:
@@ -57,7 +57,7 @@ MonoBehaviour:
     clip: {fileID: 7400000, guid: b8e22e79770fb6147bd8bfe7b2018305, type: 2}
     motionName: _LightAttack_4
     motionDuration: 0.8
-    damage: 3
+    damage: 10
     weight: 1
     attackType: 0
     attackTimings:
@@ -67,7 +67,7 @@ MonoBehaviour:
     clip: {fileID: 7400000, guid: 6f624e36d26cbeb4f9e4e99937040679, type: 2}
     motionName: _LightAttack_5
     motionDuration: 0.9
-    damage: 3
+    damage: 10
     weight: 1
     attackType: 0
     attackTimings:

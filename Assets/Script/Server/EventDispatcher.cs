@@ -8,35 +8,48 @@ using UnityEngine;
 
 public class EventDispatcher : SessionSingleton<EventDispatcher>
 {
-    public void RequestOnHitUser(PlayerRef user, HitInfo hitInfo)
+    public void RequestOnHitUser(PlayerRef userRef, HitInfo hitInfo)
     {
         if (!HasStateAuthority) return;
-        RPC_RequestOnHitUser(user, hitInfo);
+        RPC_RequestOnHitUser(userRef, hitInfo);
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_RequestOnHitUser(PlayerRef user, HitInfo hitInfo)
+    private void RPC_RequestOnHitUser(PlayerRef userRef, HitInfo hitInfo)
     {
-        var targetUser = PlayerRegistry.Instance.RegistedUsers.FirstOrDefault(x => x.Key.Equals(user)).Value;
-        if (targetUser != null)
+        if (PlayerRegistry.Instance.RegistedUsers.TryGetValue(userRef, out Player user))
         {
-            targetUser.RequestOnHitState(hitInfo);
+            user.RequestOnHitState(hitInfo);
         }
     }
 
-    public void RequestOnParringUser(PlayerRef user, HitInfo hitInfo)
+    public void RequestOnParringUser(PlayerRef userRef, HitInfo hitInfo)
     {
         if (!HasStateAuthority) return;
-        RPC_RequestOnParringUser(user, hitInfo);
+        RPC_RequestOnParringUser(userRef, hitInfo);
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_RequestOnParringUser(PlayerRef user, HitInfo hitInfo)
+    private void RPC_RequestOnParringUser(PlayerRef userRef, HitInfo hitInfo)
     {
-        var targetUser = PlayerRegistry.Instance.RegistedUsers.FirstOrDefault(x => x.Key.Equals(user)).Value;
-        if (targetUser != null)
+        if (PlayerRegistry.Instance.RegistedUsers.TryGetValue(userRef, out Player user))
         {
-            targetUser.RequestOnParringState(hitInfo);
+            user.RequestOnParringState(hitInfo);
+        }
+    }
+
+    public void RequestOnDiedUser(PlayerRef userRef, HitInfo hitInfo)
+    {
+        if (!HasStateAuthority) return;
+        RPC_RequestOnDiedUser(userRef, hitInfo);
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_RequestOnDiedUser(PlayerRef userRef, HitInfo hitInfo)
+    {
+        if (PlayerRegistry.Instance.RegistedUsers.TryGetValue(userRef, out Player user))
+        {
+            user.RequestOnDiedState(hitInfo);
         }
     }
 }

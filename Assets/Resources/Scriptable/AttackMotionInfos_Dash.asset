@@ -17,7 +17,7 @@ MonoBehaviour:
     clip: {fileID: 7400000, guid: 4b686076e12a4ca429e60af108192cbf, type: 2}
     motionName: _DashAttack
     motionDuration: 1
-    damage: 5
+    damage: 15
     weight: 1
     attackType: 0
     attackTimings:

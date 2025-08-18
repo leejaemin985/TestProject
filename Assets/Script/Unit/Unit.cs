@@ -25,6 +25,10 @@ namespace Unit
 
         }
 
+        public float GetHp() => unitStat.hp;
+
+        public float GetPosture() =>unitStat.posture;
+
         protected void OnDamaged(float damage)
         {
             if (damage < 0) return;
