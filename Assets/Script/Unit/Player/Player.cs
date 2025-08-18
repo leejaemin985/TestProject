@@ -1,10 +1,11 @@
-using Fusion;
-using Fusion.Addons.SimpleKCC;
 using System;
 using System.Collections;
+
 using UnityEngine;
+
 using Physics;
-using InGame.Logic;
+using Fusion;
+using Fusion.Addons.SimpleKCC;
 
 namespace Unit
 {

@@ -16,8 +16,8 @@ namespace Unit
         {
             this.unitStat = unitStat;
 
-            this.unitStat.AddStatEventListener(StatId.hp, OnChangedHp);
-            this.unitStat.AddStatEventListener(StatId.hp, OnChangedPosture);
+            //this.unitStat.AddStatEventListener(StatId.hp, OnChangedHp);
+            //this.unitStat.AddStatEventListener(StatId.hp, OnChangedPosture);
         }
 
         protected virtual void Initialize()
@@ -43,6 +43,7 @@ namespace Unit
             unitStat.SetPosture(unitStat.posture + value);
         }
 
+        /*
         public void AddHpEventListener(Action<float, float> hpEventListener)
         {
             onChangedHpEvent -= hpEventListener;
@@ -56,7 +57,7 @@ namespace Unit
         }
 
         private void OnChangedHp() => onChangedHpEvent?.Invoke(unitStat.hp, unitStat.maxHp);
-
         private void OnChangedPosture() => onChangedPostureEvent?.Invoke(unitStat.posture, unitStat.maxPosture);
+        */
     }
 }

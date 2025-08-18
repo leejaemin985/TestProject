@@ -20,10 +20,20 @@ namespace InGame.UI
         [Header("Opponent")]
         [SerializeField] private Image opponentHpBar;
 
-        public void Initialize(Player user, Player opponent)
+        private void Start()
         {
-            user.AddHpEventListener(SetUserHpBar);
-            opponent.AddHpEventListener(SetOpponentHpBar);
+            foreach (var userRef in GameNetworkManager.Instance.connectedUsers)
+            {
+                UnitStat.AddSpawnedCallback(userRef, BindStatUI);
+            }
+        }
+
+        private void BindStatUI(UnitStat unitStat)
+        {
+            if (unitStat.userRef == runner.LocalPlayer)
+                unitStat.AddStatEventListener(StatId.hp, () => SetUserHpBar(unitStat.hp, unitStat.maxHp));
+            else
+                unitStat.AddStatEventListener(StatId.hp, () => SetOpponentHpBar(unitStat.hp, unitStat.maxHp));
         }
 
         private void SetUserHpBar(float currentHp, float maxHp)
