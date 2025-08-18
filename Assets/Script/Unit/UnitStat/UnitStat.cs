@@ -43,7 +43,8 @@ namespace Unit
             spawnedCallbacks[userRef] += spawnedListener;
         }
 
-        public PlayerRef userRef { get; private set; }
+        private PlayerRef presetUserRef;
+        [Networked] public PlayerRef userRef { get; private set; }
 
         protected abstract UnitType unitType { get; }
 
@@ -58,7 +59,7 @@ namespace Unit
 
         private UnitStatScriptable initDataList;
 
-        public void SetUserRef(PlayerRef userRef) => this.userRef = userRef;
+        public void SetUserRef(PlayerRef userRef) => this.presetUserRef = userRef;
 
         public override void Spawned()
         {
@@ -68,6 +69,7 @@ namespace Unit
                     initDataList = Resources.Load<UnitStatScriptable>(UnitStatScriptable.RESOURCES_PATH);
 
                 InitStat(initDataList.unitStatusInitDatas.FirstOrDefault(data => data.unitType == this.unitType));
+                userRef = presetUserRef;
             }
 
             SetEventListener();
