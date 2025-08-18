@@ -13,10 +13,14 @@ public abstract class SessionSingleton<T> : NetworkBehaviour where T : SessionSi
 
     public static void AddSpawnedCallback(Action spawnedListener)
     {
+        if (isInitialized)
+        {
+            spawnedListener?.Invoke();
+            return;
+        }
+
         spawnedCallback -= spawnedListener;
         spawnedCallback += spawnedListener;
-
-        if (isInitialized) spawnedCallback?.Invoke();
     }
 
     public override void Spawned()
@@ -25,6 +29,7 @@ public abstract class SessionSingleton<T> : NetworkBehaviour where T : SessionSi
         Initialize();
 
         spawnedCallback?.Invoke();
+        spawnedCallback = null;
     }
 
     protected virtual void Initialize() => isInitialized = true;

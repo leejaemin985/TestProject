@@ -69,11 +69,6 @@ namespace InGame.Logic.Flow
 
         #region NonStateAuthority
 
-        private void BindUnitStat(UnitStat stat)
-        {
-            spawnedPlayer.BindUnitStat(stat);
-        }
-
 
         #endregion
 

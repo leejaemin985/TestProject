@@ -6,7 +6,8 @@ namespace Unit
 {
     public abstract class Unit : NetworkBehaviour
     {
-        private UnitStat unitStat;
+        [Header("Unit")]
+        [SerializeField] private UnitStat unitStat;
 
         private Action<float, float> onChangedHpEvent;
         private Action<float, float> onChangedPostureEvent;

@@ -1,11 +1,10 @@
 using System;
-using System.Threading.Tasks;
+using System.Linq;
 using System.Collections.Generic;
 
 using UnityEngine;
 
 using Fusion;
-using System.Linq;
 
 namespace Unit
 {
@@ -31,15 +30,17 @@ namespace Unit
 
         public static void AddSpawnedCallback(PlayerRef userRef, Action<UnitStat> spawnedListener)
         {
-            spawnedCallbacks.TryGetValue(userRef, out var callBack);
+            if (spawnedListener == null) return;
 
-            callBack -= spawnedListener;
-            callBack += spawnedListener;
+            if (spawnedUnitStatMap.TryGetValue(userRef, out var unitStat))
+            {
+                spawnedListener?.Invoke(unitStat);
+                return;
+            }
 
-            spawnedCallbacks[userRef] = callBack;
-
-            if (spawnedUnitStatMap.ContainsKey(userRef) && spawnedUnitStatMap[userRef] != null)
-                spawnedCallbacks[userRef]?.Invoke(spawnedUnitStatMap[userRef]);
+            if (spawnedCallbacks.ContainsKey(userRef) == false) spawnedCallbacks.Add(userRef, null);
+            spawnedCallbacks[userRef] -= spawnedListener;
+            spawnedCallbacks[userRef] += spawnedListener;
         }
 
         public PlayerRef userRef { get; private set; }
@@ -72,12 +73,17 @@ namespace Unit
             SetEventListener();
 
             spawnedUnitStatMap[userRef] = this;
-            if (spawnedCallbacks.ContainsKey(userRef)) spawnedCallbacks[userRef]?.Invoke(this);
+            if (spawnedCallbacks.TryGetValue(userRef, out var callback))
+            {
+                callback?.Invoke(this);
+                spawnedCallbacks.Remove(userRef);
+            }
         }
 
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
             spawnedUnitStatMap.Remove(userRef);
+            spawnedCallbacks.Remove(userRef);
         }
 
         private void InitStat(UnitStatInitData initData)
