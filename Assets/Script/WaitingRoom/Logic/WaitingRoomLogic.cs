@@ -7,33 +7,41 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Utility.Spinner;
+using WaitingRoom.Net;
 
 public class WaitingRoomLogic : MonoBehaviour
 {
-    [SerializeField] private WaitingRoomUI uiHandle = default;
-
-    [SerializeField] private GameObject userModel = default;
-    [SerializeField] private GameObject opponentModel = default;
-
-    [SerializeField] private WaitingRoomUserHandle waitingRoomUserHandlePrefab = default;
-
-    private Dictionary<PlayerRef, WaitingRoomUserHandle> userHandles = new();
-
     private NetworkRunner runner => GameNetworkManager.Instance.runner;
 
-    private WaitingRoomUserHandle userHandle = null;
-    private WaitingRoomUserHandle opponentHandle = null;
+    [SerializeField] private WaitingRoomUI uiHandle;
+
+    [SerializeField] private GameObject userModel;
+    [SerializeField] private GameObject opponentModel;
+
+    [SerializeField] private WaitingRoomUserStateHandler stateHandlerPrefab;
+
+    private WaitingRoomUserStateHandler userStateHandler;
+    private WaitingRoomUserStateHandler opponentStateHandler;
 
     private void Start()
     {
-        runner.SpawnAsync(
-            waitingRoomUserHandlePrefab,
-            Vector3.zero,
-            Quaternion.identity,
-            runner.LocalPlayer);
+        Debug.Log($"Waiting Room - Entry");
+
+        if (runner.IsSharedModeMasterClient)
+        {
+            runner.SessionInfo.IsOpen = true;
+        }
+
+        foreach (var user in GameNetworkManager.Instance.connectedUsers)
+        {
+            WaitingRoomUserStateHandler.AddSpawnedListener(user, RegistUserStateHandler);
+        }
+
+        SpawnStateHandler();
+        SetNetListener();
 
         UIInitialize();
-        RefreshStatus();
+        RefreshWaitingRoom();
     }
 
     private void UIInitialize()
@@ -42,14 +50,49 @@ public class WaitingRoomLogic : MonoBehaviour
         uiHandle.onClickedExitButtonListener = ExitSession;
     }
 
+    private async void SpawnStateHandler()
+    {
+        Debug.Log($"Waiting Room - Spawn StateHandler");
+        await runner.SpawnAsync(prefab: stateHandlerPrefab);
+    }
+
+    private void SetNetListener()
+    {
+        GameNetworkManager.Instance.AddJoinedUserEventListener(UserConnectingListener);
+        GameNetworkManager.Instance.AddLeftUserEventListener(UserDisconnectingListener);
+    }
+
+    private void UserConnectingListener(PlayerRef userRef)
+    {
+        Debug.Log($"Waiting Room - User Connect {userRef}");
+
+        WaitingRoomUserStateHandler.AddSpawnedListener(userRef, RegistUserStateHandler);
+        
+        RefreshWaitingRoom();
+    }
+
+    private void UserDisconnectingListener(PlayerRef userRef)
+    {
+        Debug.Log($"Waiting Room - User Disonnect {userRef}");
+
+        WaitingRoomUserStateHandler.RemoveSpanwedListener(userRef);
+        UnregistUser(userRef);
+
+        RefreshWaitingRoom();
+    }
+
     private void GameEntry()
     {
-        if (userHandle != null) userHandle.ChangedReadyState();
+        if (userStateHandler != null) userStateHandler.SetReadyState(!userStateHandler.readyState);
     }
 
     private async void ExitSession()
     {
         bool isExitRequest = true;
+
+        if (userStateHandler != null)
+            runner.Despawn(userStateHandler.Object);
+
         Spinner.Instance.OnSpinner(() => isExitRequest == false);
         await GameNetworkManager.Instance.runner.Shutdown();
         isExitRequest = false;
@@ -57,87 +100,76 @@ public class WaitingRoomLogic : MonoBehaviour
         SceneManager.LoadScene(SceneType.SceneType.Localinitialize.id, LoadSceneMode.Single);
     }
 
-    private void UpdateOpponentModelActive()
+    private void RegistUserStateHandler(WaitingRoomUserStateHandler userStateHandler)
     {
-        opponentModel.SetActive(opponentHandle != null);
-    }
-
-    private void RefreshStatus()
-    {
-        UpdateOpponentModelActive();
-        CheckUsersReadyState();
-    }
-
-    public void RegisterUserHandle(PlayerRef userRef, WaitingRoomUserHandle userHandle)
-    {
-        userHandles.Add(userRef, userHandle);
-        userHandle.SetChangedReadyStateListener(CheckUsersReadyState);
-
-        if (userRef == runner.LocalPlayer) this.userHandle = userHandle;
-        else opponentHandle = userHandle;
-
-        RefreshStatus();
-    }
-
-    public void UnregisterUserHandle(PlayerRef userRef, WaitingRoomUserHandle userHandle)
-    {
-        userHandles.Remove(userRef);
-
-        if (userRef == runner.LocalPlayer) this.userHandle = null;
-        else opponentHandle = null;
-
-        RefreshStatus();
-    }
-
-    private void CheckUsersReadyState()
-    {
-        if (userHandle != null)
-            uiHandle.SetGameEntryButton(userHandle.readyState);
-
-        if (opponentHandle != null)
+        if (userStateHandler == null)
         {
-            uiHandle.SetOpponentReadyCheck(opponentHandle.readyState);
-            uiHandle.SetOpponentSlotActive(true);
+            Debug.LogWarning("Waiting Room - Skipped Regist UserStateHandler");
+            return;
+        }
+        Debug.Log($"Waiting Room - Regist Spawned UserStateHandler(ref: {userStateHandler.Object.StateAuthority})");
+
+        var authority = userStateHandler.Object.StateAuthority;
+        if (authority == runner.LocalPlayer)
+        {
+            this.userStateHandler = userStateHandler;
+            userStateHandler.AddChangedReadyStateListener(SetUserReadyState);
         }
         else
         {
-            uiHandle.SetOpponentSlotActive(false);
+            this.opponentStateHandler = userStateHandler;
+            userStateHandler.AddChangedReadyStateListener(SetOpponentReadyState);
         }
 
+        RefreshWaitingRoom();
+    }
+
+    private void UnregistUser(PlayerRef userRef)
+    {
+        if (userRef == runner.LocalPlayer) return;
+        
+        opponentStateHandler = null;
+        uiHandle.SetOpponentReadyState(false);
+    }
+
+    private void SetUserReadyState(bool set)
+    {
+        Debug.Log($"Waiting Room - User Ready State: {set}");
+
+        uiHandle.SetGameEntryButton(set);
         CheckStartGame();
     }
 
-
-    private bool test = false;
-    private void Update()
+    private void SetOpponentReadyState(bool set)
     {
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            test = true;
-        }
+        Debug.Log($"Waiting Room - Opponent Ready State: {set}");
+
+        uiHandle.SetOpponentReadyState(set);
+        CheckStartGame();
+    }
+
+    private void RefreshWaitingRoom()
+    {
+        userModel.SetActive(userStateHandler != null);
+        opponentModel.SetActive(opponentStateHandler != null);
+
+        uiHandle.SetOpponentSlotActive(opponentStateHandler != null);
     }
 
     private void CheckStartGame()
     {
-        if (!runner.IsSharedModeMasterClient) return;
+        if (runner.IsSharedModeMasterClient == false) return;
 
-        bool fullSession = userHandle != null && opponentHandle != null;
+        bool fullSession = userStateHandler != null && opponentStateHandler != null;
 
         bool allUsersReady =
             fullSession &&
-            userHandle.readyState && opponentHandle.readyState;
+            userStateHandler.readyState && opponentStateHandler.readyState;
 
-        bool isMaster = runner.IsSharedModeMasterClient;
-
-        if (test)
+        if (fullSession && allUsersReady)
         {
-            runner.LoadScene(SceneRef.FromIndex(SceneType.SceneType.InGame.id), LoadSceneMode.Single);
-            runner.SessionInfo.IsOpen = false;
-            return;
-        }
+            Debug.Log($"Waiting Room - Start Game");
 
-        if (fullSession && allUsersReady && isMaster)
-        {
             runner.LoadScene(SceneRef.FromIndex(SceneType.SceneType.InGame.id), LoadSceneMode.Single);
             runner.SessionInfo.IsOpen = false;
         }

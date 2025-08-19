@@ -27,7 +27,7 @@ public class WaitingRoomUI : MonoBehaviour
         // Default Settings
         SetGameEntryButton(false);
         SetOpponentSlotActive(false);
-        SetOpponentReadyCheck(false);
+        SetOpponentReadyState(false);
     }
 
     public void OnClickedGameEntryButtonEvent() => onClickedGameEntryButtonListener?.Invoke();
@@ -43,7 +43,7 @@ public class WaitingRoomUI : MonoBehaviour
 
     public void SetOpponentSlotActive(bool set) => opponentStateRect.gameObject.SetActive(set);
 
-    public void SetOpponentReadyCheck(bool isReady)
+    public void SetOpponentReadyState(bool isReady)
     {
         opponentStateText.color = userReadyCheckColors[isReady ? 1 : 0];
         opponentReadyImage.color = userReadyCheckColors[isReady ? 1 : 0];

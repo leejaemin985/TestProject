@@ -131,6 +131,8 @@ namespace Unit
 
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
+            PlayerRegistry.Instance.UnRegisterPlayer(Object.StateAuthority);
+
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }

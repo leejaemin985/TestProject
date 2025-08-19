@@ -79,7 +79,8 @@ public class GameNetworkManager : MonoSingleton<GameNetworkManager>
 
     public void SetSessionUpdateEventListener(Action<List<SessionInfo>> eventListener)
     {
-        onEventSessionUpdateListener = eventListener;
+        onEventSessionUpdateListener -= eventListener;
+        onEventSessionUpdateListener += eventListener;
     }
 
     private void UpdateSessionList(List<SessionInfo> newList)
@@ -92,14 +93,16 @@ public class GameNetworkManager : MonoSingleton<GameNetworkManager>
 
     #region Session
 
-    public void SetJoinedUserEventListener(Action<PlayerRef> eventListener)
+    public void AddJoinedUserEventListener(Action<PlayerRef> eventListener)
     {
-        onEventJoinedUserListener = eventListener;
+        onEventJoinedUserListener -= eventListener;
+        onEventJoinedUserListener += eventListener;
     }
 
-    public void SetLeftUserEventListener(Action<PlayerRef> eventListener)
+    public void AddLeftUserEventListener(Action<PlayerRef> eventListener)
     {
-        onEventLeftUserListener = eventListener;
+        onEventLeftUserListener -= eventListener;
+        onEventLeftUserListener += eventListener;
     }
 
     private void OnJoinedUser(PlayerRef playerRef)

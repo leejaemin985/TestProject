@@ -23,4 +23,9 @@ public class PlayerRegistry : SessionSingleton<PlayerRegistry>
         if (registedUsers.ContainsKey(userRef)) return;
         registedUsers.Add(userRef, player);
     }
+
+    public void UnRegisterPlayer(PlayerRef userRef)
+    {
+        registedUsers.Remove(userRef);
+    }
 }
