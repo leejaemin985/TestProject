@@ -19,8 +19,6 @@ namespace InGame.Logic.Flow
 
         public virtual Task OnExit() => Task.CompletedTask;
 
-        public virtual void Tick(int tick, float dt) { }
-
         #region IClientPhase
 
         FlowPhase IClientPhase.phaseType => phaseType;
@@ -28,8 +26,6 @@ namespace InGame.Logic.Flow
         Task IClientPhase.OnEnter() => OnEnter();
 
         Task IClientPhase.OnExit() => OnExit();
-
-        void IClientPhase.Tick(int tick, float dt) => Tick(tick, dt);
 
         #endregion
 

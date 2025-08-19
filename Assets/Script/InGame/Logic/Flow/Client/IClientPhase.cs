@@ -10,7 +10,5 @@ namespace InGame.Logic.Flow
         public Task OnEnter();
 
         public Task OnExit();
-
-        public void Tick(int tick, float dt);
     }
 }

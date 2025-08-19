@@ -24,10 +24,12 @@ namespace InGame.Logic.Flow
             if (runner.IsSharedModeMasterClient) await SpawnUnitStat();
             
             await SpawnPlayer();
+
+            phaseDoneListener?.Invoke();
         }
 
 
-        #region StateAuthority
+        #region MasterClient
 
         private async Task SpawnUnitStat()
         {
@@ -53,6 +55,11 @@ namespace InGame.Logic.Flow
                     obj.GetComponent<UnitStat>().SetUserRef(userRef);
                 });
 
+        #endregion
+
+
+        #region NonMasterClient
+
         private async Task SpawnPlayer()
         {
             var spawnedOb = await runner.SpawnAsync(
@@ -63,12 +70,6 @@ namespace InGame.Logic.Flow
 
             spawnedPlayer = spawnedOb.GetComponent<Player>();
         }
-
-        #endregion
-
-
-        #region NonStateAuthority
-
 
         #endregion
 

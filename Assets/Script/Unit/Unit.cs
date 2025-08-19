@@ -15,15 +15,11 @@ namespace Unit
         public void BindUnitStat(UnitStat unitStat)
         {
             this.unitStat = unitStat;
-
-            //this.unitStat.AddStatEventListener(StatId.hp, OnChangedHp);
-            //this.unitStat.AddStatEventListener(StatId.hp, OnChangedPosture);
         }
 
-        protected virtual void Initialize()
-        {
+        protected virtual void Initialize() { }
 
-        }
+        public bool isAlive() => unitStat.hp > 0;
 
         public float GetHp() => unitStat.hp;
 
@@ -46,22 +42,5 @@ namespace Unit
             if (value < 0) return;
             unitStat.SetPosture(unitStat.posture + value);
         }
-
-        /*
-        public void AddHpEventListener(Action<float, float> hpEventListener)
-        {
-            onChangedHpEvent -= hpEventListener;
-            onChangedHpEvent += hpEventListener;
-        }
-
-        public void AddPostureEventListener(Action<float, float> postureEventListener)
-        {
-            onChangedPostureEvent -= postureEventListener;
-            onChangedPostureEvent += postureEventListener;
-        }
-
-        private void OnChangedHp() => onChangedHpEvent?.Invoke(unitStat.hp, unitStat.maxHp);
-        private void OnChangedPosture() => onChangedPostureEvent?.Invoke(unitStat.posture, unitStat.maxPosture);
-        */
     }
 }

@@ -1,8 +1,10 @@
-using UnityEngine;
-using Fusion;
-using System.Threading.Tasks;
 using System;
+using System.Threading.Tasks;
 using System.Collections.Generic;
+
+using UnityEngine;
+
+using Fusion;
 
 namespace InGame.Logic.Flow
 {

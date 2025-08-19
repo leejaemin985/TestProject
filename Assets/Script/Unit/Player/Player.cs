@@ -58,22 +58,21 @@ namespace Unit
         public void RequestOnHitState(HitInfo hitInfo)
         {
             fsm?.OnHitState(hitInfo);
-
             OnDamaged(hitInfo.damaged);
         }
 
         public void RequestOnParringState(HitInfo hitInfo)
         {
             fsm?.OnParringState(hitInfo);
-
             OnDecreasePosture(hitInfo.damaged);
         }
 
         public void RequestOnDiedState(HitInfo hitInfo)
         {
             fsm?.OnDiedState(hitInfo);
-
             OnDamaged(hitInfo.damaged);
+
+            playerHitBox.SetActive(false);
         }
 
         private HitBox InitPlayerHitBox()

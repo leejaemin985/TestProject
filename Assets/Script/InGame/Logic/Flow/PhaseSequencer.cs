@@ -84,11 +84,14 @@ namespace InGame.Logic.Flow
                 if (currentPhase != phaseState.phase || phaseState.isDone == false) return;
             }
 
-            //if (currentPhase < FlowPhase.Count)
-            if (currentPhase < FlowPhase.UnitSpawn)
+            if (currentPhase < FlowPhase.End)
             {
                 currentPhase = currentPhase + 1;
                 RPC_ApplyPhase(new() { phase = currentPhase });
+            }
+            else
+            {
+                Runner.LoadScene(SceneRef.FromIndex(SceneType.SceneType.WaitingRoom.id), UnityEngine.SceneManagement.LoadSceneMode.Single);
             }
         }
     }
