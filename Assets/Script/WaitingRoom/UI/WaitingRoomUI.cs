@@ -34,14 +34,18 @@ public class WaitingRoomUI : MonoBehaviour
 
     public void OnClickedExitButtonEvent() => onClickedExitButtonListener?.Invoke();
 
+
+    public void SetUserSlotActive(bool set) => gameEntryButton.gameObject.SetActive(set);
+
+    public void SetOpponentSlotActive(bool set) => opponentStateRect.gameObject.SetActive(set);
+
+
     public void SetGameEntryButton(bool isReady)
     {
         // 현재상태가 Ready -> Unready 색상, Text
         gameEntryButton.color = readyButtonColors[isReady ? 0 : 1];
         gameEntryButtonText.text = isReady ? "UnReady" : "Ready";
     }
-
-    public void SetOpponentSlotActive(bool set) => opponentStateRect.gameObject.SetActive(set);
 
     public void SetOpponentReadyState(bool isReady)
     {

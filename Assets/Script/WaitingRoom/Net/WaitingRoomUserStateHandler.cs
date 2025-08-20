@@ -9,47 +9,51 @@ namespace WaitingRoom.Net
         private static Dictionary<PlayerRef, WaitingRoomUserStateHandler> spawnedHandlers = new();
         private static Dictionary<PlayerRef, Action<WaitingRoomUserStateHandler>> spawnedCallbacks = new();
 
-        public static void AddSpawnedListener(PlayerRef userRef, Action<WaitingRoomUserStateHandler> spawnedListener)
+        public static void AddSpawnedCallback(PlayerRef userRef, Action<WaitingRoomUserStateHandler> callback)
         {
-            if (spawnedListener == null) return;
-
             if (spawnedHandlers.TryGetValue(userRef, out var handler))
             {
-                spawnedListener?.Invoke(handler);
+                callback?.Invoke(handler);
                 return;
             }
 
-            if (spawnedCallbacks.ContainsKey(userRef) == false) spawnedCallbacks.Add(userRef, null);
-            spawnedCallbacks[userRef] -= spawnedListener;
-            spawnedCallbacks[userRef] += spawnedListener;
+            if (spawnedCallbacks.ContainsKey(userRef) == false) 
+                spawnedCallbacks.Add(userRef, null);
+
+            spawnedCallbacks[userRef] -= callback;
+            spawnedCallbacks[userRef] += callback;
         }
 
-        public static void RemoveSpanwedListener(PlayerRef userRef)
+        public static void RemoveSpawnedCallback(PlayerRef userRef)
         {
-            spawnedCallbacks.Remove(userRef);
+            spawnedHandlers.Remove(userRef);
+        }
+
+        public static void ClearAll()
+        {
+            spawnedHandlers.Clear();
+            spawnedCallbacks.Clear();
         }
 
         [Networked, OnChangedRender(nameof(OnChangedReadyState))] public bool readyState { get; private set; }
 
         private Action<bool> onChangedReadyStateListener;
 
+
         public override void Spawned()
         {
-            PlayerRef authority = Object.StateAuthority;
+            spawnedHandlers[Object.StateAuthority] = this;
 
-            spawnedHandlers[authority] = this;
-            if (spawnedCallbacks.ContainsKey(authority) == true)
+            if (spawnedCallbacks.ContainsKey(Object.StateAuthority))
             {
-                spawnedCallbacks[authority]?.Invoke(this);
+                spawnedCallbacks[Object.StateAuthority]?.Invoke(this);
             }
         }
 
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
-            PlayerRef authority = Object.StateAuthority;
-
-            spawnedHandlers.Remove(authority);
-            spawnedCallbacks.Remove(authority);
+            spawnedHandlers.Remove(Object.StateAuthority);
+            spawnedCallbacks.Remove(Object.StateAuthority);
         }
 
         public void AddChangedReadyStateListener(Action<bool> onChangedReadyStateListener)
@@ -58,7 +62,10 @@ namespace WaitingRoom.Net
             this.onChangedReadyStateListener += onChangedReadyStateListener;
         }
 
-        private void OnChangedReadyState() => onChangedReadyStateListener?.Invoke(readyState);
+        private void OnChangedReadyState()
+        {
+            onChangedReadyStateListener?.Invoke(readyState);
+        }
 
         public void SetReadyState(bool set)
         {
