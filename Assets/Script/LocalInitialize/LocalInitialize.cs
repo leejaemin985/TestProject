@@ -14,7 +14,7 @@ namespace Localinitialize
         private async void Start()
         {
             Spinner.Instance.OnSpinner(() => GameNetworkManager.Instance.isInitialized);
-            await GameNetworkManager.Instance.Initialize();
+            await GameNetworkManager.Instance.Connect();
 
             SceneManager.LoadScene(SceneType.SceneType.Lobby.id, LoadSceneMode.Single);
         }

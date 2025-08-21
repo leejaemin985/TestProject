@@ -63,7 +63,7 @@ public class WaitingRoomLogic : MonoBehaviour
         bool isExitRequest = true;
 
         Spinner.Instance.OnSpinner(() => isExitRequest == false);
-        await GameNetworkManager.Instance.runner.Shutdown();
+        await GameNetworkManager.Instance.Connect();
         isExitRequest = false;
 
         SceneManager.LoadScene(SceneType.SceneType.Localinitialize.id, LoadSceneMode.Single);
@@ -89,11 +89,7 @@ public class WaitingRoomLogic : MonoBehaviour
 
     private void UnRegistStateHandler(PlayerRef userRef)
     {
-        if (userStateHandler && userStateHandler.Object.StateAuthority == userRef)
-            userStateHandler = null;
-
-        if (opponentStateHandler && opponentStateHandler.Object.StateAuthority == userRef)
-            opponentStateHandler = null;
+        opponentStateHandler = null;
 
         WaitingRoomUserStateHandler.RemoveSpawnedCallback(userRef, RegistStateHandler);
     }

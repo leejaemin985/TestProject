@@ -41,6 +41,14 @@ namespace Lobby
             if (joinResult.Ok == false)
             {
                 Debug.Log($"Lobby Logic - Failed Join Session (SessionName: {sessionName})");
+
+                bool isReconnecting = true;
+
+                Spinner.Instance.OnSpinner(() => isReconnecting == false);
+                await GameNetworkManager.Instance.Connect();
+                isReconnecting = false;
+
+                SceneManager.LoadScene(SceneType.SceneType.Lobby.id, LoadSceneMode.Single);
                 return;
             }
 

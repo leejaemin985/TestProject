@@ -35,20 +35,24 @@ public class GameNetworkManager : MonoSingleton<GameNetworkManager>
     private Action<PlayerRef> onEventLeftUserListener { get; set; }
 
     private Action<ShutdownReason> onEventShutDownListener { get; set; }
+    
 
-
-    public async Task Initialize()
+    public async Task Connect()
     {
-        if (runner == null)
+        Clear();
+
+        if (runner != null)
         {
-            runner = Instantiate(Resources.Load<NetworkRunner>(RUNNER_PATH));
-            DontDestroyOnLoad(runner);
+            await runner.Shutdown();
+            Destroy(runner);
         }
 
-        var connect = await runner.JoinSessionLobby(SessionLobby.ClientServer, null);
-        if (connect.Ok == false)
+        runner = Instantiate(Resources.Load<NetworkRunner>(RUNNER_PATH));
+        DontDestroyOnLoad(runner);
+
+        var joinLobby = await runner.JoinSessionLobby(SessionLobby.ClientServer, null);
+        if (joinLobby.Ok == false)
         {
-            // 예외처리
             return;
         }
 
