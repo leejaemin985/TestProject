@@ -5,14 +5,23 @@ namespace Utility.Spinner
 {
     public class SpinnerUI : MonoBehaviour
     {
-        [SerializeField] private Image spinnerImage = default;
-        [SerializeField] private Image blockingPanel = default;
+        [SerializeField] private Image spinnerImage;
+        [SerializeField] private Image blockingPanel;
+        [SerializeField] private Image backgroundLetterBox;
+        [SerializeField] private Image backgroundImage;
 
-        public void SetSpinner(bool set)
+        public void SetSpinner(bool set, bool loadingImage)
         {
             spinnerImage.gameObject.SetActive(set);
             blockingPanel.gameObject.SetActive(set);
+
+            backgroundLetterBox.gameObject.SetActive(loadingImage);
         }
+
+        //public void SetLoadingImage(Sprite sprite)
+        //{
+        //    backgroundImage.sprite = sprite;
+        //}
 
         public void AddRotSpinner(float addZRot)
         {

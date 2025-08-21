@@ -3,9 +3,8 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-using Fusion;
-
 using Utility.Spinner;
+using Utility.CommonPopup;
 
 namespace Localinitialize
 {
@@ -13,10 +12,38 @@ namespace Localinitialize
     {
         private async void Start()
         {
-            Spinner.Instance.OnSpinner(() => GameNetworkManager.Instance.isInitialized);
+            while (true)
+            {
+                await TryConnect();
+
+                if (GameNetworkManager.Instance.isInitialized) break;
+
+                await OnReconnectConfirmCommonPopup();
+            }
+            
+            SceneManager.LoadScene(SceneType.SceneType.Lobby.id, LoadSceneMode.Single);
+        }
+
+        private async Task TryConnect()
+        {
+            bool isTryConnecting = true;
+            Spinner.Instance.OnSpinner(() => isTryConnecting == false, true);
+            
             await GameNetworkManager.Instance.Connect();
 
-            SceneManager.LoadScene(SceneType.SceneType.Lobby.id, LoadSceneMode.Single);
+            isTryConnecting = false;
+        }
+
+        private async Task OnReconnectConfirmCommonPopup()
+        {
+            bool waitInput = true;
+
+            string title = "Connection Failed";
+            string content = "Would you like to try reconnecting to the lobby?";
+            string confirmText = "reconnect";
+
+            CommonPopup.Instance.OnConfirmCommonPopup(title, content, confirmText, () => waitInput = false);
+            while (waitInput) await Task.Yield();
         }
     }
 }
