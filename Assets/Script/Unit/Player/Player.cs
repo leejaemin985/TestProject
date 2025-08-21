@@ -72,7 +72,7 @@ namespace Unit
             fsm?.OnDiedState(hitInfo);
             OnDamaged(hitInfo.damaged);
 
-            playerHitBox.SetActive(false);
+            playerHitBox?.SetActive(false);
         }
 
         private HitBox InitPlayerHitBox()

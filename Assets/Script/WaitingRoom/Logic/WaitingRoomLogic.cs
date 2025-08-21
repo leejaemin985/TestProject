@@ -82,28 +82,23 @@ public class WaitingRoomLogic : MonoBehaviour
     private void RegistStateHandler(WaitingRoomUserStateHandler handler)
     {
         if (handler.Object.StateAuthority == runner.LocalPlayer)
-        {
             userStateHandler = handler;
-            userStateHandler.AddChangedReadyStateListener((set) => UpdateRoomState());
-        }
         else
-        {
             opponentStateHandler = handler;
-            opponentStateHandler.AddChangedReadyStateListener((set) => UpdateRoomState());
-        }
-
-        UpdateRoomState();
     }
 
     private void UnRegistStateHandler(PlayerRef userRef)
     {
-        WaitingRoomUserStateHandler.RemoveSpawnedCallback(userRef);
-        opponentStateHandler = null;
+        if (userStateHandler && userStateHandler.Object.StateAuthority == userRef)
+            userStateHandler = null;
 
-        UpdateRoomState();
+        if (opponentStateHandler && opponentStateHandler.Object.StateAuthority == userRef)
+            opponentStateHandler = null;
+
+        WaitingRoomUserStateHandler.RemoveSpawnedCallback(userRef, RegistStateHandler);
     }
 
-    private void UpdateRoomState()
+    private void FixedUpdate()
     {
         if (userStateHandler != null)
         {

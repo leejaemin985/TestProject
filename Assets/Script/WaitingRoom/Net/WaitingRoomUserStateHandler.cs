@@ -24,8 +24,21 @@ namespace WaitingRoom.Net
             spawnedCallbacks[userRef] += callback;
         }
 
-        public static void RemoveSpawnedCallback(PlayerRef userRef)
+        public static void RemoveSpawnedCallback(PlayerRef userRef, Action<WaitingRoomUserStateHandler> callback)
         {
+            if (callback == null) return;
+
+            if (spawnedCallbacks.TryGetValue(userRef, out var del))
+            {
+                del -= callback;
+                if (del == null) spawnedCallbacks.Remove(userRef);
+                else spawnedCallbacks[userRef] = del;
+            }
+            else
+            {
+                spawnedCallbacks.Remove(userRef);
+            }
+
             spawnedHandlers.Remove(userRef);
         }
 
@@ -35,10 +48,7 @@ namespace WaitingRoom.Net
             spawnedCallbacks.Clear();
         }
 
-        [Networked, OnChangedRender(nameof(OnChangedReadyState))] public bool readyState { get; private set; }
-
-        private Action<bool> onChangedReadyStateListener;
-
+        [Networked] public bool readyState { get; private set; }
 
         public override void Spawned()
         {
@@ -54,17 +64,6 @@ namespace WaitingRoom.Net
         {
             spawnedHandlers.Remove(Object.StateAuthority);
             spawnedCallbacks.Remove(Object.StateAuthority);
-        }
-
-        public void AddChangedReadyStateListener(Action<bool> onChangedReadyStateListener)
-        {
-            this.onChangedReadyStateListener -= onChangedReadyStateListener;
-            this.onChangedReadyStateListener += onChangedReadyStateListener;
-        }
-
-        private void OnChangedReadyState()
-        {
-            onChangedReadyStateListener?.Invoke(readyState);
         }
 
         public void SetReadyState(bool set)
