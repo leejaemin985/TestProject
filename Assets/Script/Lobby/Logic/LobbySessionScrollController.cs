@@ -4,6 +4,7 @@ using UnityEngine;
 using EnhancedUI.EnhancedScroller;
 using Fusion;
 using System;
+using System.Net;
 
 namespace Lobby
 {
@@ -28,13 +29,13 @@ namespace Lobby
             {
                 if (session.IsOpen) datas.Add(session);
             }
-            scroller.ReloadData();
+            scroller.ReloadData(scroller.NormalizedScrollPosition);
         }
 
         public EnhancedScrollerCellView GetCellView(EnhancedScroller scroller, int dataIndex, int cellIndex)
         {
             var cell = scroller.GetCellView(cellPrefab) as LobbySessionScrollCellView;
-            cell.Initialize(datas[dataIndex], onClickCellEvent);
+            cell.Initialize(datas[dataIndex], onClickCellEvent, dataIndex);
 
             return cell;
         }

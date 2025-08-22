@@ -1,16 +1,20 @@
 using System;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 using Fusion;
 
+using SceneType;
 using Utility.Spinner;
 
 namespace Lobby
 {
     public class LobbyLogic : MonoBehaviour
     {
+        private NetworkRunner runner => GameNetworkManager.Instance.runner;
+
         [SerializeField] private LobbyUI uiHandle = default;
         [SerializeField] private LobbySessionScrollController sessionScrollController = default;
 
@@ -19,47 +23,23 @@ namespace Lobby
         private void Start()
         {
             sessionScrollController.Initialize(TryJoinSession);
+
             sessionScrollController.UpdateSessionList(GameNetworkManager.Instance.sessionList);
-            GameNetworkManager.Instance.AddSessionUpdateEventListener((list) => sessionScrollController.UpdateSessionList(list));
+            GameNetworkManager.Instance.AddSessionUpdateEventListener(UpdateSessionList);
 
             UIInitialize();
         }
 
-        private async void EnterSession(string sessionName)
+        private void UpdateSessionList(List<SessionInfo> sessions)
         {
-            isEnteringSession = true;
-            Spinner.Instance.OnSpinner(() => isEnteringSession == false);
-
-            var joinResult = await GameNetworkManager.Instance.runner.StartGame(new()
-            {
-                GameMode = GameMode.Shared,
-                SessionName = sessionName,
-                PlayerCount = 2,
-            });
-
-            isEnteringSession = false;
-
-            if (joinResult.Ok == false)
-            {
-                //Debug.Log($"Lobby Logic - Failed Join Session (SessionName: {sessionName})");
-
-                //bool isReconnecting = true;
-
-                //Spinner.Instance.OnSpinner(() => isReconnecting == false);
-                //await GameNetworkManager.Instance.Connect();
-                //isReconnecting = false;
-
-                //SceneManager.LoadScene(SceneType.SceneType.Lobby.id, LoadSceneMode.Single);
-                return;
-            }
-
-            SceneManager.LoadScene(SceneType.SceneType.WaitingRoom.id, LoadSceneMode.Single);
+            sessionScrollController.UpdateSessionList(sessions);
         }
 
         private void UIInitialize()
         {
             SetUIListener();
         }
+
         private void SetUIListener()
         {
             uiHandle.onClickQuickStartListener = TryQuickStart;
@@ -69,10 +49,48 @@ namespace Lobby
             uiHandle.onClickMakeRoomPopupCancelListener = () => SetMakeRoomPopup(false);
         }
 
+
+        private async Task EnterSession(string sessionName)
+        {
+            try
+            {
+                isEnteringSession = true;
+                Spinner.Instance.OnSpinner(() => isEnteringSession == false);
+
+                //MasterClient가 아닐때 scene세팅이 무시됩니다.
+                NetworkSceneInfo sceneInfo = new();
+                sceneInfo.AddSceneRef(NetScene.WaitingRoom.sceneRef);
+
+                var joinResult = await runner.StartGame(new()
+                {
+                    GameMode = GameMode.Shared,
+                    SessionName = sessionName,
+                    PlayerCount = 2,
+                    Scene = sceneInfo
+                });
+
+                
+                if (joinResult.Ok == false)
+                {
+                    Debug.LogError($"{joinResult.ErrorMessage}");
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
+            finally
+            {
+                isEnteringSession = false;
+            }
+        }
+
         private string MakeNewSessionName(string customName)
         {
-            Guid sessionUid = Guid.NewGuid();
-            return $"{sessionUid}//{customName}";
+            string sessionUid = SessionMetaReader.GetNewSessionGuid();
+            
+            return $"{sessionUid}{customName}";
         }
 
         private void TryJoinSession(SessionInfo info)
@@ -106,6 +124,11 @@ namespace Lobby
         {
             uiHandle.SetSessionNameInputFieldText(string.Empty);
             uiHandle.SetMakeRoomPopup(set);
+        }
+
+        private void OnDestroy()
+        {
+            GameNetworkManager.Instance.RemoveSessionUpdateEventListener(UpdateSessionList);
         }
     }
 }

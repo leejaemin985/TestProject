@@ -1,7 +1,10 @@
 using System.Collections.Generic;
+
 using UnityEngine;
+
 using Fusion;
-using UnityEditor;
+
+using SceneType;
 
 namespace InGame.Logic.Flow
 {
@@ -91,7 +94,7 @@ namespace InGame.Logic.Flow
             }
             else
             {
-                Runner.LoadScene(SceneRef.FromIndex(SceneType.SceneType.WaitingRoom.id), UnityEngine.SceneManagement.LoadSceneMode.Single);
+                Runner.LoadScene(NetScene.WaitingRoom.sceneRef, UnityEngine.SceneManagement.LoadSceneMode.Single);
             }
         }
     }

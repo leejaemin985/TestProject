@@ -1,12 +1,9 @@
-using Fusion;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+
+using Fusion;
+
+using SceneType;
 using Utility.Spinner;
 using WaitingRoom.Net;
 
@@ -137,7 +134,7 @@ public class WaitingRoomLogic : MonoBehaviour
 
         if (fullUser && allReady)
         {
-            runner.LoadScene(SceneRef.FromIndex(SceneType.SceneType.InGame.id), LoadSceneMode.Single);
+            runner.LoadScene(NetScene.InGame.sceneRef, LoadSceneMode.Single);
             runner.SessionInfo.IsOpen = false;
         }
     }

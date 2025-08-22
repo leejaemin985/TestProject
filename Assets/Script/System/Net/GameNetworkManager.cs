@@ -78,9 +78,10 @@ public class GameNetworkManager : MonoSingleton<GameNetworkManager>
     
     public bool CanEnterSession(SessionInfo info)
     {
-        return 
+        return
             info.IsValid &&
             info.IsVisible &&
+            info.IsOpen &&
             info.PlayerCount < info.MaxPlayers;
     }
 
@@ -111,10 +112,20 @@ public class GameNetworkManager : MonoSingleton<GameNetworkManager>
         onEventJoinedUserListener += eventListener;
     }
 
+    public void RemoveJoinedUserEventListener(Action<PlayerRef> eventListener)
+    {
+        onEventJoinedUserListener -= eventListener;
+    }
+
     public void AddLeftUserEventListener(Action<PlayerRef> eventListener)
     {
         onEventLeftUserListener -= eventListener;
         onEventLeftUserListener += eventListener;
+    }
+
+    public void RemoveLeftUserEventListener(Action<PlayerRef> eventListener)
+    {
+        onEventLeftUserListener -= eventListener;
     }
 
     private void OnJoinedUser(PlayerRef playerRef)

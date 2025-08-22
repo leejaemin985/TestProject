@@ -21,19 +21,19 @@ namespace Lobby
         private SessionInfo sessionInfo = default;
         private Action<SessionInfo> onEventEntering = default;
 
-        public void Initialize(SessionInfo info, Action<SessionInfo> onEventEntering)
+        public void Initialize(SessionInfo info, Action<SessionInfo> onEventEntering, int roomIndex)
         {
             this.sessionInfo = info;
             this.onEventEntering = onEventEntering;
 
-            SetName(info);
+            SetName(info, roomIndex);
             SetPlayerCount(info);
         }
 
-        private void SetName(SessionInfo info)
+        private void SetName(SessionInfo info, int roomIndex)
         {
-            string[] parts = info.Name.Split("//"); //parts[0] => session Uid
-            sessionName.text = parts[1];
+            string withoutUid = info.Name.Substring(SessionMetaReader.SessionGuidLength);
+            sessionName.text = $"[{roomIndex}] {withoutUid}";
             sessionName.color = GameNetworkManager.Instance.CanEnterSession(info) ? validColor : invalidColor;
         }
 
