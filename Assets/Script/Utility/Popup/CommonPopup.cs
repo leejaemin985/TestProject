@@ -7,11 +7,51 @@ namespace Utility.CommonPopup
 {
     public class CommonPopup : MonoSingleton<CommonPopup>
     {
+        public readonly struct PopupPolicy
+        {
+            public enum PopupKind
+            {
+                Confirm,
+                YesNo
+            }
+
+            public readonly PopupKind Kind;
+
+            public readonly string Title;
+            public readonly string Description;
+
+            public readonly string MainButtonText;
+            public readonly string SubButtonText;
+
+            public readonly Action MainButtonEvent;
+            public readonly Action SubButtonEvent;
+
+            public PopupPolicy(
+                PopupKind popupKind,
+                string title,
+                string description,
+                string mainButtonText,
+                string subButtonText = null,
+                Action mainButtonEvent = null,
+                Action subButtonEvent = null)
+            {
+                this.Kind = popupKind;
+
+                this.Title = title;
+                this.Description = description;
+
+                this.MainButtonText = mainButtonText;
+                this.SubButtonText = subButtonText;
+
+                this.MainButtonEvent = mainButtonEvent;
+                this.SubButtonEvent = subButtonEvent;
+            }
+        }
+
         [SerializeField] private RectTransform rect;
 
         [SerializeField] private TMP_Text titleText;
         [SerializeField] private TMP_Text contentText;
-        [SerializeField] private Image mainButtonImage;
         [SerializeField] private Image subButtonImage;
 
         [SerializeField] private TMP_Text mainButtonText;
@@ -20,33 +60,24 @@ namespace Utility.CommonPopup
         private Action onClickedMainButtonListener;
         private Action onClickedSubButtonListener;
 
-
-        public void OnConfirmCommonPopup(string title, string content, string confirmText, Action confirmAction = null)
+        public void OnPopup(PopupPolicy popupPolicy)
         {
+            subButtonImage.gameObject.SetActive(popupPolicy.Kind == PopupPolicy.PopupKind.YesNo);
+
             rect.gameObject.SetActive(true);
-            mainButtonImage.gameObject.SetActive(true);
-            subButtonImage.gameObject.SetActive(false);
 
-            titleText.text = title;
-            contentText.text = content;
+            titleText.text = popupPolicy.Title;
+            contentText.text = popupPolicy.Description;
 
-            mainButtonText.text = confirmText;
-            onClickedMainButtonListener = confirmAction;
+            mainButtonText.text = popupPolicy.MainButtonText;
+            subButtonText.text = popupPolicy.SubButtonText;
+            onClickedMainButtonListener = popupPolicy.MainButtonEvent;
+            onClickedSubButtonListener = popupPolicy.SubButtonEvent;
         }
 
-        public void OnYesNoCommonPopup(string title, string content, string yesText, string noText, Action yesAction = null, Action noAction = null)
+        public void OffPopup()
         {
-            rect.gameObject.SetActive(true);
-            mainButtonImage.gameObject.SetActive(true);
-            subButtonImage.gameObject.SetActive(true);
-
-            titleText.text = title;
-            contentText.text = content;
-
-            mainButtonText.text = yesText;
-            subButtonText.text = noText;
-            onClickedMainButtonListener = yesAction;
-            onClickedSubButtonListener = noAction;
+            rect.gameObject.SetActive(false);
         }
 
         public void OnClickedMainButtonEvent()

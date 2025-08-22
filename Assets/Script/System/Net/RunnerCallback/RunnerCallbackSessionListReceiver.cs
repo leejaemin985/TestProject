@@ -1,10 +1,9 @@
 using System;
-using Fusion;
 using System.Collections.Generic;
 
-using UnityEngine;
+using Fusion;
 
-public class SessionListReceiver : RunnerCallbacksBase
+public class RunnerCallbackSessionListReceiver : RunnerCallbacksBase
 {
     private Action<List<SessionInfo>> onChangedSeesionListListener;
 

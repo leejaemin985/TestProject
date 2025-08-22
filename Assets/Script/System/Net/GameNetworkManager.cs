@@ -1,10 +1,10 @@
-using Fusion;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
+
+using Fusion;
 
 public class GameNetworkManager : MonoSingleton<GameNetworkManager>
 {
@@ -35,9 +35,9 @@ public class GameNetworkManager : MonoSingleton<GameNetworkManager>
     private Action<PlayerRef> onEventLeftUserListener { get; set; }
 
     private Action<ShutdownReason> onEventShutDownListener { get; set; }
-    
 
-    public async Task Connect()
+
+    public async Task Connect(Action completeAction = null, Action failedAction = null)
     {
         Clear();
 
@@ -53,22 +53,25 @@ public class GameNetworkManager : MonoSingleton<GameNetworkManager>
         var joinLobby = await runner.JoinSessionLobby(SessionLobby.ClientServer, null);
         if (joinLobby.Ok == false)
         {
+            failedAction?.Invoke();
             return;
         }
 
         NetState = NetLifecycleState.LobbyConnected;
 
-        var sessionReceiver = runner.GetComponent<SessionListReceiver>();
+        var sessionReceiver = runner.GetComponent<RunnerCallbackSessionListReceiver>();
         sessionReceiver.SetSessionUpdateListener(UpdateSessionList);
 
-        var userConnectionObserver = runner.GetComponent<UserConnectionObserver>();
+        var userConnectionObserver = runner.GetComponent<RunnerCallbackUserConnectionObserver>();
         userConnectionObserver.SetJoinedUserEventListener(OnJoinedUser);
         userConnectionObserver.SetLeftUserEventListener(OnLeftUser);
 
-        var localShutDownObserver = runner.GetComponent<LocalConnectionObserver>();
+        var localShutDownObserver = runner.GetComponent<RunnerCallbackLocalConnectionObserver>();
         localShutDownObserver.SetShutDownEventListener(OnLocalShutDown);
 
         isInitialized = true;
+
+        completeAction?.Invoke();
     }
 
     #region Lobby
@@ -81,10 +84,15 @@ public class GameNetworkManager : MonoSingleton<GameNetworkManager>
             info.PlayerCount < info.MaxPlayers;
     }
 
-    public void SetSessionUpdateEventListener(Action<List<SessionInfo>> eventListener)
+    public void AddSessionUpdateEventListener(Action<List<SessionInfo>> eventListener)
     {
         onEventSessionUpdateListener -= eventListener;
         onEventSessionUpdateListener += eventListener;
+    }
+
+    public void RemoveSessionUpdateEventListener(Action<List<SessionInfo>> eventListener)
+    {
+        onEventSessionUpdateListener -= eventListener;
     }
 
     private void UpdateSessionList(List<SessionInfo> newList)
@@ -134,14 +142,21 @@ public class GameNetworkManager : MonoSingleton<GameNetworkManager>
 
     #region Connection
 
-    public void SetLocalShutDownEventListener(Action<ShutdownReason> eventListener)
+    public void AddLocalShutDownEventListener(Action<ShutdownReason> eventListener)
     {
-        onEventShutDownListener = eventListener;
+        onEventShutDownListener -= eventListener;
+        onEventShutDownListener += eventListener;
+    }
+
+    public void RemoveLocalShutDownEventListener(Action<ShutdownReason> eventListener)
+    {
+        onEventShutDownListener -= eventListener;
     }
 
     private void OnLocalShutDown(ShutdownReason reason)
     {
         Clear();
+        RunnerShutDownHandler.OnShutdownPopup(reason);
         NetState = NetLifecycleState.Disconnected;
 
         onEventShutDownListener?.Invoke(reason);

@@ -27,8 +27,8 @@ namespace Localinitialize
         private async Task TryConnect()
         {
             bool isTryConnecting = true;
+
             Spinner.Instance.OnSpinner(() => isTryConnecting == false, true);
-            
             await GameNetworkManager.Instance.Connect();
 
             isTryConnecting = false;
@@ -42,7 +42,10 @@ namespace Localinitialize
             string content = "Would you like to try reconnecting to the lobby?";
             string confirmText = "reconnect";
 
-            CommonPopup.Instance.OnConfirmCommonPopup(title, content, confirmText, () => waitInput = false);
+            CommonPopup.PopupPolicy popupPolicy = 
+                new(CommonPopup.PopupPolicy.PopupKind.Confirm, title, content, confirmText, null, () => waitInput = false);
+
+            CommonPopup.Instance.OnPopup(popupPolicy);
             while (waitInput) await Task.Yield();
         }
     }

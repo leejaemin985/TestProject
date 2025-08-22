@@ -1,7 +1,8 @@
 using System;
+
 using Fusion;
 
-public class LocalConnectionObserver : RunnerCallbacksBase
+public class RunnerCallbackLocalConnectionObserver : RunnerCallbacksBase
 {
     private Action<ShutdownReason> onEventShutDownListener;
 

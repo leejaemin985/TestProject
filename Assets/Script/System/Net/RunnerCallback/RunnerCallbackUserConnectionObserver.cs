@@ -2,7 +2,7 @@ using System;
 
 using Fusion;
 
-public class UserConnectionObserver : RunnerCallbacksBase
+public class RunnerCallbackUserConnectionObserver : RunnerCallbacksBase
 {
     private Action<PlayerRef> joinedUserListener;
 

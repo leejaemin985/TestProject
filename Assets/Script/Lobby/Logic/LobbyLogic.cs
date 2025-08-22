@@ -1,8 +1,9 @@
-using Fusion;
 using System;
-using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
+
+using Fusion;
 
 using Utility.Spinner;
 
@@ -19,7 +20,7 @@ namespace Lobby
         {
             sessionScrollController.Initialize(TryJoinSession);
             sessionScrollController.UpdateSessionList(GameNetworkManager.Instance.sessionList);
-            GameNetworkManager.Instance.SetSessionUpdateEventListener((list) => sessionScrollController.UpdateSessionList(list));
+            GameNetworkManager.Instance.AddSessionUpdateEventListener((list) => sessionScrollController.UpdateSessionList(list));
 
             UIInitialize();
         }
@@ -40,15 +41,15 @@ namespace Lobby
 
             if (joinResult.Ok == false)
             {
-                Debug.Log($"Lobby Logic - Failed Join Session (SessionName: {sessionName})");
+                //Debug.Log($"Lobby Logic - Failed Join Session (SessionName: {sessionName})");
 
-                bool isReconnecting = true;
+                //bool isReconnecting = true;
 
-                Spinner.Instance.OnSpinner(() => isReconnecting == false);
-                await GameNetworkManager.Instance.Connect();
-                isReconnecting = false;
+                //Spinner.Instance.OnSpinner(() => isReconnecting == false);
+                //await GameNetworkManager.Instance.Connect();
+                //isReconnecting = false;
 
-                SceneManager.LoadScene(SceneType.SceneType.Lobby.id, LoadSceneMode.Single);
+                //SceneManager.LoadScene(SceneType.SceneType.Lobby.id, LoadSceneMode.Single);
                 return;
             }
 
@@ -100,7 +101,6 @@ namespace Lobby
             string sessionName = MakeNewSessionName(uiHandle.GetSessionNameInputFieldText());
             EnterSession(sessionName);
         }
-
 
         private void SetMakeRoomPopup(bool set)
         {

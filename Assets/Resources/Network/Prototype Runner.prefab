@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8655277903011148551}
   - component: {fileID: 4760136153160853431}
   - component: {fileID: -6034545295954548476}
-  - component: {fileID: 8000782379234414971}
+  - component: {fileID: 2670432459016142171}
   - component: {fileID: 8333706706245760155}
   - component: {fileID: 4792823428879307718}
   - component: {fileID: 8389750529646163420}
@@ -134,7 +134,7 @@ MonoBehaviour:
   IsSceneTakeOverEnabled: 1
   LogSceneLoadErrors: 1
   DestroySpawnedPrefabsOnSceneUnload: 1
---- !u!114 &8000782379234414971
+--- !u!114 &2670432459016142171
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -143,7 +143,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4371852192162889020}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0b96b5ad292aa249a9724c13eb2aba2, type: 3}
+  m_Script: {fileID: 11500000, guid: 7de8395bb3273d04c9e52de399a6112f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &8333706706245760155
