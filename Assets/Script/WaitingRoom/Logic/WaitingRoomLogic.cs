@@ -39,6 +39,7 @@ public class WaitingRoomLogic : MonoBehaviour
 
     private void UIInitialize()
     {
+        uiHandle.SetSessionInfo(runner.SessionInfo);
         uiHandle.onClickedGameEntryButtonListener = GameEntry;
         uiHandle.onClickedExitButtonListener = ExitSession;
     }
@@ -63,7 +64,10 @@ public class WaitingRoomLogic : MonoBehaviour
         await GameNetworkManager.Instance.Connect();
         isExitRequest = false;
 
-        SceneManager.LoadScene(SceneType.SceneType.Localinitialize.id, LoadSceneMode.Single);
+        if (GameNetworkManager.Instance.isInitialized)
+        {
+            SceneManager.LoadScene(SceneType.SceneType.Lobby.id, LoadSceneMode.Single);
+        }
     }
 
     private void JoinedUserListener(PlayerRef userRef)

@@ -6,6 +6,9 @@ public static class SessionMetaReader
     // 포멧("N") 사용시 (-)하이픈 없는 guid값이 반환됩니다. 길이는 32 고정입니다.
     public static string GetNewSessionGuid() => Guid.NewGuid().ToString("N");
     public static int SessionGuidLength => 32;
+    public static string GetWithoutUidSessionName(string sessionName) 
+        => sessionName.Length > SessionGuidLength ?
+        sessionName.Substring(SessionGuidLength) : string.Empty;
 
     public static bool TryGetInt(SessionInfo info, SessionMetaKeys metaKey, out int value)
     {

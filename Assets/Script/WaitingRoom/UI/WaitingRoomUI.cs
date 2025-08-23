@@ -1,3 +1,4 @@
+using Fusion;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,15 +8,16 @@ using UnityEngine.UI;
 
 public class WaitingRoomUI : MonoBehaviour
 {
-    [SerializeField] private Image gameEntryButton = default;
-    [SerializeField] private TMP_Text gameEntryButtonText = default;
+    [SerializeField] private TMP_Text sessionName;
+    [SerializeField] private Image gameEntryButton;
+    [SerializeField] private TMP_Text gameEntryButtonText;
 
-    [SerializeField] private RectTransform opponentStateRect = default;
-    [SerializeField] private TMP_Text opponentStateText = default;
-    [SerializeField] private Image opponentReadyImage = default;
+    [SerializeField] private RectTransform opponentStateRect;
+    [SerializeField] private TMP_Text opponentStateText;
+    [SerializeField] private Image opponentReadyImage;
 
-    [SerializeField] private Color[] readyButtonColors = default;
-    [SerializeField] private Color[] userReadyCheckColors = default;
+    [SerializeField] private Color[] readyButtonColors;
+    [SerializeField] private Color[] userReadyCheckColors;
 
 
     public Action onClickedGameEntryButtonListener { get; set; }
@@ -28,6 +30,11 @@ public class WaitingRoomUI : MonoBehaviour
         SetGameEntryButton(false);
         SetOpponentSlotActive(false);
         SetOpponentReadyState(false);
+    }
+
+    public void SetSessionInfo(SessionInfo info)
+    {
+        sessionName.text = SessionMetaReader.GetWithoutUidSessionName(info.Name);
     }
 
     public void OnClickedGameEntryButtonEvent() => onClickedGameEntryButtonListener?.Invoke();

@@ -32,8 +32,7 @@ namespace Lobby
 
         private void SetName(SessionInfo info, int roomIndex)
         {
-            string withoutUid = info.Name.Substring(SessionMetaReader.SessionGuidLength);
-            sessionName.text = $"[{roomIndex}] {withoutUid}";
+            sessionName.text = $"[{roomIndex}] {SessionMetaReader.GetWithoutUidSessionName(info.Name)}";
             sessionName.color = GameNetworkManager.Instance.CanEnterSession(info) ? validColor : invalidColor;
         }
 
