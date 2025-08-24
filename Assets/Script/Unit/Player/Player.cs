@@ -49,7 +49,7 @@ namespace Unit
 
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
-            registedUsers.Remove(Object.StateAuthority);
+            UnregisterUser(Object.StateAuthority);
         }
 
         protected override void Initialize()

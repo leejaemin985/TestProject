@@ -22,11 +22,6 @@ namespace InGame.Logic
             pauseEventListener -= eventListener;
         }
 
-        //private void OnApplicationPause(bool pause)
-        //{
-
-        //}
-
         private void OnApplicationFocus(bool focus)
         {
             if (focus == false) TryTransferMasterAsync();
