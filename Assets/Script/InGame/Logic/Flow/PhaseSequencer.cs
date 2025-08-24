@@ -5,6 +5,7 @@ using UnityEngine;
 using Fusion;
 
 using SceneType;
+using System.Linq;
 
 namespace InGame.Logic.Flow
 {
@@ -38,6 +39,8 @@ namespace InGame.Logic.Flow
 
             localAgent = Instantiate(phaseAgentPrefab);
             localAgent.Initialize(RPC_ReportPhase, RPC_PhaseDone);
+
+            //InGamePauseObserver.AddPauseEventListener(TransferStateAuthority);
         }
 
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -97,5 +100,20 @@ namespace InGame.Logic.Flow
                 Runner.LoadScene(NetScene.WaitingRoom.sceneRef, UnityEngine.SceneManagement.LoadSceneMode.Single);
             }
         }
+
+        //private void TransferStateAuthority()
+        //{
+        //    if (HasStateAuthority == false) return;
+        //    RPC_TransferStateAuthority();
+        //}
+
+        //[Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        //private void RPC_TransferStateAuthority()
+        //{
+        //    if (HasStateAuthority) 
+        //        Object.ReleaseStateAuthority();
+        //    else 
+        //        Object.RequestStateAuthority();
+        //}
     }
 }

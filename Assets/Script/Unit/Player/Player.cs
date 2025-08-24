@@ -47,6 +47,11 @@ namespace Unit
             UnitStat.AddSpawnedCallback(Object.StateAuthority, BindUnitStat);
         }
 
+        public override void Despawned(NetworkRunner runner, bool hasState)
+        {
+            registedUsers.Remove(Object.StateAuthority);
+        }
+
         protected override void Initialize()
         {
             base.Initialize();
