@@ -53,7 +53,7 @@ namespace InGame.Logic.Flow
             phaseState.phase = reportInfo.phase;
             phaseState.isDone = false;
 
-            Debug.Log($"Test - Report {reportInfo.userRef} - {reportInfo.phase}");
+            Debug.Log($"PhaseSquencer - Report {reportInfo.userRef} - {reportInfo.phase}");
         }
 
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -67,7 +67,7 @@ namespace InGame.Logic.Flow
             var phaseState = userPhases[userRef];
             phaseState.isDone = true;
 
-            Debug.Log($"Test - Done {userRef} - {phaseState.phase}");
+            Debug.Log($"PhaseSequencer - Done {userRef} - {phaseState.phase}");
             CheckCanEnterNextPhase();
         }
 

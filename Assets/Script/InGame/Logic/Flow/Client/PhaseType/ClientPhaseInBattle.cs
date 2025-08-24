@@ -1,5 +1,6 @@
 using InGame.Logic.Flow;
 using System.Threading.Tasks;
+using Unit;
 
 namespace InGame.Logic
 {
@@ -13,7 +14,7 @@ namespace InGame.Logic
             bool allUserAlive = true;
             while (allUserAlive)
             {
-                foreach (var user in PlayerRegistry.Instance.RegistedUsers.Values)
+                foreach (var user in Player.RegistedUsers.Values)
                 {
                     if (user.isAlive() == false)
                     {

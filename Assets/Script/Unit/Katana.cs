@@ -14,18 +14,11 @@ public class Katana : MonoBehaviour
     private const float SLASH_PARTICLE_ACTIVE_VALUE = 200;
     private ParticleSystem slashParticle;
 
-    public void Initialize(bool isMasterClient, PhysicsObject userPhysicsObject)
+    public void Initialize(PhysicsObject userPhysicsObject)
     {
-        if (isMasterClient)
-        {
-            collisionBox.gameObject.SetActive(true);
-            collisionBox.Initialize(OnHit);
-            collisionBox.AddIgnoreUid(userPhysicsObject);
-        }
-        else
-        {
-            collisionBox.gameObject.SetActive(false);
-        }
+        collisionBox.gameObject.SetActive(true);
+        collisionBox.Initialize(OnHit);
+        collisionBox.AddIgnoreUid(userPhysicsObject);
 
         InitEffect();
     }

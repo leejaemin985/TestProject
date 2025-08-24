@@ -178,6 +178,50 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defenseMoveSpeed: 65
   curvSpeed: 10
+--- !u!1 &2836201887461759860
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6037744983504664454}
+  - component: {fileID: 6889690962341676546}
+  m_Layer: 0
+  m_Name: InteractionEventHandler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6037744983504664454
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2836201887461759860}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 801863879966483579}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6889690962341676546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2836201887461759860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1316fa81da97bb4eb5c58bf4b313dfe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2839280743686969756
 GameObject:
   m_ObjectHideFlags: 0
@@ -340,6 +384,7 @@ Transform:
   - {fileID: 1367516550763753737}
   - {fileID: 3468013034680474919}
   - {fileID: 7756583922691499748}
+  - {fileID: 6037744983504664454}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3859715776970495495
@@ -371,6 +416,7 @@ MonoBehaviour:
   - {fileID: 2406757227092788340}
   - {fileID: 4148014755919145726}
   - {fileID: 7828429903489356323}
+  - {fileID: 6889690962341676546}
   ForceRemoteRenderTimeframe: 0
 --- !u!54 &2429171034896933854
 Rigidbody:
@@ -457,6 +503,7 @@ MonoBehaviour:
   weapon: {fileID: 6689455410829703739}
   latencyInterpolatedAnim: {fileID: 3035017699542706694}
   latencyInterpolatedWeapPos: {fileID: 2598826081946322851}
+  interactionEventHandler: {fileID: 6889690962341676546}
 --- !u!114 &3164321590918008309
 MonoBehaviour:
   m_ObjectHideFlags: 0

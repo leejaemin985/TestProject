@@ -6,11 +6,21 @@ using UnityEngine;
 using Physics;
 using Fusion;
 using Fusion.Addons.SimpleKCC;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Unit
 {
     public class Player : Unit
     {
+        private static Dictionary<PlayerRef, Player> registedUsers = new();
+        public static IReadOnlyDictionary<PlayerRef, Player> RegistedUsers => registedUsers;
+
+        private static void RegisterUser(PlayerRef userRef, Player player) => registedUsers[userRef] = player;
+
+        private static void UnregisterUser(PlayerRef userRef) => registedUsers.Remove(userRef);
+
+
         [Header("Player")]
         [SerializeField] private PlayerFSM fsm;
         [SerializeField] private SimpleKCC cc;
@@ -23,13 +33,15 @@ namespace Unit
         [SerializeField] private Animator latencyInterpolatedAnim;
         [SerializeField] private Transform latencyInterpolatedWeapPos;
 
+        [SerializeField] private PlayerInteractionEventHandler interactionEventHandler;
+
         private HitBox playerHitBox;
 
         private IEnumerator CamSettingHandle = default;
         
         public override void Spawned()
         {
-            PlayerRegistry.Instance.RegisterPlayer(Object.StateAuthority, this);
+            RegisterUser(Object.StateAuthority, this);
             Initialize();
 
             UnitStat.AddSpawnedCallback(Object.StateAuthority, BindUnitStat);
@@ -41,14 +53,9 @@ namespace Unit
 
             StartCamSet();
             
-            if (Runner.IsSharedModeMasterClient)
-                playerHitBox = InitPlayerHitBox();
-            else
-            {
-                latencyInterpolatedAnim.gameObject.SetActive(false);
-            }
+            playerHitBox = InitPlayerHitBox();
 
-            weapon.Initialize(Runner.IsSharedModeMasterClient, playerHitBox);
+            weapon.Initialize(playerHitBox);
             weapon.SetCollisionPos(latencyInterpolatedWeapPos);
             
             fsm.Initialized(this, cc, anim, latencyInterpolatedAnim, weapon);
@@ -96,15 +103,15 @@ namespace Unit
             switch (result)
             {
                 case PlayerFSM.HitResultType.Hit:
-                    EventDispatcher.Instance.RequestOnHitUser(Object.InputAuthority, hitInfo);
+                    interactionEventHandler.RequestOnHitUser(Object.StateAuthority, hitInfo);
                     break;
 
                 case PlayerFSM.HitResultType.Parry:
-                    EventDispatcher.Instance.RequestOnParringUser(Object.InputAuthority, hitInfo);
+                    interactionEventHandler.RequestOnParringUser(Object.StateAuthority, hitInfo);
                     break;
 
                 default: // died
-                    EventDispatcher.Instance.RequestOnDiedUser(Object.InputAuthority, hitInfo);
+                    interactionEventHandler.RequestOnDiedUser(Object.StateAuthority, hitInfo);
                     break;
             }
         }
@@ -128,13 +135,5 @@ namespace Unit
             playerCam.SetCam();
         }
         #endregion
-
-        public override void Despawned(NetworkRunner runner, bool hasState)
-        {
-            PlayerRegistry.Instance.UnRegisterPlayer(Object.StateAuthority);
-
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
     }
 }

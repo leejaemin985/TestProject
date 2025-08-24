@@ -119,7 +119,7 @@ namespace Unit
 
         private Player FindEnemy()
         {
-            return PlayerRegistry.Instance.RegistedUsers.FirstOrDefault(x => x.Key.Equals(Object.InputAuthority) == false).Value;
+            return Player.RegistedUsers.FirstOrDefault(x => x.Key.Equals(Object.InputAuthority) == false).Value;
         }
 
         protected override void OnExitRender()
