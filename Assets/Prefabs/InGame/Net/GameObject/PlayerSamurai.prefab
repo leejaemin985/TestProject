@@ -222,7 +222,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 288dc7b5efdc2d146b929a48d1eec9c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  walkSpeed: 100
+  walkSpeed: 60
   curveSpeed: 10
 --- !u!1 &3381870973418301658
 GameObject:
@@ -787,7 +787,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac09d3d4a6364ea46a917fa07ee0942e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sprintSpeed: 400
+  sprintSpeed: 300
   _runWeight: 4
 --- !u!1 &8973499107381494114
 GameObject:

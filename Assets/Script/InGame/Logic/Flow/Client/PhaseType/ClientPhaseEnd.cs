@@ -1,6 +1,6 @@
+using System.Threading.Tasks;
 using Fusion;
 using InGame.Logic.Flow;
-using System.Threading.Tasks;
 
 namespace InGame.Logic
 {
@@ -16,6 +16,7 @@ namespace InGame.Logic
             }
 
             phaseDoneListener?.Invoke();
+            await Task.CompletedTask;
         }
     }
 }

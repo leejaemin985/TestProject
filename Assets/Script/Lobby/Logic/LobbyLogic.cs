@@ -50,7 +50,7 @@ namespace Lobby
         }
 
 
-        private async Task EnterSession(string sessionName)
+        private async void EnterSession(string sessionName)
         {
             try
             {
