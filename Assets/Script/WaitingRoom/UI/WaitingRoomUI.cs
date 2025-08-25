@@ -1,62 +1,56 @@
-using Fusion;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
+
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
-public class WaitingRoomUI : MonoBehaviour
+using Fusion;
+
+namespace WaitingRoom.UI
 {
-    [SerializeField] private TMP_Text sessionName;
-    [SerializeField] private Image gameEntryButton;
-    [SerializeField] private TMP_Text gameEntryButtonText;
-
-    [SerializeField] private RectTransform opponentStateRect;
-    [SerializeField] private TMP_Text opponentStateText;
-    [SerializeField] private Image opponentReadyImage;
-
-    [SerializeField] private Color[] readyButtonColors;
-    [SerializeField] private Color[] userReadyCheckColors;
-
-
-    public Action onClickedGameEntryButtonListener { get; set; }
-    public Action onClickedExitButtonListener { get; set; }
-
-
-    public void Initialize()
+    public class WaitingRoomUI : MonoBehaviour
     {
-        // Default Settings
-        SetGameEntryButton(false);
-        SetOpponentSlotActive(false);
-        SetOpponentReadyState(false);
-    }
+        [SerializeField] private TMP_Text sessionName;
+        [SerializeField] private Image gameEntryButton;
+        [SerializeField] private TMP_Text gameEntryButtonText;
 
-    public void SetSessionInfo(SessionInfo info)
-    {
-        sessionName.text = SessionMetaReader.GetWithoutUidSessionName(info.Name);
-    }
+        [SerializeField] private RectTransform opponentStateRect;
+        [SerializeField] private TMP_Text opponentStateText;
+        [SerializeField] private Image opponentReadyImage;
 
-    public void OnClickedGameEntryButtonEvent() => onClickedGameEntryButtonListener?.Invoke();
+        [SerializeField] private Color[] readyButtonColors;
+        [SerializeField] private Color[] userReadyCheckColors;
 
-    public void OnClickedExitButtonEvent() => onClickedExitButtonListener?.Invoke();
-
-
-    public void SetUserSlotActive(bool set) => gameEntryButton.gameObject.SetActive(set);
-
-    public void SetOpponentSlotActive(bool set) => opponentStateRect.gameObject.SetActive(set);
+        public Action onClickedGameEntryButtonListener { get; set; }
+        public Action onClickedExitButtonListener { get; set; }
 
 
-    public void SetGameEntryButton(bool isReady)
-    {
-        // 현재상태가 Ready -> Unready 색상, Text
-        gameEntryButton.color = readyButtonColors[isReady ? 0 : 1];
-        gameEntryButtonText.text = isReady ? "UnReady" : "Ready";
-    }
+        public void SetSessionInfo(SessionInfo info)
+        {
+            sessionName.text = SessionMetaReader.GetWithoutUidSessionName(info.Name);
+        }
 
-    public void SetOpponentReadyState(bool isReady)
-    {
-        opponentStateText.color = userReadyCheckColors[isReady ? 1 : 0];
-        opponentReadyImage.color = userReadyCheckColors[isReady ? 1 : 0];
+        public void OnClickedGameEntryButtonEvent() => onClickedGameEntryButtonListener?.Invoke();
+
+        public void OnClickedExitButtonEvent() => onClickedExitButtonListener?.Invoke();
+
+
+        public void SetUserSlotActive(bool set) => gameEntryButton.gameObject.SetActive(set);
+
+        public void SetOpponentSlotActive(bool set) => opponentStateRect.gameObject.SetActive(set);
+
+
+        public void SetGameEntryButton(bool isReady)
+        {
+            // 현재상태가 Ready -> Unready 색상, Text
+            gameEntryButton.color = readyButtonColors[isReady ? 0 : 1];
+            gameEntryButtonText.text = isReady ? "UnReady" : "Ready";
+        }
+
+        public void SetOpponentReadyState(bool isReady)
+        {
+            opponentStateText.color = userReadyCheckColors[isReady ? 1 : 0];
+            opponentReadyImage.color = userReadyCheckColors[isReady ? 1 : 0];
+        }
     }
 }

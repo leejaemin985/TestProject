@@ -6,14 +6,25 @@ namespace WaitingRoom.Net
 {
     public class WaitingRoomUserStateHandler : NetworkBehaviour
     {
+        #region Static Spawned Callback
+
         private static Dictionary<PlayerRef, WaitingRoomUserStateHandler> spawnedHandlers = new();
         private static Dictionary<PlayerRef, Action<WaitingRoomUserStateHandler>> spawnedCallbacks = new();
 
         public static void AddSpawnedCallback(PlayerRef userRef, Action<WaitingRoomUserStateHandler> callback)
         {
+            if (callback == null) return;
+
             if (spawnedHandlers.TryGetValue(userRef, out var handler))
             {
                 callback?.Invoke(handler);
+
+                if (spawnedCallbacks.TryGetValue(userRef, out var waiting))
+                {
+                    spawnedCallbacks.Remove(userRef);
+                    waiting.Invoke(handler);
+                }
+
                 return;
             }
 
@@ -34,12 +45,6 @@ namespace WaitingRoom.Net
                 if (del == null) spawnedCallbacks.Remove(userRef);
                 else spawnedCallbacks[userRef] = del;
             }
-            else
-            {
-                spawnedCallbacks.Remove(userRef);
-            }
-
-            spawnedHandlers.Remove(userRef);
         }
 
         public static void ClearAll()
@@ -48,15 +53,18 @@ namespace WaitingRoom.Net
             spawnedCallbacks.Clear();
         }
 
+        #endregion
+
         [Networked] public bool readyState { get; private set; }
 
         public override void Spawned()
         {
             spawnedHandlers[Object.StateAuthority] = this;
 
-            if (spawnedCallbacks.ContainsKey(Object.StateAuthority))
+            if (spawnedCallbacks.TryGetValue(Object.StateAuthority, out var callbacks))
             {
-                spawnedCallbacks[Object.StateAuthority]?.Invoke(this);
+                spawnedCallbacks.Remove(Object.StateAuthority);
+                callbacks?.Invoke(this);
             }
         }
 
