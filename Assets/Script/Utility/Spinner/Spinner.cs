@@ -7,13 +7,13 @@ namespace Utility.Spinner
 {
     public class Spinner : MonoSingleton<Spinner>
     {
-        [SerializeField] private SpinnerUI uiHandle = default;
+        [SerializeField] private SpinnerUI uiHandle;
         private const string LOADING_IMAGE_PATH = "Spinner/image/LoadingImage_1";
 
         private const int SPINNER_ADD_ROT = 30;
         private WaitForSeconds spinnerRotDelay = new WaitForSeconds(.1f);
 
-        private IEnumerator spinnerRoutineHandle = default;
+        private IEnumerator spinnerRoutineHandle;
 
         public void OnSpinner(Func<bool> until, bool onLoadingImage = false)
         {

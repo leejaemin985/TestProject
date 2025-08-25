@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -9,14 +8,16 @@ using Fusion;
 using SceneType;
 using Utility.Spinner;
 
-namespace Lobby
+namespace Lobby.Logic
 {
+    using UI;
+
     public class LobbyLogic : MonoBehaviour
     {
         private NetworkRunner runner => GameNetworkManager.Instance.runner;
 
-        [SerializeField] private LobbyUI uiHandle = default;
-        [SerializeField] private LobbySessionScrollController sessionScrollController = default;
+        [SerializeField] private LobbyUI uiHandle;
+        [SerializeField] private LobbySessionScrollController sessionScrollController;
 
         private bool isEnteringSession = false;
 
@@ -27,17 +28,12 @@ namespace Lobby
             sessionScrollController.UpdateSessionList(GameNetworkManager.Instance.sessionList);
             GameNetworkManager.Instance.AddSessionUpdateEventListener(UpdateSessionList);
 
-            UIInitialize();
+            SetUIListener();
         }
 
         private void UpdateSessionList(List<SessionInfo> sessions)
         {
             sessionScrollController.UpdateSessionList(sessions);
-        }
-
-        private void UIInitialize()
-        {
-            SetUIListener();
         }
 
         private void SetUIListener()
@@ -49,6 +45,8 @@ namespace Lobby
             uiHandle.onClickMakeRoomPopupCancelListener = () => SetMakeRoomPopup(false);
         }
 
+
+        private string MakeNewSessionName(string customName) => $"{SessionMetaReader.GetNewSessionGuid()}{customName}";
 
         private async void EnterSession(string sessionName)
         {
@@ -85,14 +83,7 @@ namespace Lobby
                 isEnteringSession = false;
             }
         }
-
-        private string MakeNewSessionName(string customName)
-        {
-            string sessionUid = SessionMetaReader.GetNewSessionGuid();
-            
-            return $"{sessionUid}{customName}";
-        }
-
+        
         private void TryJoinSession(SessionInfo info)
         {
             if (GameNetworkManager.Instance.CanEnterSession(info) == false) return;
@@ -119,6 +110,7 @@ namespace Lobby
             string sessionName = MakeNewSessionName(uiHandle.GetSessionNameInputFieldText());
             EnterSession(sessionName);
         }
+
 
         private void SetMakeRoomPopup(bool set)
         {

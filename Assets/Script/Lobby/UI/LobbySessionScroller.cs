@@ -1,6 +1,6 @@
 using EnhancedUI.EnhancedScroller;
 
-namespace Lobby
+namespace Lobby.UI
 {
     public class LobbySessionScroller : EnhancedScroller
     {

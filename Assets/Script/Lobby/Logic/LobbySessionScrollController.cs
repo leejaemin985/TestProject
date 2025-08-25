@@ -1,13 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using EnhancedUI.EnhancedScroller;
-using Fusion;
 using System;
-using System.Net;
+using System.Collections.Generic;
 
-namespace Lobby
+using UnityEngine;
+
+using Fusion;
+
+using EnhancedUI.EnhancedScroller;
+
+namespace Lobby.Logic
 {
+    using UI;
+
     public class LobbySessionScrollController : MonoBehaviour, IEnhancedScrollerDelegate
     {
         [SerializeField] private LobbySessionScroller scroller;
@@ -18,8 +21,8 @@ namespace Lobby
 
         public void Initialize(Action<SessionInfo> onClickCellEvent)
         {
-            this.onClickCellEvent = onClickCellEvent;
             scroller.Delegate = this;
+            this.onClickCellEvent = onClickCellEvent;
         }
 
         public void UpdateSessionList(List<SessionInfo> sessionList)
@@ -29,8 +32,10 @@ namespace Lobby
             {
                 if (session.IsOpen) datas.Add(session);
             }
+
             scroller.ReloadData(scroller.NormalizedScrollPosition);
         }
+
 
         public EnhancedScrollerCellView GetCellView(EnhancedScroller scroller, int dataIndex, int cellIndex)
         {

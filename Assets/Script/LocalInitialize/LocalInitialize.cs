@@ -38,9 +38,9 @@ namespace Localinitialize
         {
             bool waitInput = true;
 
-            string title = "Connection Failed";
-            string content = "Would you like to try reconnecting to the lobby?";
-            string confirmText = "reconnect";
+            const string title = "Connection Failed";
+            const string content = "Would you like to try reconnecting to the lobby?";
+            const string confirmText = "reconnect";
 
             CommonPopup.PopupPolicy popupPolicy = 
                 new(CommonPopup.PopupPolicy.PopupKind.Confirm, title, content, confirmText, null, () => waitInput = false);

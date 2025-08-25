@@ -1,25 +1,26 @@
-using EnhancedUI.EnhancedScroller;
-using Fusion;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
-using UnityEngine;
 
-namespace Lobby
+using UnityEngine;
+using TMPro;
+
+using Fusion;
+
+using EnhancedUI.EnhancedScroller;
+
+namespace Lobby.UI
 {
     public class LobbySessionScrollCellView : EnhancedScrollerCellView
     {
-        [SerializeField] private TMP_Text sessionName = default;
-        [SerializeField] private TMP_Text playerCount = default;
+        [SerializeField] private TMP_Text sessionName;
+        [SerializeField] private TMP_Text playerCount;
 
-        [SerializeField] private Color validColor = default;
-        [SerializeField] private Color invalidColor = default;
+        [SerializeField] private Color validColor;
+        [SerializeField] private Color invalidColor;
 
         public const float CELL_HEIGHT = 80f;
 
-        private SessionInfo sessionInfo = default;
-        private Action<SessionInfo> onEventEntering = default;
+        private SessionInfo sessionInfo;
+        private Action<SessionInfo> onEventEntering;
 
         public void Initialize(SessionInfo info, Action<SessionInfo> onEventEntering, int roomIndex)
         {
