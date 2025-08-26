@@ -62,13 +62,15 @@ namespace InGame.Logic.Flow
 
         private async Task SpawnPlayer()
         {
-            Vector3 spawnPos = Vector3.forward *
-                ((runner.LocalPlayer.AsIndex % 2) == 0 ? 5 : -5);
+            bool odd = (runner.LocalPlayer.AsIndex % 2) == 1;
+
+            Vector3 spawnPos = Vector3.forward * (odd ? 5 : -5);
+            Quaternion spawnRot = Quaternion.Euler(new Vector3(0, odd ? 180 : 0, 0));
 
             var spawnedOb = await runner.SpawnAsync(
                 prefab: playerPrefab,
                 position: spawnPos,
-                rotation: Quaternion.identity,
+                rotation: spawnRot,
                 inputAuthority: runner.LocalPlayer);
 
             
