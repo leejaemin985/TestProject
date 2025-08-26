@@ -72,8 +72,6 @@ namespace Unit
             CurrentState = stateMap[currentStateType];
 
             isInitialized = true;
-
-            StartCoroutine(Test());
         }
 
         public HitResultType CheckHittable(HitInfo hitInfo)
@@ -191,26 +189,11 @@ namespace Unit
             if (Runner.IsSharedModeMasterClient) CurrentState?.OnMasterTick();
         }
 
-        #region TestCode
-        private bool attack = true;
-
-        private IEnumerator Test()
-        {
-            while (true)
-            {
-                yield return new WaitForSeconds(4f);
-                attack = !attack;
-            }
-        }
-        #endregion
-
         public override void FixedUpdateNetwork()
         {
-            if (isInitialized == false) return;
+            if (isInitialized == false || player.canControll == false) return;
 
             if (GetInput<InputData>(out var newInput) == false) return;
-
-            //newInput.attack = attack;
             
             input.Update(newInput);
 

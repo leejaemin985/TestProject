@@ -62,12 +62,16 @@ namespace InGame.Logic.Flow
 
         private async Task SpawnPlayer()
         {
+            Vector3 spawnPos = Vector3.forward *
+                ((runner.LocalPlayer.AsIndex % 2) == 0 ? 5 : -5);
+
             var spawnedOb = await runner.SpawnAsync(
                 prefab: playerPrefab,
-                position: Vector3.up,
+                position: spawnPos,
                 rotation: Quaternion.identity,
                 inputAuthority: runner.LocalPlayer);
 
+            
             spawnedPlayer = spawnedOb.GetComponent<Player>();
         }
 

@@ -8,6 +8,7 @@ namespace InGame.Logic.Flow
 
         SessionSpawn,
         UnitSpawn,
+        Warmup,
         InBattle,
         End,
 
@@ -23,6 +24,7 @@ namespace InGame.Logic.Flow
     public struct PhaseDirective : INetworkStruct
     {
         public FlowPhase phase;
+        public int startTick;
     }
 
 }

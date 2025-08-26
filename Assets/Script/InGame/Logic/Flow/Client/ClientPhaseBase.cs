@@ -10,6 +10,7 @@ namespace InGame.Logic.Flow
         protected NetworkRunner runner => GameNetworkManager.Instance.runner;
 
         public abstract FlowPhase phaseType { get; }
+        protected PhaseDirective phaseDirective { get; private set; }
 
         public virtual Task OnEnter()
         {
@@ -23,7 +24,11 @@ namespace InGame.Logic.Flow
 
         FlowPhase IClientPhase.phaseType => phaseType;
 
-        Task IClientPhase.OnEnter() => OnEnter();
+        Task IClientPhase.OnEnter(PhaseDirective phaseDirective)
+        {
+            this.phaseDirective = phaseDirective;
+            return OnEnter();
+        }
 
         Task IClientPhase.OnExit() => OnExit();
 

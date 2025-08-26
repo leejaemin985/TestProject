@@ -31,21 +31,21 @@ namespace InGame.Logic.Flow
                 phaseMap.Add(phase.phaseType, phase);
             }
 
-            await SetPhase(FlowPhase.Init);
+            await SetPhase(new() { phase = FlowPhase.Init });
         }
 
-        private async Task SetPhase(FlowPhase phaseType)
+        private async Task SetPhase(PhaseDirective phaseDirective)
         {
             await (currentPhase?.OnExit() ?? Task.CompletedTask);
 
-            currentPhase = phaseMap[phaseType];
+            currentPhase = phaseMap[phaseDirective.phase];
             phaseReportAction?.Invoke(new()
             {
                 userRef = runner.LocalPlayer,
-                phase = phaseType
+                phase = phaseDirective.phase
             });
 
-            await (currentPhase?.OnEnter() ?? Task.CompletedTask);
+            await (currentPhase?.OnEnter(phaseDirective) ?? Task.CompletedTask);
         }
 
         private void UserPhaseDone()
@@ -55,7 +55,7 @@ namespace InGame.Logic.Flow
 
         public async void ApplyPhase(PhaseDirective directiveInfo)
         {
-            await SetPhase(directiveInfo.phase);
+            await SetPhase(directiveInfo);
         }
     }
 }

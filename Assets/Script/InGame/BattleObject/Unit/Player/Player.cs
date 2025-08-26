@@ -35,6 +35,8 @@ namespace Unit
 
         [SerializeField] private PlayerInteractionEventHandler interactionEventHandler;
 
+        public bool canControll { get; private set; }
+
         private HitBox playerHitBox;
 
         private IEnumerator CamSettingHandle = default;
@@ -66,6 +68,8 @@ namespace Unit
             fsm.Initialized(this, cc, anim, latencyInterpolatedAnim, weapon);
             animEventer.Initialize(fsm.AnimEvent);
         }
+
+        public void SetCanController(bool set) => canControll = set;
 
         public void RequestOnHitState(HitInfo hitInfo)
         {

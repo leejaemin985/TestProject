@@ -93,7 +93,11 @@ namespace InGame.Logic.Flow
             if (currentPhase < FlowPhase.End)
             {
                 currentPhase = currentPhase + 1;
-                RPC_ApplyPhase(new() { phase = currentPhase });
+                RPC_ApplyPhase(new()
+                {
+                    phase = currentPhase,
+                    startTick = Runner.Tick
+                });
             }
             else
             {

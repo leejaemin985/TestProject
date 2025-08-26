@@ -10,6 +10,11 @@ namespace InGame.Logic
 
         public override async Task OnEnter()
         {
+            if (Player.RegistedUsers.TryGetValue(runner.LocalPlayer, out var player))
+            {
+                player.SetCanController(true);
+            }
+
             const int CHECK_DELAY_MS = 500;
             bool allUserAlive = true;
             while (allUserAlive)
