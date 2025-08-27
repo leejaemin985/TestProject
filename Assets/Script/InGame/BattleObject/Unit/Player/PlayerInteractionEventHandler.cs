@@ -46,7 +46,5 @@ namespace Unit
             if (Player.RegistedUsers.TryGetValue(userRef, out Player user))
                 user.RequestOnDiedState(hitInfo);
         }
-
-
     }
 }

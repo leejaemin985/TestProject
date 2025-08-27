@@ -1,13 +1,12 @@
-using System;
 using System.Collections;
+using System.Collections.Generic;
 
 using UnityEngine;
 
-using Physics;
 using Fusion;
 using Fusion.Addons.SimpleKCC;
-using System.Collections.Generic;
-using System.Linq;
+
+using Physics;
 
 namespace Unit
 {
@@ -22,18 +21,20 @@ namespace Unit
 
 
         [Header("Player")]
-        [SerializeField] private PlayerFSM fsm;
         [SerializeField] private SimpleKCC cc;
-        [SerializeField] private PlayerCam playerCam;
+
+        [SerializeField] private PlayerFSM fsm;
+        [SerializeField] private PlayerInteractionEventHandler interactionEventHandler;
+
         [SerializeField] private Animator anim;
-
         [SerializeField] private PlayerAnimEventer animEventer;
-        [SerializeField] private Katana weapon;
-
         [SerializeField] private Animator latencyInterpolatedAnim;
         [SerializeField] private Transform latencyInterpolatedWeapPos;
 
-        [SerializeField] private PlayerInteractionEventHandler interactionEventHandler;
+        [SerializeField] private Katana weapon;
+
+        [SerializeField] private PlayerCam playerCam;
+
 
         public bool canControll { get; private set; }
 
@@ -71,26 +72,6 @@ namespace Unit
 
         public void SetCanController(bool set) => canControll = set;
 
-        public void RequestOnHitState(HitInfo hitInfo)
-        {
-            fsm?.OnHitState(hitInfo);
-            OnDamaged(hitInfo.damaged);
-        }
-
-        public void RequestOnParringState(HitInfo hitInfo)
-        {
-            fsm?.OnParringState(hitInfo);
-            OnDecreasePosture(hitInfo.damaged);
-        }
-
-        public void RequestOnDiedState(HitInfo hitInfo)
-        {
-            fsm?.OnDiedState(hitInfo);
-            OnDamaged(hitInfo.damaged);
-
-            playerHitBox?.SetActive(false);
-        }
-
         private HitBox InitPlayerHitBox()
         {
             var ret = new GameObject("PlayerHitBox").AddComponent<HitBox>();
@@ -123,6 +104,26 @@ namespace Unit
                     interactionEventHandler.RequestOnDiedUser(Object.StateAuthority, hitInfo);
                     break;
             }
+        }
+
+        public void RequestOnHitState(HitInfo hitInfo)
+        {
+            fsm?.OnHitState(hitInfo);
+            OnDamaged(hitInfo.damaged);
+        }
+
+        public void RequestOnParringState(HitInfo hitInfo)
+        {
+            fsm?.OnParringState(hitInfo);
+            OnDecreasePosture(hitInfo.damaged);
+        }
+
+        public void RequestOnDiedState(HitInfo hitInfo)
+        {
+            fsm?.OnDiedState(hitInfo);
+            OnDamaged(hitInfo.damaged);
+
+            playerHitBox?.SetActive(false);
         }
 
         #region Cam

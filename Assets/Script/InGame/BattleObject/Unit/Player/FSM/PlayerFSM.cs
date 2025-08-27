@@ -1,25 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
 
+using UnityEngine;
+
 using Fusion;
 using Fusion.Addons.SimpleKCC;
-using Unity.VisualScripting;
-using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Unit
 {
     public class PlayerFSM : NetworkBehaviour, IMachineState
     {
+        private bool isInitialized = false;
+
         private Player player;
 
         [SerializeField] private PlayerStateBase[] stateArray = default;
 
-        private bool isInitialized = false;
-
         private Dictionary<PlayerStateBase.StateType, PlayerStateBase> stateMap;
 
+
         public InputInterpreter input;
+
 
         public enum HitResultType
         {
@@ -45,17 +46,17 @@ namespace Unit
 
         public override void Spawned()
         {
-            if (initSequencerHandle != null) StopCoroutine(initSequencerHandle);
-            StartCoroutine(initSequencerHandle = InitSequencer());
+            //if (initSequencerHandle != null) StopCoroutine(initSequencerHandle);
+            //StartCoroutine(initSequencerHandle = InitSequencer());
         }
 
-        private IEnumerator initSequencerHandle = null;
+        //private IEnumerator initSequencerHandle = null;
 
-        private IEnumerator InitSequencer()
-        {
-            yield return new WaitUntil(() => isInitialized);
-            CurrentState = stateMap[currentStateType];
-        }
+        //private IEnumerator InitSequencer()
+        //{
+        //    yield return new WaitUntil(() => isInitialized);
+        //    CurrentState = stateMap[currentStateType];
+        //}
 
         public void Initialized(Player player, SimpleKCC cc, Animator anim, Animator interpolatedAnim, Katana playerWeapon)
         {
@@ -172,6 +173,7 @@ namespace Unit
                 if (sync) RPC_SyncState();
             }
         }
+
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
         public void RPC_SyncState()
