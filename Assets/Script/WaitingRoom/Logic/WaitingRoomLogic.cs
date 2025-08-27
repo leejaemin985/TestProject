@@ -138,6 +138,12 @@ namespace WaitingRoom.Logic
             CheckStartGame();
         }
 
+        private bool test;
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.T)) test = true;
+        }
+
         private void CheckStartGame()
         {
             if (runner.IsSharedModeMasterClient == false) return;
@@ -148,7 +154,7 @@ namespace WaitingRoom.Logic
                 fullUser &&
                 userStateHandler.readyState && opponentStateHandler.readyState;
 
-            if (fullUser && allReady)
+            if (fullUser && allReady || test) 
             {
                 runner.LoadScene(NetScene.InGame.sceneRef, LoadSceneMode.Single);
                 runner.SessionInfo.IsOpen = false;

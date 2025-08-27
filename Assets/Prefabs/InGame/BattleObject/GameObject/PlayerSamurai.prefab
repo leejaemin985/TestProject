@@ -835,6 +835,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sprintSpeed: 300
+  curvSpeed: 1
+  animCurvSpeed: 1
   _runWeight: 4
 --- !u!1 &8973499107381494114
 GameObject:

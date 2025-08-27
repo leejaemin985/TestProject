@@ -13,10 +13,10 @@ namespace Unit
             Move = 0,
             Sprint,
             Jump,
+            Land,
             Attack,
             Defense,
             Parring,
-            Land,
             Hit,
             Died
         }
@@ -38,25 +38,6 @@ namespace Unit
             this.weap = weap;
         }
 
-        public abstract StateType GetStateType();
-
-        protected virtual void SetInfo(INetworkStruct info) { }
-
-        protected virtual void EnterState(bool sync = true) { }
-
-        protected virtual void OnState() { }
-
-        protected virtual void ExitState() { }
-
-        protected virtual void OnEnterRender() { }
-
-        protected virtual void OnRender() { }
-
-        protected virtual void OnExitRender() { }
-
-        protected virtual void OnMasterTick() { }
-
-        protected virtual void OnAnimEvent(string param) { }
 
         protected void PlayAnim(string stateName, float fixedTransitionDuration, bool sync)
         {
@@ -80,6 +61,32 @@ namespace Unit
             anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, 0);
         }
 
+        #region Base
+
+        public abstract StateType GetStateType();
+
+        protected virtual void SetInfo(INetworkStruct info) { }
+
+        protected virtual void EnterState(bool sync = true) { }
+
+        protected virtual void OnState() { }
+
+        protected virtual void ExitState() { }
+
+        protected virtual void OnEnterRender() { }
+
+        protected virtual void OnRender() { }
+
+        protected virtual void OnExitRender() { }
+
+        protected virtual void OnMasterTick() { }
+
+        protected virtual void OnAnimEvent(string param) { }
+
+        #endregion
+
+
+        #region IState
 
         void IState.SetInfo(INetworkStruct info) => SetInfo(info);
 
@@ -98,5 +105,8 @@ namespace Unit
         void IState.OnAnimEvent(string param) => OnAnimEvent(param);
 
         void IState.OnMasterTick() => OnMasterTick();
+
+        #endregion
+
     }
 }

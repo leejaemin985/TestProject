@@ -9,7 +9,8 @@ namespace Unit
 
         [SerializeField] private float sprintSpeed;
 
-        private float curvSpeed = 5;
+        private float curvSpeed = 10;
+        private float animCurvSpeed = .1f;
 
         [Networked] public float runWeight { get; set; }
         private const float sprintRunWeight = 4;
@@ -66,16 +67,14 @@ namespace Unit
             const string HORIZONTAL = "_Horizontal";
             const string VERTICAL = "_Vertical";
             const string RUNWEIGHT = "_RunWeight";
-
-            float curvSpeed = .1f;
-
+            
             float currentHorizontal = anim.GetFloat(HORIZONTAL);
             float currentVertical = anim.GetFloat(VERTICAL);
             float currentRunWeight = anim.GetFloat(RUNWEIGHT);
 
-            anim.SetFloat(HORIZONTAL, Mathf.Lerp(currentHorizontal, 0, curvSpeed));
-            anim.SetFloat(VERTICAL, Mathf.Lerp(currentVertical, 1, curvSpeed));
-            anim.SetFloat(RUNWEIGHT, Mathf.Lerp(currentRunWeight, runWeight, curvSpeed));
+            anim.SetFloat(HORIZONTAL, Mathf.Lerp(currentHorizontal, 0, animCurvSpeed));
+            anim.SetFloat(VERTICAL, Mathf.Lerp(currentVertical, 1, animCurvSpeed));
+            anim.SetFloat(RUNWEIGHT, Mathf.Lerp(currentRunWeight, runWeight, animCurvSpeed));
         }
     }
 }
