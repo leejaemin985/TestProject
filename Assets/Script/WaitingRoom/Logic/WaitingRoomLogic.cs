@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -34,7 +36,8 @@ namespace WaitingRoom.Logic
             if (runner.IsSharedModeMasterClient)
                 runner.SessionInfo.IsOpen = true;
 
-            await runner.SpawnAsync(prefab: stateHandlerPrefab);
+            var handle = await runner.SpawnAsync(prefab: stateHandlerPrefab);
+            userStateHandler = handle.GetComponent<WaitingRoomUserStateHandler>();
 
             foreach (var user in GameNetworkManager.Instance.connectedUsers)
             {

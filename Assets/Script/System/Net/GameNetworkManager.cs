@@ -24,12 +24,12 @@ public class GameNetworkManager : MonoSingleton<GameNetworkManager>
     public NetworkRunner runner { get; private set; }
 
 
-    private List<SessionInfo> currentSessionInfo;
+    private List<SessionInfo> currentSessionInfo = new();
     public List<SessionInfo> sessionList => currentSessionInfo;
     private Action<List<SessionInfo>> onEventSessionUpdateListener { get; set; }
 
 
-    private List<PlayerRef> currentConnectedUsers;
+    private List<PlayerRef> currentConnectedUsers = new();
     public List<PlayerRef> connectedUsers => currentConnectedUsers;
     private Action<PlayerRef> onEventJoinedUserListener { get; set; }
     private Action<PlayerRef> onEventLeftUserListener { get; set; }
@@ -135,16 +135,12 @@ public class GameNetworkManager : MonoSingleton<GameNetworkManager>
             NetState = NetLifecycleState.InSession;
         }
 
-        if (currentConnectedUsers == null) currentConnectedUsers = new();
-
         currentConnectedUsers.Add(playerRef);
         onEventJoinedUserListener?.Invoke(playerRef);
     }
 
     private void OnLeftUser(PlayerRef playerRef)
     {
-        if (currentConnectedUsers == null) currentConnectedUsers = new();
-
         currentConnectedUsers.Remove(playerRef);
         onEventLeftUserListener?.Invoke(playerRef);
     }
@@ -179,8 +175,8 @@ public class GameNetworkManager : MonoSingleton<GameNetworkManager>
     {
         isInitialized = false;
 
-        currentSessionInfo = null;
-        currentConnectedUsers = null;
+        currentSessionInfo.Clear();
+        currentConnectedUsers.Clear();
 
         onEventSessionUpdateListener = null;
         onEventJoinedUserListener = null;
