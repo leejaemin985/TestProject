@@ -1,6 +1,3 @@
-using System;
-using UnityEngine;
-
 namespace Unit
 {
     public class PlayerDiedState : PlayerStateBase

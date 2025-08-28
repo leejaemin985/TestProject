@@ -44,20 +44,6 @@ namespace Unit
             }
         }
 
-        public override void Spawned()
-        {
-            //if (initSequencerHandle != null) StopCoroutine(initSequencerHandle);
-            //StartCoroutine(initSequencerHandle = InitSequencer());
-        }
-
-        //private IEnumerator initSequencerHandle = null;
-
-        //private IEnumerator InitSequencer()
-        //{
-        //    yield return new WaitUntil(() => isInitialized);
-        //    CurrentState = stateMap[currentStateType];
-        //}
-
         public void Initialized(Player player, SimpleKCC cc, Animator anim, Animator interpolatedAnim, Katana playerWeapon)
         {
             this.player = player;

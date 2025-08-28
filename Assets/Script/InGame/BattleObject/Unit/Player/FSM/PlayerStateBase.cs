@@ -1,8 +1,7 @@
+using UnityEngine;
+
 using Fusion;
 using Fusion.Addons.SimpleKCC;
-
-using UnityEngine;
-using UnityEngine.Animations;
 
 namespace Unit
 {

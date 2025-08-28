@@ -1,8 +1,9 @@
 using System;
-using UnityEngine;
-using System.Runtime.CompilerServices;
-using Fusion;
 using System.Linq;
+
+using UnityEngine;
+
+using Fusion;
 
 namespace Unit
 {
@@ -71,7 +72,6 @@ namespace Unit
 
             hitEndTick = Runner.Tick + Mathf.RoundToInt(hitMotionDuration * Runner.TickRate);
             PlayAnim(currentMotionInfo.motionName, 0, sync);
-            
         }
 
         protected override void OnState()
@@ -100,6 +100,8 @@ namespace Unit
 
         private void OnHitMove(string param)
         {
+            if (HasStateAuthority == false) return;
+
             if (string.IsNullOrEmpty(param) || param.Equals("0"))
             {
                 currentHitMove = Vector3.zero;

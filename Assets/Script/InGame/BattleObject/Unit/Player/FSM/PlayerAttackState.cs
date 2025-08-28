@@ -1,10 +1,11 @@
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+
 using UnityEngine;
+
 using Fusion;
-using Unity.VisualScripting;
 using Fusion.Addons.SimpleKCC;
 
 namespace Unit
@@ -172,9 +173,6 @@ namespace Unit
                 case "AttackMove":
                     OnAttackMove(parts[1]);
                     break;
-                //case "SetWeapCollision":
-                //    SetWeapCollision(parts[1]);
-                //    break;
                 case "SetSlashParticleEffect":
                     SetSlashParticleAcitve(parts[1]);
                     break;
@@ -183,6 +181,8 @@ namespace Unit
 
         private void OnAttackMove(string param)
         {
+            if (HasStateAuthority == false) return;
+
             if (string.IsNullOrEmpty(param) || param.Equals("0"))
             {
                 currentAttackMove = Vector3.zero;
@@ -222,19 +222,6 @@ namespace Unit
                 currentAttackMove = worldMoveDir * moveRatio;
             }
         }
-
-        //private void SetWeapCollision(string param)
-        //{
-        //    weap.SetCollisionActive(param.Equals("0") == false);
-        //    var currentMotion = ResolveAttackMotion();
-        //    weap.SetHitInfo(new()
-        //    {
-        //        damaged = currentMotion.damage,
-        //        weight = currentMotion.weight,
-        //        attackType = currentMotion.attackType,
-        //        attackerPos = cc.transform.position
-        //    });
-        //}
 
         private void SetSlashParticleAcitve(string param)
         {

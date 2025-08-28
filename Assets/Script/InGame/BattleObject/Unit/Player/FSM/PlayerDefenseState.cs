@@ -1,5 +1,5 @@
-using Fusion;
 using UnityEngine;
+using Fusion;
 
 namespace Unit
 {

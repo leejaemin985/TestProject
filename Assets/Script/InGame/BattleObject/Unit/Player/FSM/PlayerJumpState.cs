@@ -1,8 +1,8 @@
+using UnityEngine;
+using Fusion;
+
 namespace Unit
 {
-    using Fusion;
-    using Unity.VisualScripting;
-    using UnityEngine;
 
     public class PlayerJumpState : PlayerStateBase
     {

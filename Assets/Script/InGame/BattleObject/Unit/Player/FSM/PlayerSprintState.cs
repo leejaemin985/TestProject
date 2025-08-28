@@ -1,7 +1,8 @@
+using UnityEngine;
+using Fusion;
+
 namespace Unit
 {
-    using Fusion;
-    using UnityEngine;
 
     public class PlayerSprintState : PlayerStateBase
     {
