@@ -15,6 +15,19 @@ MonoBehaviour:
   m_DiffusionProfileReferences:
   - {fileID: 11400000, guid: 727de4c7811cc8a4aa2fd35c4dacb0de, type: 2}
   m_MaterialReferences: []
+--- !u!114 &-1828630716152201861
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 7
 --- !u!21 &2100000
 Material:
   serializedVersion: 8
@@ -23,13 +36,12 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: MI_MHead
-  m_Shader: {fileID: -6465566751694194690, guid: 1f7c05379cc3b744a91537afbf1ac7e7,
-    type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 1f7c05379cc3b744a91537afbf1ac7e7, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _DISABLE_SSR_TRANSPARENT
+  m_ValidKeywords: []
   m_InvalidKeywords:
+  - _DISABLE_SSR_TRANSPARENT
   - _NORMALMAP_TANGENT_SPACE
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -392,8 +404,7 @@ Material:
     - _BaseColorMul: {r: 0.69803923, g: 0.57647055, b: 0.6024918, a: 0}
     - _BlushColor: {r: 1, g: 1, b: 1, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _DiffusionProfileAsset: {r: -116986.89, g: -8.678446e-17, b: 4.7554902e+17,
-        a: -6.3653175e+18}
+    - _DiffusionProfileAsset: {r: -116986.89, g: -8.678446e-17, b: 4.7554902e+17, a: -6.3653175e+18}
     - _DirtColor: {r: 0.15094337, g: 0.087430365, b: 0.05339977, a: 0}
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}

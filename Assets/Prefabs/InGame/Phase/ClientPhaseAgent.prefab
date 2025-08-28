@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitStatPrefab: {fileID: 1471681788462563777, guid: b631c7d6af70cd446a3c756670ca80a7, type: 3}
-  playerPrefab: {fileID: 978523184684886547, guid: e7ea4492dedce384ba5c27ea219b3e10, type: 3}
+  playerPrefab: {fileID: 978523184684886547, guid: ec3a0b275cd38f64d9cbb69123550914, type: 3}
 --- !u!1 &5346492736617793490
 GameObject:
   m_ObjectHideFlags: 0
