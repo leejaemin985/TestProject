@@ -1,5 +1,14 @@
 {
   "dependencies": {
+    "com.customcollision": {
+      "version": "https://github.com/leejaemin985/CustomCollisionSystem.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.mathematics": "1.2.6"
+      },
+      "hash": "ff19f047685e6bf7b73e8f2594576286fa6d5c0e"
+    },
     "com.unity.burst": {
       "version": "1.8.18",
       "depth": 1,
