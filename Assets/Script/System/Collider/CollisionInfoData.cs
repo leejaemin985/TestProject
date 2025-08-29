@@ -1,9 +1,8 @@
-using Physics;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Unit
+namespace Physics
 {
     [Serializable]
     public class CollisionInfos
@@ -21,6 +20,6 @@ namespace Unit
     {
         public HitBox hitObject;
         public Vector3 hitPoint;
-        public float sweepProgress;
+        public float sweepProgress; //값이 작을수록 먼저 맞은 오브젝트일 확률이 높습니다.
     }
 }

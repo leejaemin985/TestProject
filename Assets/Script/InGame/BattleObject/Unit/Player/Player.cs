@@ -87,8 +87,10 @@ namespace Unit
             return ret;
         }
 
-        private void HitEvent(HitInfo hitInfo)
+        private void HitEvent(CollisionInfoData collisionInfoData)
         {
+            HitInfo hitInfo = ((PlayerCollisionInfo)collisionInfoData).hitInfo;
+
             PlayerFSM.HitResultType result = fsm.CheckHittable(hitInfo);
             switch (result)
             {

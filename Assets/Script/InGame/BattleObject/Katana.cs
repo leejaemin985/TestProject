@@ -1,3 +1,4 @@
+using InGame.Logic;
 using Physics;
 using System;
 using Unit;
@@ -34,7 +35,7 @@ public class Katana : MonoBehaviour
     {
         foreach (var info in collisionInfos.collisionInfos)
         {
-            info.hitObject.OnHitEvent(this.hitInfo);
+            info.hitObject.OnHitEvent(new PlayerCollisionInfo(info, this.hitInfo));
         }
     }
 

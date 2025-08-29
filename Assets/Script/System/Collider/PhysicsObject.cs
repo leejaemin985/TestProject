@@ -1,10 +1,7 @@
 using System;
-
 using UnityEngine;
-using Unity.Mathematics;
 using UnityEditor;
-using Unit;
-using System.Collections;
+using Unity.Mathematics;
 
 namespace Physics
 {
@@ -381,7 +378,7 @@ namespace Physics
         public IPhysicsShape currPhysicsShape;
         public IPhysicsShape prevPhysicsShape;
 
-        protected virtual void Initialize()
+        protected virtual void PhysicsInitialize()
         {
             SyncShape();
             PhysicsGenerator.Instance.RegisterPhysicsObject(this);
