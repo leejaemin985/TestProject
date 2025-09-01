@@ -12,6 +12,8 @@ namespace Localinitialize
     {
         private async void Start()
         {
+            ResourcePreloader.Instance.DownloadResourcesAsync();
+            return;
             while (true)
             {
                 await TryConnect();
