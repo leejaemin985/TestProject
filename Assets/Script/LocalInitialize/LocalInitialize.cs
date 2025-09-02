@@ -10,9 +10,12 @@ namespace Localinitialize
 {
     public class LocalInitialize : MonoBehaviour
     {
+        [SerializeField] private IntroDownloadLogic introDownload;
+
         private async void Start()
         {
-            ResourcePreloader.Instance.DownloadResourcesAsync();
+            await introDownload.DownloadAddressables();
+
             return;
             while (true)
             {
