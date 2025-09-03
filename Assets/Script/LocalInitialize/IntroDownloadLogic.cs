@@ -8,36 +8,36 @@ namespace Localinitialize
 {
     public class IntroDownloadLogic : MonoBehaviour
     {
+        public const string KEY_SAMURAI_MODEL = "SamuraiModel";
+
         private static readonly IList<string> REQUIRED_KEYS = new List<string>()
         {
-            "SamuraiModel"
+            KEY_SAMURAI_MODEL
         };
 
         public async Task DownloadAddressables()
         {
             await AddressableManager.LoadCatalog();
 
-            //GameObject prefab = await Addressables.LoadAssetAsync<GameObject>("SamuraiModel").Task;
-            //Instantiate(prefab);
-            //Debug.Log($"Done");
-            var result = await AddressableManager.LoadAsst<GameObject>("SamuraiModel");
-            Instantiate(result);
+            var size = await GetRequiredDownloadBytes(REQUIRED_KEYS);
+            Debug.Log($"required download Data Size: {size}");
+
             Debug.Log($"Test - done");
-            try
-            {
-
-                //Debug.Log($"MissingBytes: {GetRequiredDownloadBytes(REQUIRED_KEYS)}");
-            }
-            catch(Exception e)
-            {
-
-            }
-
         }
 
-        //private long GetRequiredDownloadBytes(IList<string> keyList)
-        //{
-        //
-        //}
+        private async Task<long> GetRequiredDownloadBytes(IList<string> keyList)
+        {
+            long total = 0;
+            List<Task<long>> tasks = new();
+            foreach (var key in keyList)
+            {
+                tasks.Add(AddressableUtil.CheckSize(key));
+            }
+
+            long[] results = await Task.WhenAll(tasks);
+            foreach (var size in results) total += size;
+
+            return total;
+        }
     }
 }

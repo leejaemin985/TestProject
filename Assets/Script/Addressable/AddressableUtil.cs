@@ -97,7 +97,7 @@ public class AddressableUtil
         AsyncOperationHandle<long> handle = Addressables.GetDownloadSizeAsync(key);
         await handle.Task;
 
-        var size = handle.Result;
+        var size = handle.Status == AsyncOperationStatus.Succeeded ? handle.Result : 0;
         SafeRelease(handle);
 
         return size;
@@ -140,6 +140,31 @@ public class AddressableUtil
         }
 
         return item;
+    }
+
+    public static async Task<AsyncOperationHandle<IList<T>>> GetTsAsync<T>(Addressables.MergeMode mergeMode, params string[] labels)
+    {
+        var handle = Addressables.LoadResourceLocationsAsync(labels.ToList(), mergeMode);
+
+        await handle.Task;
+
+        if (handle.Status != AsyncOperationStatus.Succeeded)
+            return default;
+        if (handle.Result == null || handle.Result.Count == 0)
+            return default;
+
+        var loadHandle = Addressables.LoadAssetsAsync<T>(handle.Result, assets => { });
+
+        SafeRelease(handle);
+
+        await loadHandle.Task;
+        if (loadHandle.Status != AsyncOperationStatus.Succeeded) 
+            return default;
+
+        if (loadHandle.Result == null || loadHandle.Result.Count == 0)
+            return default;
+
+        return loadHandle;
     }
 
     public static async Task<AsyncOperationHandle<T>> LoadAddressableAsset<T>(string key)
