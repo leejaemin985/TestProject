@@ -12,7 +12,7 @@ using UnityEngine.ResourceManagement.ResourceLocations;
 
 public class AddressableUtil
 {
-    public static async Task<AsyncOperationHandle<IResourceLocator>> LoadCatalog(string serverPath)
+    public async Task<AsyncOperationHandle<IResourceLocator>> LoadCatalog(string serverPath)
     {
         AsyncOperationHandle<IResourceLocator> loadCatalogOperation = Addressables.LoadContentCatalogAsync(serverPath, autoReleaseHandle: false);
 
@@ -40,7 +40,7 @@ public class AddressableUtil
         return loadCatalogOperation;
     }
 
-    public static void ReleaseCatalog(AsyncOperationHandle<IResourceLocator> locatorHandle)
+    public void ReleaseCatalog(AsyncOperationHandle<IResourceLocator> locatorHandle)
     {
         if (locatorHandle.IsValid() == false) return;
 
@@ -48,7 +48,7 @@ public class AddressableUtil
         Debug.Log($"ReleaseResourceCatalogAsync Complete - {nameof(locatorHandle)}");
     }
 
-    public static async Task UpdateCatalogs()
+    public async Task UpdateCatalogs()
     {
         var handle = Addressables.CheckForCatalogUpdates(autoReleaseHandle: false);
         var result = await handle.Task;
@@ -74,7 +74,7 @@ public class AddressableUtil
         Addressables.Release(handle);
     }
 
-    public static void SafeRelease<T>(AsyncOperationHandle<T> handle)
+    public void SafeRelease<T>(AsyncOperationHandle<T> handle)
     {
         if (handle.IsValid() == false)
         {
@@ -92,7 +92,7 @@ public class AddressableUtil
         }
     }
 
-    public static async Task<long> CheckSize(string key)
+    public async Task<long> CheckSize(string key)
     {
         AsyncOperationHandle<long> handle = Addressables.GetDownloadSizeAsync(key);
         await handle.Task;
@@ -103,7 +103,7 @@ public class AddressableUtil
         return size;
     }
 
-    public static async Task<bool> AddressableExists(string key)
+    public async Task<bool> AddressableExists(string key)
     {
         //현재 등록된 로케이터 안에 존재하는지 확인후 비어있으면 없음.
         AsyncOperationHandle<IList<IResourceLocation>> handle = Addressables.LoadResourceLocationsAsync(key);
@@ -124,7 +124,7 @@ public class AddressableUtil
         }
     }
 
-    public static async Task<AsyncOperationHandle<T>> GetTAsync<T>(string itemPath)
+    public async Task<AsyncOperationHandle<T>> GetTAsync<T>(string itemPath)
     {
         bool isExist = await AddressableExists(itemPath);
 
@@ -142,7 +142,7 @@ public class AddressableUtil
         return item;
     }
 
-    public static async Task<AsyncOperationHandle<IList<T>>> GetTsAsync<T>(Addressables.MergeMode mergeMode, params string[] labels)
+    public async Task<AsyncOperationHandle<IList<T>>> GetTsAsync<T>(Addressables.MergeMode mergeMode, params string[] labels)
     {
         var handle = Addressables.LoadResourceLocationsAsync(labels.ToList(), mergeMode);
 
@@ -167,7 +167,7 @@ public class AddressableUtil
         return loadHandle;
     }
 
-    public static async Task<AsyncOperationHandle<T>> LoadAddressableAsset<T>(string key)
+    public async Task<AsyncOperationHandle<T>> LoadAddressableAsset<T>(string key)
     {
         AsyncOperationHandle<T> handle = Addressables.LoadAssetAsync<T>(key);
         await handle.Task;

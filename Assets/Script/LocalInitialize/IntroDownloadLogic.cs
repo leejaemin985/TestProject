@@ -8,36 +8,37 @@ namespace Localinitialize
 {
     public class IntroDownloadLogic : MonoBehaviour
     {
-        public const string KEY_SAMURAI_MODEL = "SamuraiModel";
-
-        private static readonly IList<string> REQUIRED_KEYS = new List<string>()
-        {
-            KEY_SAMURAI_MODEL
-        };
+        private const string KEY_REQUIRED = "Required";
 
         public async Task DownloadAddressables()
         {
+            //bool result = Caching.ClearCache();
+            //Debug.Log("Cache cleared: " + result);
+            //return;
             await AddressableManager.LoadCatalog();
 
-            var size = await GetRequiredDownloadBytes(REQUIRED_KEYS);
-            Debug.Log($"required download Data Size: {size}");
-
-            Debug.Log($"Test - done");
+            await StartRequiredAssetDownloadTask();
         }
 
-        private async Task<long> GetRequiredDownloadBytes(IList<string> keyList)
+        private async Task StartRequiredAssetDownloadTask()
         {
-            long total = 0;
-            List<Task<long>> tasks = new();
-            foreach (var key in keyList)
+            var checkSize = await AddressableManager.GetDownloadBytes(KEY_REQUIRED);
+            if (checkSize==0)
             {
-                tasks.Add(AddressableUtil.CheckSize(key));
+                Debug.Log($"IntroDownload - Already Required Asset");
+
+                var handle = await AddressableManager.LoadAsst<GameObject>("SamuraiModel");
+                Instantiate(handle);
+
+                return;
             }
 
-            long[] results = await Task.WhenAll(tasks);
-            foreach (var size in results) total += size;
+            Debug.Log($"IntroDownload - Required Asset Size: {checkSize} bytes");
 
-            return total;
+            await AddressableManager.AssetDownloadDependciesAsync(
+                KEY_REQUIRED,
+                (progress) => Debug.Log($"Test - DownloadProgress: {progress}"));
         }
+
     }
 }
