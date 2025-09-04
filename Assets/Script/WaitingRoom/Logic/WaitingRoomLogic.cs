@@ -1,17 +1,20 @@
-using System.Threading.Tasks;
+using System;
 
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+using Addressable;
 using Fusion;
 
 using SceneType;
 using Utility.Spinner;
-using WaitingRoom.Net;
 
 namespace WaitingRoom.Logic
 {
     using UI;
+    using Net;
+    using System.Threading.Tasks;
+    using UnityEngine.AddressableAssets;
 
     public class WaitingRoomLogic : MonoBehaviour
     {
@@ -28,11 +31,13 @@ namespace WaitingRoom.Logic
         [SerializeField] private WaitingRoomUserStateHandler userStateHandler;
         [SerializeField] private WaitingRoomUserStateHandler opponentStateHandler;
 
-        private GameObject userModel;
-        private GameObject opponentModel;
+        [SerializeField] private GameObject userModel;
+        [SerializeField] private GameObject opponentModel;
 
         private async void Start()
         {
+            LoadWaitingRoomModels();
+
             if (runner.IsSharedModeMasterClient)
                 runner.SessionInfo.IsOpen = true;
 
@@ -62,9 +67,34 @@ namespace WaitingRoom.Logic
             uiHandle.onClickedExitButtonListener = ExitSession;
         }
 
-        private void LoadWaitingRoomModels()
+        private async void LoadWaitingRoomModels()
         {
-            //GameObject samuraiModel = AddressableManager.LoadAsst<>
+            try
+            {
+                GameObject samuraiModel = await AddressableManager.LoadAsst<GameObject>(AddressableKey.PK_SamuraiModel);
+
+                var userTask = Addressables.InstantiateAsync(AddressableKey.PK_SamuraiModel.key);
+
+                var userModelTask = Task.Run(async () =>
+                {
+                    var model = await Addressables.InstantiateAsync(AddressableKey.PK_SamuraiModel).Task;
+                    userModel = model;
+                });
+
+                var opponentModelTask = Task.Run(async () =>
+                {
+                    var model = await Addressables.InstantiateAsync(AddressableKey.PK_SamuraiModel).Task;
+                    opponentModel = model;
+                });
+
+                await Task.WhenAll(userModelTask, opponentModelTask);
+
+            }
+            catch(Exception e)
+            {
+                Debug.LogError(e);
+                return;
+            }
         }
 
         private void GameEntry()
@@ -117,32 +147,21 @@ namespace WaitingRoom.Logic
 
         private void FixedUpdate()
         {
-            if (userStateHandler != null)
+            if (userModel != null)
             {
-                userModel.SetActive(true);
-                uiHandle.SetUserSlotActive(true);
-                uiHandle.SetGameEntryButton(userStateHandler.readyState);
-            }
-            else
-            {
-                userModel.SetActive(false);
-                uiHandle.SetUserSlotActive(false);
+                userModel.SetActive(userStateHandler != null);
+                uiHandle.SetUserSlotActive(userStateHandler != null);
+
+                if (userStateHandler != null) uiHandle.SetGameEntryButton(userStateHandler.readyState);
             }
 
-
-            if (opponentStateHandler != null)
+            if (opponentModel != null)
             {
-                opponentModel.SetActive(true);
-                uiHandle.SetOpponentSlotActive(true);
-                uiHandle.SetOpponentReadyState(opponentStateHandler.readyState);
-            }
-            else
-            {
-                opponentModel.SetActive(false);
-                uiHandle.SetOpponentSlotActive(false);
-                uiHandle.SetOpponentReadyState(false);
-            }
+                opponentModel.SetActive(opponentStateHandler != null);
+                uiHandle.SetOpponentSlotActive(opponentStateHandler != null);
 
+                if (opponentStateHandler != null) uiHandle.SetOpponentReadyState(opponentStateHandler.readyState);
+            }
             CheckStartGame();
         }
 

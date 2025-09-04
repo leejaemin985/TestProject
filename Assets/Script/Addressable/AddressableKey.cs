@@ -21,7 +21,17 @@ namespace Addressable
 
         //public static readonly AddressableKey PK_Test = new AddressableKey(KeyType.PrimaryKey, "Test", "TestAsset");
 
+        #region Label
+
         public static readonly AddressableKey LBL_Required = new AddressableKey(KeyType.Label, "Required", "Required Asset");
 
+        #endregion
+
+
+        #region PrimaryKey
+
+        public static readonly AddressableKey PK_SamuraiModel = new AddressableKey(KeyType.PrimaryKey, "SamuraiModel", "User Samurai Model Fbx");
+
+        #endregion
     }
 }

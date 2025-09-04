@@ -2,16 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using Utility.Spinner;
+using Addressable;
 
 namespace Localinitialize
 {
     public class IntroDownloadLogic : MonoBehaviour
     {
         private bool isLoaded;
-
-        private const string KEY_REQUIRED = "Required";
 
         public async Task DownloadAddressables()
         {
@@ -28,7 +26,7 @@ namespace Localinitialize
 
         private async Task StartRequiredAssetDownloadTask()
         {
-            var checkSize = await AddressableManager.GetDownloadBytes(KEY_REQUIRED);
+            var checkSize = await AddressableManager.GetAssetsDownloadBytes(AddressableKey.LBL_Required);
             if (checkSize==0)
             {
                 Debug.Log($"IntroDownload - Already Required Asset");
@@ -38,7 +36,7 @@ namespace Localinitialize
             Debug.Log($"IntroDownload - Required Asset Size: {checkSize} bytes");
 
             await AddressableManager.AssetDownloadDependciesAsync(
-                KEY_REQUIRED,
+                AddressableKey.LBL_Required,
                 (progress) => Spinner.Instance.SetText($"Download Resource ({(int)(progress * 100)}%)"));
         }
 

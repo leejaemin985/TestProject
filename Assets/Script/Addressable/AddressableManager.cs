@@ -47,14 +47,14 @@ namespace Addressable
         public static void ReleaseCatalog()
             => addressableUtil.ReleaseCatalog(operationHandle);
 
-        public static async Task<T> LoadAsst<T>(string key, CancellationToken? cancellationToken = null)
+        public static async Task<T> LoadAsst<T>(AddressableKey addressableKey, CancellationToken? cancellationToken = null)
         {
-            if (assetHandles.ContainsKey(key))
-                return (T)assetHandles[key].Result;
+            if (assetHandles.ContainsKey(addressableKey.key))
+                return (T)assetHandles[addressableKey.key].Result;
 
-            var handle = await addressableUtil.GetTAsync<T>(key);
+            var handle = await addressableUtil.GetTAsync<T>(addressableKey.key);
 
-            assetHandles.TryAdd(key, handle);
+            assetHandles.TryAdd(addressableKey.key, handle);
             return handle.Result;
         }
 
