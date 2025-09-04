@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 using Utility.Spinner;
 using Utility.CommonPopup;
+using System.Runtime.CompilerServices;
 
 namespace Localinitialize
 {
@@ -16,7 +17,11 @@ namespace Localinitialize
         {
             await introDownload.DownloadAddressables();
 
-            return;
+            JoinLobby();
+        }
+
+        private async void JoinLobby()
+        {
             while (true)
             {
                 await TryConnect();
@@ -25,7 +30,7 @@ namespace Localinitialize
 
                 await OnReconnectConfirmCommonPopup();
             }
-            
+
             SceneManager.LoadScene(SceneType.SceneType.Lobby.id, LoadSceneMode.Single);
         }
 
@@ -33,7 +38,7 @@ namespace Localinitialize
         {
             bool isTryConnecting = true;
 
-            Spinner.Instance.OnSpinner(() => isTryConnecting == false, true);
+            Spinner.Instance.OnSpinner(until: () => isTryConnecting == false, onLoadingImage: true, text: "Join Lobby");
             await GameNetworkManager.Instance.Connect();
 
             isTryConnecting = false;
@@ -53,5 +58,6 @@ namespace Localinitialize
             CommonPopup.Instance.OnPopup(popupPolicy);
             while (waitInput) await Task.Yield();
         }
+
     }
 }

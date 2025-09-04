@@ -20,16 +20,16 @@ namespace WaitingRoom.Logic
         [Header("Setting")]
         [SerializeField] private WaitingRoomUI uiHandle;
 
-        [SerializeField] private GameObject userModel;
-        [SerializeField] private GameObject opponentModel;
-
-        [Header("Prefab")]
+        [Header("Resources")]
+        [SerializeField] private RuntimeAnimatorController modelAnimController;
         [SerializeField] private WaitingRoomUserStateHandler stateHandlerPrefab;
 
         [Header("NetworkObject")]
         [SerializeField] private WaitingRoomUserStateHandler userStateHandler;
         [SerializeField] private WaitingRoomUserStateHandler opponentStateHandler;
 
+        private GameObject userModel;
+        private GameObject opponentModel;
 
         private async void Start()
         {
@@ -46,6 +46,7 @@ namespace WaitingRoom.Logic
 
             SetNetworkListener();
             UIInitialize();
+
         }
 
         private void SetNetworkListener()
@@ -61,6 +62,10 @@ namespace WaitingRoom.Logic
             uiHandle.onClickedExitButtonListener = ExitSession;
         }
 
+        private void LoadWaitingRoomModels()
+        {
+            //GameObject samuraiModel = AddressableManager.LoadAsst<>
+        }
 
         private void GameEntry()
         {

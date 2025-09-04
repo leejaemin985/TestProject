@@ -15,13 +15,16 @@ namespace Utility.Spinner
 
         private IEnumerator spinnerRoutineHandle;
 
-        public void OnSpinner(Func<bool> until, bool onLoadingImage = false)
+        public void OnSpinner(Func<bool> until, bool onLoadingImage = false, string text = null)
         {
             uiHandle.SetSpinner(true, onLoadingImage);
+            SetText(text);
 
             if (spinnerRoutineHandle != null) StopCoroutine(spinnerRoutineHandle);
             StartCoroutine(spinnerRoutineHandle = SpinnerRoutine(until));
         }
+
+        public void SetText(string text) => uiHandle.SetText(text);
 
         private IEnumerator SpinnerRoutine(Func<bool> until)
         {
