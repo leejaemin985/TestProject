@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
+using Addressable;
 
 namespace Localinitialize
 {
@@ -12,9 +11,6 @@ namespace Localinitialize
 
         public async Task DownloadAddressables()
         {
-            //bool result = Caching.ClearCache();
-            //Debug.Log("Cache cleared: " + result);
-            //return;
             await AddressableManager.LoadCatalog();
 
             await StartRequiredAssetDownloadTask();
@@ -22,7 +18,7 @@ namespace Localinitialize
 
         private async Task StartRequiredAssetDownloadTask()
         {
-            var checkSize = await AddressableManager.GetDownloadBytes(KEY_REQUIRED);
+            var checkSize = await AddressableManager.GetAssetsDownloadBytes(AddressableKey.LBL_Required);
             if (checkSize==0)
             {
                 Debug.Log($"IntroDownload - Already Required Asset");
@@ -36,7 +32,7 @@ namespace Localinitialize
             Debug.Log($"IntroDownload - Required Asset Size: {checkSize} bytes");
 
             await AddressableManager.AssetDownloadDependciesAsync(
-                KEY_REQUIRED,
+                AddressableKey.LBL_Required,
                 (progress) => Debug.Log($"Test - DownloadProgress: {progress}"));
         }
 

@@ -8,80 +8,84 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.AddressableAssets.ResourceLocators;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
-public static class AddressableManager
+namespace Addressable
 {
-    private static AddressableUtil addressableUtil = new();
-
-    private static string SERVER_PATH => "https://unityprojectaddressable.web.app/StandaloneWindows64/catalog_0.1.json";
-    private static AsyncOperationHandle<IResourceLocator> operationHandle;
-
-    private static Dictionary<string, AsyncOperationHandle> assetHandles = new();
-
-    public static async Task LoadCatalog()
+    public static class AddressableManager
     {
-        await Addressables.InitializeAsync().Task;
+        private static AddressableUtil addressableUtil = new();
 
-        try
+        private static string SERVER_PATH => "https://unityprojectaddressable.web.app/StandaloneWindows64/catalog_0.1.json";
+        private static AsyncOperationHandle<IResourceLocator> operationHandle;
+
+        private static Dictionary<string, AsyncOperationHandle> assetHandles = new();
+
+        public static bool ClearAssets()
         {
-            if (operationHandle.IsValid())
+            return Caching.ClearCache();
+        }
+
+        public static async Task LoadCatalog()
+        {
+            await Addressables.InitializeAsync().Task;
+
+            try
             {
-                await addressableUtil.UpdateCatalogs();
-                return;
+                if (operationHandle.IsValid())
+                {
+                    await addressableUtil.UpdateCatalogs();
+                    return;
+                }
+
+                operationHandle = await addressableUtil.LoadCatalog(SERVER_PATH);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
+        }
+
+        public static void ReleaseCatalog()
+            => addressableUtil.ReleaseCatalog(operationHandle);
+
+        public static async Task<T> LoadAsst<T>(string key, CancellationToken? cancellationToken = null)
+        {
+            if (assetHandles.ContainsKey(key))
+                return (T)assetHandles[key].Result;
+
+            var handle = await addressableUtil.GetTAsync<T>(key);
+
+            assetHandles.TryAdd(key, handle);
+            return handle.Result;
+        }
+
+        public static async Task<long> GetAssetsDownloadBytes(params AddressableKey[] addressableKeys)
+        {
+            long total = 0;
+            List<Task<long>> tasks = new();
+            foreach (var addressableKey in addressableKeys)
+            {
+                tasks.Add(addressableUtil.CheckSize(addressableKey.key));
             }
 
-            operationHandle = await addressableUtil.LoadCatalog(SERVER_PATH);
+            long[] results = await Task.WhenAll(tasks);
+            foreach (var size in results) total += size;
+
+            return total;
         }
-        catch(Exception e)
+
+        public static async Task AssetDownloadDependciesAsync(AddressableKey addressableKey, Action<float> loadProgress = null)
         {
-            Debug.LogError(e);
-        }
-    }
+            var handle = Addressables.DownloadDependenciesAsync(addressableKey.key);
+            
+            const int PROGRESS_DELAY = 50;
+            while (handle.IsDone == false)
+            {
+                loadProgress?.Invoke(handle.PercentComplete);
+                await Task.Delay(PROGRESS_DELAY);
+            }
 
-    public static void ReleaseCatalog()
-        => addressableUtil.ReleaseCatalog(operationHandle);
-
-    public static async Task<T> LoadAsst<T>(string key, CancellationToken? cancellationToken = null)
-    {
-        if (assetHandles.ContainsKey(key))
-            return (T)assetHandles[key].Result;
-
-        var handle = await addressableUtil.GetTAsync<T>(key);
-
-        assetHandles.TryAdd(key, handle);
-        return handle.Result;
-    }
-
-    public static async Task<long> GetDownloadBytes(params string[] keys)
-    {
-        long total = 0;
-        List<Task<long>> tasks = new();
-        foreach (var key in keys)
-        {
-            tasks.Add(addressableUtil.CheckSize(key));
+            Addressables.Release(handle);
         }
 
-        long[] results = await Task.WhenAll(tasks);
-        foreach (var size in results) total += size;
-
-        return total;
     }
-
-    public static async Task AssetDownloadDependciesAsync(string key, Action<float> loadProgress = null)
-    {
-        Debug.Log($"Start");
-        var handle = Addressables.DownloadDependenciesAsync(key);
-        //await handle.Task;
-
-        Debug.Log($"Test");
-        const int PROGRESS_DELAY = 50;
-        while (handle.IsDone == false)
-        {
-            loadProgress?.Invoke(handle.PercentComplete);
-            await Task.Delay(PROGRESS_DELAY);
-        }
-
-        Debug.Log($"Done");
-        Addressables.Release(handle);
-    }
-
 }
