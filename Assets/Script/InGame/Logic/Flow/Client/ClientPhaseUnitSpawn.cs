@@ -1,11 +1,8 @@
-using Fusion;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Unit;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
+using Fusion;
+using Unit;
 
 namespace InGame.Logic.Flow
 {
@@ -62,15 +59,13 @@ namespace InGame.Logic.Flow
 
         private async Task SpawnPlayer()
         {
-            bool odd = (runner.LocalPlayer.AsIndex % 2) == 1;
-
-            Vector3 spawnPos = Vector3.forward * (odd ? 5 : -5);
-            Quaternion spawnRot = Quaternion.Euler(new Vector3(0, odd ? 180 : 0, 0));
+            var spawnPosContainter = FindObjectOfType<InGameUserSpawnPos>();
+            var targetPos = spawnPosContainter.GetUserSpawnPos(runner.LocalPlayer);
 
             var spawnedOb = await runner.SpawnAsync(
                 prefab: playerPrefab,
-                position: spawnPos,
-                rotation: spawnRot,
+                position: targetPos.Item1,
+                rotation: targetPos.Item2,
                 inputAuthority: runner.LocalPlayer);
 
             

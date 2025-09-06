@@ -1,0 +1,493 @@
+fileFormatVersion: 2
+guid: ad01d8ed39132bd41b41df0f3230d309
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: Dojo_GroupLeft
+    100004: Dojo_GroupRight
+    100006: Dojo_polySurface817
+    100008: Dojo_polySurface817 1
+    100010: Dojo_polySurface825
+    100012: Dojo_polySurface831
+    100014: Dojo_polySurface831 1
+    100016: Dojo_polySurface833
+    100018: Dojo_polySurface837
+    100020: Dojo_polySurface837 1
+    100022: Dojo_polySurface840
+    100024: Dojo_polySurface847
+    100026: Dojo_polySurface847 1
+    100028: Dojo_polySurface851
+    100030: Dojo_polySurface851 1
+    100032: Dojo_polySurface852
+    100034: Dojo_polySurface852 1
+    100036: Dojo_polySurface900
+    100038: Dojo_polySurface901
+    100040: Dojo_polySurface901 1
+    100042: Dojo_polySurface903
+    100044: Dojo_polySurface903 1
+    100046: Dojo_polySurface909
+    100048: Dojo_polySurface909 1
+    100050: Dojo_polySurface958
+    100052: Dojo_polySurface958 1
+    100054: Dojo_polySurface959
+    100056: Dojo_polySurface959 1
+    100058: group10
+    100060: group10 1
+    100062: group11
+    100064: group11 1
+    100066: group3_polySurface625
+    100068: group3_polySurface626
+    100070: group8
+    100072: group8 1
+    100074: group9
+    100076: group9 1
+    100078: polySurface825
+    100080: polySurface832
+    100082: polySurface833
+    100084: polySurface841
+    100086: polySurface900
+    100088: Dojo_BeamL_01
+    100090: Dojo_BeamL_02
+    100092: Dojo_BeamR_01
+    100094: Dojo_BeamR_02
+    100096: Dojo_BeamsL
+    100098: Dojo_BeamsR
+    100100: Dojo_CealingL_01
+    100102: Dojo_CealingL_02
+    100104: Dojo_CealingR_01
+    100106: Dojo_CealingR_02
+    100108: Dojo_FarBackWall
+    100110: Dojo_Floor_L
+    100112: Dojo_Floor_R
+    100114: Dojo_FloorMattL_01
+    100116: Dojo_FloorMattL_02
+    100118: Dojo_FloorMattR_01
+    100120: Dojo_FloorMattR_02
+    100122: Dojo_FloorPlatformL
+    100124: Dojo_FloorPlatformL_wStairs
+    100126: Dojo_FloorPlatformR
+    100128: Dojo_FloorPlatformR_wStairs
+    100130: Dojo_L_BackWall
+    100132: Dojo_LargeBackWall
+    100134: Dojo_LargeBackWall_L
+    100136: Dojo_LargeBackWall_R
+    100138: Dojo_LargeBackWalls
+    100140: Dojo_R_BackWall
+    100142: Dojo_Scroll_L
+    100144: Dojo_Scroll_R
+    100146: Dojo_SideWallL_01
+    100148: Dojo_SideWallL_02
+    100150: Dojo_SideWallL_Top_01
+    100152: Dojo_SideWallL_Top_02
+    100154: Dojo_SideWallR_01
+    100156: Dojo_SideWallR_02
+    100158: Dojo_SideWallR_Top_01
+    100160: Dojo_SideWallR_Top_02
+    100162: Dojo_WallsL
+    100164: Dojo_WallsR
+    100166: polySurface832 1
+    100168: Dojo_WoodPlank
+    400000: //RootNode
+    400002: Dojo_GroupLeft
+    400004: Dojo_GroupRight
+    400006: Dojo_polySurface817
+    400008: Dojo_polySurface817 1
+    400010: Dojo_polySurface825
+    400012: Dojo_polySurface831
+    400014: Dojo_polySurface831 1
+    400016: Dojo_polySurface833
+    400018: Dojo_polySurface837
+    400020: Dojo_polySurface837 1
+    400022: Dojo_polySurface840
+    400024: Dojo_polySurface847
+    400026: Dojo_polySurface847 1
+    400028: Dojo_polySurface851
+    400030: Dojo_polySurface851 1
+    400032: Dojo_polySurface852
+    400034: Dojo_polySurface852 1
+    400036: Dojo_polySurface900
+    400038: Dojo_polySurface901
+    400040: Dojo_polySurface901 1
+    400042: Dojo_polySurface903
+    400044: Dojo_polySurface903 1
+    400046: Dojo_polySurface909
+    400048: Dojo_polySurface909 1
+    400050: Dojo_polySurface958
+    400052: Dojo_polySurface958 1
+    400054: Dojo_polySurface959
+    400056: Dojo_polySurface959 1
+    400058: group10
+    400060: group10 1
+    400062: group11
+    400064: group11 1
+    400066: group3_polySurface625
+    400068: group3_polySurface626
+    400070: group8
+    400072: group8 1
+    400074: group9
+    400076: group9 1
+    400078: polySurface825
+    400080: polySurface832
+    400082: polySurface833
+    400084: polySurface841
+    400086: polySurface900
+    400088: Dojo_BeamL_01
+    400090: Dojo_BeamL_02
+    400092: Dojo_BeamR_01
+    400094: Dojo_BeamR_02
+    400096: Dojo_BeamsL
+    400098: Dojo_BeamsR
+    400100: Dojo_CealingL_01
+    400102: Dojo_CealingL_02
+    400104: Dojo_CealingR_01
+    400106: Dojo_CealingR_02
+    400108: Dojo_FarBackWall
+    400110: Dojo_Floor_L
+    400112: Dojo_Floor_R
+    400114: Dojo_FloorMattL_01
+    400116: Dojo_FloorMattL_02
+    400118: Dojo_FloorMattR_01
+    400120: Dojo_FloorMattR_02
+    400122: Dojo_FloorPlatformL
+    400124: Dojo_FloorPlatformL_wStairs
+    400126: Dojo_FloorPlatformR
+    400128: Dojo_FloorPlatformR_wStairs
+    400130: Dojo_L_BackWall
+    400132: Dojo_LargeBackWall
+    400134: Dojo_LargeBackWall_L
+    400136: Dojo_LargeBackWall_R
+    400138: Dojo_LargeBackWalls
+    400140: Dojo_R_BackWall
+    400142: Dojo_Scroll_L
+    400144: Dojo_Scroll_R
+    400146: Dojo_SideWallL_01
+    400148: Dojo_SideWallL_02
+    400150: Dojo_SideWallL_Top_01
+    400152: Dojo_SideWallL_Top_02
+    400154: Dojo_SideWallR_01
+    400156: Dojo_SideWallR_02
+    400158: Dojo_SideWallR_Top_01
+    400160: Dojo_SideWallR_Top_02
+    400162: Dojo_WallsL
+    400164: Dojo_WallsR
+    400166: polySurface832 1
+    400168: Dojo_WoodPlank
+    2100000: Dojo_BackWall_MAT
+    2100002: Dojo_Floor_MAT
+    2100004: Dojo_SideWalls_MAT
+    2100006: Dojo_CelaingSuports_MAT
+    2100008: lambert1
+    2100010: lambert2
+    2300000: Dojo_polySurface817
+    2300002: Dojo_polySurface817 1
+    2300004: Dojo_polySurface825
+    2300006: Dojo_polySurface831
+    2300008: Dojo_polySurface831 1
+    2300010: Dojo_polySurface833
+    2300012: Dojo_polySurface837
+    2300014: Dojo_polySurface837 1
+    2300016: Dojo_polySurface840
+    2300018: Dojo_polySurface847
+    2300020: Dojo_polySurface847 1
+    2300022: Dojo_polySurface851
+    2300024: Dojo_polySurface851 1
+    2300026: Dojo_polySurface852
+    2300028: Dojo_polySurface852 1
+    2300030: Dojo_polySurface900
+    2300032: Dojo_polySurface901
+    2300034: Dojo_polySurface901 1
+    2300036: Dojo_polySurface903
+    2300038: Dojo_polySurface903 1
+    2300040: Dojo_polySurface909
+    2300042: Dojo_polySurface909 1
+    2300044: Dojo_polySurface958
+    2300046: Dojo_polySurface958 1
+    2300048: Dojo_polySurface959
+    2300050: Dojo_polySurface959 1
+    2300052: group3_polySurface625
+    2300054: group3_polySurface626
+    2300056: polySurface825
+    2300058: polySurface832
+    2300060: polySurface833
+    2300062: polySurface841
+    2300064: polySurface900
+    2300066: Dojo_BeamL_01
+    2300068: Dojo_BeamL_02
+    2300070: Dojo_BeamR_01
+    2300072: Dojo_BeamR_02
+    2300074: Dojo_CealingL_01
+    2300076: Dojo_CealingL_02
+    2300078: Dojo_CealingR_01
+    2300080: Dojo_CealingR_02
+    2300082: Dojo_FarBackWall
+    2300084: Dojo_FloorMattL_01
+    2300086: Dojo_FloorMattL_02
+    2300088: Dojo_FloorMattR_01
+    2300090: Dojo_FloorMattR_02
+    2300092: Dojo_FloorPlatformL
+    2300094: Dojo_FloorPlatformL_wStairs
+    2300096: Dojo_FloorPlatformR
+    2300098: Dojo_FloorPlatformR_wStairs
+    2300100: Dojo_L_BackWall
+    2300102: Dojo_LargeBackWall
+    2300104: Dojo_LargeBackWall_L
+    2300106: Dojo_LargeBackWall_R
+    2300108: Dojo_R_BackWall
+    2300110: Dojo_Scroll_L
+    2300112: Dojo_Scroll_R
+    2300114: Dojo_SideWallL_01
+    2300116: Dojo_SideWallL_02
+    2300118: Dojo_SideWallL_Top_01
+    2300120: Dojo_SideWallL_Top_02
+    2300122: Dojo_SideWallR_01
+    2300124: Dojo_SideWallR_02
+    2300126: Dojo_SideWallR_Top_01
+    2300128: Dojo_SideWallR_Top_02
+    2300130: polySurface832 1
+    2300132: Dojo_WoodPlank
+    3300000: Dojo_polySurface817
+    3300002: Dojo_polySurface817 1
+    3300004: Dojo_polySurface825
+    3300006: Dojo_polySurface831
+    3300008: Dojo_polySurface831 1
+    3300010: Dojo_polySurface833
+    3300012: Dojo_polySurface837
+    3300014: Dojo_polySurface837 1
+    3300016: Dojo_polySurface840
+    3300018: Dojo_polySurface847
+    3300020: Dojo_polySurface847 1
+    3300022: Dojo_polySurface851
+    3300024: Dojo_polySurface851 1
+    3300026: Dojo_polySurface852
+    3300028: Dojo_polySurface852 1
+    3300030: Dojo_polySurface900
+    3300032: Dojo_polySurface901
+    3300034: Dojo_polySurface901 1
+    3300036: Dojo_polySurface903
+    3300038: Dojo_polySurface903 1
+    3300040: Dojo_polySurface909
+    3300042: Dojo_polySurface909 1
+    3300044: Dojo_polySurface958
+    3300046: Dojo_polySurface958 1
+    3300048: Dojo_polySurface959
+    3300050: Dojo_polySurface959 1
+    3300052: group3_polySurface625
+    3300054: group3_polySurface626
+    3300056: polySurface825
+    3300058: polySurface832
+    3300060: polySurface833
+    3300062: polySurface841
+    3300064: polySurface900
+    3300066: Dojo_BeamL_01
+    3300068: Dojo_BeamL_02
+    3300070: Dojo_BeamR_01
+    3300072: Dojo_BeamR_02
+    3300074: Dojo_CealingL_01
+    3300076: Dojo_CealingL_02
+    3300078: Dojo_CealingR_01
+    3300080: Dojo_CealingR_02
+    3300082: Dojo_FarBackWall
+    3300084: Dojo_FloorMattL_01
+    3300086: Dojo_FloorMattL_02
+    3300088: Dojo_FloorMattR_01
+    3300090: Dojo_FloorMattR_02
+    3300092: Dojo_FloorPlatformL
+    3300094: Dojo_FloorPlatformL_wStairs
+    3300096: Dojo_FloorPlatformR
+    3300098: Dojo_FloorPlatformR_wStairs
+    3300100: Dojo_L_BackWall
+    3300102: Dojo_LargeBackWall
+    3300104: Dojo_LargeBackWall_L
+    3300106: Dojo_LargeBackWall_R
+    3300108: Dojo_R_BackWall
+    3300110: Dojo_Scroll_L
+    3300112: Dojo_Scroll_R
+    3300114: Dojo_SideWallL_01
+    3300116: Dojo_SideWallL_02
+    3300118: Dojo_SideWallL_Top_01
+    3300120: Dojo_SideWallL_Top_02
+    3300122: Dojo_SideWallR_01
+    3300124: Dojo_SideWallR_02
+    3300126: Dojo_SideWallR_Top_01
+    3300128: Dojo_SideWallR_Top_02
+    3300130: polySurface832 1
+    3300132: Dojo_WoodPlank
+    4300000: Dojo_polySurface840
+    4300002: Dojo_polySurface817
+    4300004: Dojo_polySurface851
+    4300006: polySurface833
+    4300008: Dojo_polySurface847
+    4300010: Dojo_polySurface852
+    4300012: polySurface832
+    4300014: Dojo_polySurface837
+    4300016: Dojo_polySurface825
+    4300018: Dojo_polySurface900
+    4300020: Dojo_polySurface901
+    4300022: Dojo_polySurface831
+    4300024: Dojo_polySurface903
+    4300026: polySurface841
+    4300028: group3_polySurface626
+    4300030: group3_polySurface625
+    4300032: Dojo_polySurface909
+    4300034: Dojo_polySurface958
+    4300036: Dojo_polySurface959
+    4300038: Dojo_polySurface817
+    4300040: Dojo_polySurface851
+    4300042: Dojo_polySurface833
+    4300044: Dojo_polySurface847
+    4300046: Dojo_polySurface852
+    4300048: Dojo_polySurface837
+    4300050: polySurface825
+    4300052: polySurface900
+    4300054: Dojo_polySurface901
+    4300056: Dojo_polySurface831
+    4300058: Dojo_polySurface903
+    4300060: Dojo_polySurface909
+    4300062: Dojo_polySurface958
+    4300064: Dojo_polySurface959
+    4300066: Dojo_LargeBackWall
+    4300068: Dojo_LargeBackWall_L
+    4300070: Dojo_LargeBackWall_R
+    4300072: Dojo_Scroll_R
+    4300074: Dojo_Scroll_L
+    4300076: Dojo_FarBackWall
+    4300078: Dojo_FloorMattL_01
+    4300080: Dojo_FloorPlatformL
+    4300082: Dojo_FloorPlatformL_wStairs
+    4300084: Dojo_FloorMattL_02
+    4300086: Dojo_SideWallL_01
+    4300088: Dojo_SideWallL_Top_01
+    4300090: Dojo_SideWallL_Top_02
+    4300092: Dojo_SideWallL_02
+    4300094: Dojo_BeamL_01
+    4300096: Dojo_BeamL_02
+    4300098: Dojo_L_BackWall
+    4300100: Dojo_CealingL_01
+    4300102: Dojo_CealingL_02
+    4300104: Dojo_FloorMattR_01
+    4300106: Dojo_FloorPlatformR
+    4300108: Dojo_FloorPlatformR_wStairs
+    4300110: Dojo_FloorMattR_02
+    4300112: polySurface832
+    4300114: Dojo_SideWallR_01
+    4300116: Dojo_SideWallR_Top_01
+    4300118: Dojo_SideWallR_Top_02
+    4300120: Dojo_SideWallR_02
+    4300122: Dojo_BeamR_01
+    4300124: Dojo_BeamR_02
+    4300126: Dojo_R_BackWall
+    4300128: Dojo_CealingR_01
+    4300130: Dojo_CealingR_02
+    4300132: Dojo_WoodPlank
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Dojo_BackWall_MAT
+    second: {fileID: 2100000, guid: 2f37963a2da6cab4681f4bc5a9b6b01d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Dojo_CelaingSuports_MAT
+    second: {fileID: 2100000, guid: adf62123101956749bd91ddbc549f8b6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Dojo_Floor_MAT
+    second: {fileID: 2100000, guid: ffcca5787a9b93644b338db32c63b2fe, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Dojo_SideWalls_MAT
+    second: {fileID: 2100000, guid: 0136e510f7473d741b8468c527197df8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: lambert2
+    second: {fileID: 2100000, guid: 4202d0d7ba9fa4d4eb2b68f75aa6aa30, type: 2}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 0
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

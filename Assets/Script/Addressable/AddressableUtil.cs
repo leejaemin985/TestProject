@@ -94,6 +94,24 @@ namespace Addressable
             }
         }
 
+        internal void SafeRelease<TObject>(TObject handle)
+        {
+            if (handle == null)
+            {
+                Debug.LogWarning($"AddressableUtil: SafeRelease - handle is null");
+                return;
+            }
+            var handleName = handle.ToString();
+            try
+            {
+                Addressables.Release(handle);
+            }
+            catch(Exception ex)
+            {
+                Debug.LogError($"AddressableUtil: ERROR - SafeRelease - {handleName} - {ex}");
+            }
+        }
+
         internal async Task<long> CheckSize(string key)
         {
             AsyncOperationHandle<long> handle = Addressables.GetDownloadSizeAsync(key);

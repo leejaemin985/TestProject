@@ -47,7 +47,7 @@ namespace Addressable
         public static void ReleaseCatalog()
             => addressableUtil.ReleaseCatalog(operationHandle);
 
-        public static async Task<T> LoadAsst<T>(AddressableKey addressableKey, CancellationToken? cancellationToken = null)
+        public static async Task<T> LoadAsst<T>(AddressableKey addressableKey)
         {
             if (assetHandles.ContainsKey(addressableKey.key))
                 return (T)assetHandles[addressableKey.key].Result;
@@ -56,6 +56,15 @@ namespace Addressable
 
             assetHandles.TryAdd(addressableKey.key, handle);
             return handle.Result;
+        }
+
+        public static void Release(AddressableKey addressableKey)
+        {
+            if (assetHandles.TryGetValue(addressableKey.key, out var handle) == false)
+                return;
+            assetHandles.Remove(addressableKey.key);
+
+            addressableUtil.SafeRelease(handle.Result);
         }
 
         public static async Task<long> GetAssetsDownloadBytes(params AddressableKey[] addressableKeys)

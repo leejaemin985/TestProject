@@ -24,10 +24,10 @@ namespace InGame.Logic
 
         private void OnApplicationFocus(bool focus)
         {
-            if (focus == false) TryTransferMasterAsync();
+            if (focus == false) TryTransferMaster();
         }
 
-        private async void TryTransferMasterAsync()
+        private void TryTransferMaster()
         {
             pauseEventListener?.Invoke();
         }

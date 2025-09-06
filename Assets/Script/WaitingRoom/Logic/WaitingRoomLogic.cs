@@ -1,9 +1,9 @@
 using System;
+using System.Threading;
 
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-using Addressable;
 using Fusion;
 
 using SceneType;
@@ -11,35 +11,31 @@ using Utility.Spinner;
 
 namespace WaitingRoom.Logic
 {
-    using UI;
     using Net;
-    using System.Threading.Tasks;
-    using UnityEngine.AddressableAssets;
 
     public class WaitingRoomLogic : MonoBehaviour
     {
         private NetworkRunner runner => GameNetworkManager.Instance.runner;
 
-        [Header("Setting")]
-        [SerializeField] private WaitingRoomUI uiHandle;
+        [Header("SubLogic")]
+        [SerializeField] private WaitingRoomLocalSetting localSetting;
 
         [Header("Resources")]
-        [SerializeField] private RuntimeAnimatorController modelAnimController;
         [SerializeField] private WaitingRoomUserStateHandler stateHandlerPrefab;
 
         [Header("NetworkObject")]
         [SerializeField] private WaitingRoomUserStateHandler userStateHandler;
         [SerializeField] private WaitingRoomUserStateHandler opponentStateHandler;
 
-        [SerializeField] private GameObject userModel;
-        [SerializeField] private GameObject opponentModel;
+        private CancellationTokenSource cts;
 
         private async void Start()
         {
-            LoadWaitingRoomModels();
-
             if (runner.IsSharedModeMasterClient)
                 runner.SessionInfo.IsOpen = true;
+
+            cts = new();
+            localSetting.InitializeAsync(GameEntry, ExitSession, cts.Token);
 
             var handle = await runner.SpawnAsync(prefab: stateHandlerPrefab);
             userStateHandler = handle.GetComponent<WaitingRoomUserStateHandler>();
@@ -50,51 +46,12 @@ namespace WaitingRoom.Logic
             }
 
             SetNetworkListener();
-            UIInitialize();
-
         }
 
         private void SetNetworkListener()
         {
             GameNetworkManager.Instance.AddJoinedUserEventListener(JoinedUserListener);
             GameNetworkManager.Instance.AddLeftUserEventListener(LeftUserListener);
-        }
-
-        private void UIInitialize()
-        {
-            uiHandle.SetSessionInfo(runner.SessionInfo);
-            uiHandle.onClickedGameEntryButtonListener = GameEntry;
-            uiHandle.onClickedExitButtonListener = ExitSession;
-        }
-
-        private async void LoadWaitingRoomModels()
-        {
-            try
-            {
-                GameObject samuraiModel = await AddressableManager.LoadAsst<GameObject>(AddressableKey.PK_SamuraiModel);
-
-                var userTask = Addressables.InstantiateAsync(AddressableKey.PK_SamuraiModel.key);
-
-                var userModelTask = Task.Run(async () =>
-                {
-                    var model = await Addressables.InstantiateAsync(AddressableKey.PK_SamuraiModel).Task;
-                    userModel = model;
-                });
-
-                var opponentModelTask = Task.Run(async () =>
-                {
-                    var model = await Addressables.InstantiateAsync(AddressableKey.PK_SamuraiModel).Task;
-                    opponentModel = model;
-                });
-
-                await Task.WhenAll(userModelTask, opponentModelTask);
-
-            }
-            catch(Exception e)
-            {
-                Debug.LogError(e);
-                return;
-            }
         }
 
         private void GameEntry()
@@ -105,6 +62,7 @@ namespace WaitingRoom.Logic
         private async void ExitSession()
         {
             bool isExitRequest = true;
+            cts?.Cancel();
 
             Spinner.Instance.OnSpinner(() => isExitRequest == false);
             await GameNetworkManager.Instance.Connect();
@@ -147,21 +105,8 @@ namespace WaitingRoom.Logic
 
         private void FixedUpdate()
         {
-            if (userModel != null)
-            {
-                userModel.SetActive(userStateHandler != null);
-                uiHandle.SetUserSlotActive(userStateHandler != null);
-
-                if (userStateHandler != null) uiHandle.SetGameEntryButton(userStateHandler.readyState);
-            }
-
-            if (opponentModel != null)
-            {
-                opponentModel.SetActive(opponentStateHandler != null);
-                uiHandle.SetOpponentSlotActive(opponentStateHandler != null);
-
-                if (opponentStateHandler != null) uiHandle.SetOpponentReadyState(opponentStateHandler.readyState);
-            }
+            localSetting.SetUserState(userStateHandler != null, userStateHandler ? userStateHandler.readyState : false);
+            localSetting.SetOpponentState(opponentStateHandler != null, opponentStateHandler ? opponentStateHandler.readyState : false);
             CheckStartGame();
         }
 
