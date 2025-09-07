@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Fusion;
 using Unit;
+using Addressable;
 
 namespace InGame.Logic.Flow
 {
@@ -13,8 +14,6 @@ namespace InGame.Logic.Flow
         [Header("Prefab")]
         [SerializeField] private UnitStat unitStatPrefab;
         [SerializeField] private Player playerPrefab;
-
-        private Player spawnedPlayer;
 
         public override async Task OnEnter()
         {
@@ -60,7 +59,7 @@ namespace InGame.Logic.Flow
         private async Task SpawnPlayer()
         {
             var spawnPosContainter = FindObjectOfType<InGameUserSpawnPos>();
-            var targetPos = spawnPosContainter.GetUserSpawnPos(runner.LocalPlayer);
+            var targetPos = spawnPosContainter.GetUserSpawnPos(runner.IsSharedModeMasterClient);
 
             var spawnedOb = await runner.SpawnAsync(
                 prefab: playerPrefab,
@@ -68,8 +67,12 @@ namespace InGame.Logic.Flow
                 rotation: targetPos.Item2,
                 inputAuthority: runner.LocalPlayer);
 
-            
-            spawnedPlayer = spawnedOb.GetComponent<Player>();
+            //test
+            var samurai = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_SamuraiModel);
+            var katana = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_Katana);
+            Instantiate(samurai);
+            Instantiate(katana);
+
         }
 
         #endregion

@@ -44,7 +44,7 @@ namespace Unit
             }
         }
 
-        public void Initialized(Player player, SimpleKCC cc, Animator anim, Animator interpolatedAnim, Katana playerWeapon)
+        public void Initialized(Player player, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, Katana playerWeapon)
         {
             this.player = player;
             input = new();
@@ -52,13 +52,15 @@ namespace Unit
             stateMap = new();
             foreach (var state in stateArray)
             {
-                state.Initialize(player, this, cc, anim, interpolatedAnim, playerWeapon);
+                state.Initialize(player, this, cc, modelAnim, latencyInterpolationAnim, playerWeapon);
                 stateMap[state.GetStateType()] = state;
             }
 
             CurrentState = stateMap[currentStateType];
 
             isInitialized = true;
+
+            StartCoroutine(TestCoroutine());
         }
 
         public HitResultType CheckHittable(HitInfo hitInfo)
@@ -177,12 +179,23 @@ namespace Unit
             if (Runner.IsSharedModeMasterClient) CurrentState?.OnMasterTick();
         }
 
+        private bool isTest = false;
+        private IEnumerator TestCoroutine()
+        {
+            while (true)
+            {
+                yield return new WaitForSeconds(3);
+                isTest = !isTest;
+            }
+        }
+
         public override void FixedUpdateNetwork()
         {
             if (isInitialized == false || player.canControll == false) return;
 
             if (GetInput<InputData>(out var newInput) == false) return;
-            
+
+            //newInput.attack = isTest;
             input.Update(newInput);
 
             CurrentState?.OnState();

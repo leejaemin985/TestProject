@@ -19,8 +19,6 @@ namespace Addressable
             this.name = name;
         }
 
-        //public static readonly AddressableKey PK_Test = new AddressableKey(KeyType.PrimaryKey, "Test", "TestAsset");
-
         #region Label
 
         public static readonly AddressableKey LBL_Required = new AddressableKey(KeyType.Label, "Required", "Required Asset");
@@ -30,7 +28,9 @@ namespace Addressable
 
         #region PrimaryKey
 
-        public static readonly AddressableKey PK_SamuraiModel = new AddressableKey(KeyType.PrimaryKey, "SamuraiModel", "User Samurai Model Fbx");
+        public static readonly AddressableKey PK_SamuraiModel = new AddressableKey(KeyType.PrimaryKey, "Model_Samurai", "User Samurai Model Fbx");
+
+        public static readonly AddressableKey PK_Katana = new AddressableKey(KeyType.PrimaryKey, "Weapon_Katana", "Weapon Katana");
 
         #endregion
     }

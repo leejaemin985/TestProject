@@ -6,7 +6,9 @@ using UnityEngine;
 using Fusion;
 using Fusion.Addons.SimpleKCC;
 
-using Physics;
+using CustomPhysics;
+using System.Threading.Tasks;
+using Addressable;
 
 namespace Unit
 {
@@ -26,10 +28,11 @@ namespace Unit
         [SerializeField] private PlayerFSM fsm;
         [SerializeField] private PlayerInteractionEventHandler interactionEventHandler;
 
-        [SerializeField] private Animator anim;
-        [SerializeField] private PlayerAnimEventer animEventer;
-        [SerializeField] private Animator latencyInterpolatedAnim;
-        [SerializeField] private Transform latencyInterpolatedWeapPos;
+        [SerializeField] private Animator latencyInterpolationAnim;
+        [SerializeField] private Transform latencyInterpolationWeapPos;
+        private Animator modelAnim;
+        private PlayerAnimEventer animEventer;
+
 
         [SerializeField] private Katana weapon;
 
@@ -55,19 +58,35 @@ namespace Unit
             UnregisterUser(Object.StateAuthority);
         }
 
-        protected override void Initialize()
+        protected async override void Initialize()
         {
             base.Initialize();
+
+            await LoadModel();
 
             StartCamSet();
             
             playerHitBox = InitPlayerHitBox();
 
+            weapon.transform.SetParent(modelAnim.GetComponent<AddressableAsset_SamuraiModel>().weaponParentTransform);
+            weapon.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             weapon.Initialize(playerHitBox);
-            weapon.SetCollisionPos(latencyInterpolatedWeapPos);
+            weapon.SetCollisionPos(latencyInterpolationWeapPos);
             
-            fsm.Initialized(this, cc, anim, latencyInterpolatedAnim, weapon);
+            fsm.Initialized(this, cc, modelAnim, latencyInterpolationAnim, weapon);
             animEventer.Initialize(fsm.AnimEvent);
+        }
+
+        private async Task LoadModel()
+        {
+            var modelAsset = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_SamuraiModel);
+            var model = Instantiate(modelAsset);
+            model.transform.SetParent(transform);
+            model.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            
+            modelAnim = model.GetComponent<Animator>();
+            modelAnim.runtimeAnimatorController = latencyInterpolationAnim.runtimeAnimatorController;
+            animEventer = model.AddComponent<PlayerAnimEventer>();
         }
 
         public void SetCanController(bool set) => canControll = set;

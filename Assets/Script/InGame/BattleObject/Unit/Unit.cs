@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 using Fusion;
 
@@ -17,7 +18,7 @@ namespace Unit
             this.unitStat = unitStat;
         }
 
-        protected virtual void Initialize() { }
+        protected async virtual void Initialize() => await Task.CompletedTask;
 
         public bool isAlive() => unitStat.hp > 0;
 

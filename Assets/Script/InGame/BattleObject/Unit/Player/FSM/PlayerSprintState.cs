@@ -69,13 +69,13 @@ namespace Unit
             const string VERTICAL = "_Vertical";
             const string RUNWEIGHT = "_RunWeight";
             
-            float currentHorizontal = anim.GetFloat(HORIZONTAL);
-            float currentVertical = anim.GetFloat(VERTICAL);
-            float currentRunWeight = anim.GetFloat(RUNWEIGHT);
+            float currentHorizontal = modelAnim.GetFloat(HORIZONTAL);
+            float currentVertical = modelAnim.GetFloat(VERTICAL);
+            float currentRunWeight = modelAnim.GetFloat(RUNWEIGHT);
 
-            anim.SetFloat(HORIZONTAL, Mathf.Lerp(currentHorizontal, 0, animCurvSpeed));
-            anim.SetFloat(VERTICAL, Mathf.Lerp(currentVertical, 1, animCurvSpeed));
-            anim.SetFloat(RUNWEIGHT, Mathf.Lerp(currentRunWeight, runWeight, animCurvSpeed));
+            modelAnim.SetFloat(HORIZONTAL, Mathf.Lerp(currentHorizontal, 0, animCurvSpeed));
+            modelAnim.SetFloat(VERTICAL, Mathf.Lerp(currentVertical, 1, animCurvSpeed));
+            modelAnim.SetFloat(RUNWEIGHT, Mathf.Lerp(currentRunWeight, runWeight, animCurvSpeed));
         }
     }
 }

@@ -41,7 +41,7 @@ namespace Unit
         {
             currentVelocity = Mathf.Clamp01(currentVelocity - Runner.DeltaTime);
 
-            anim.SetFloat("_JumpVelocity", currentVelocity);
+            modelAnim.SetFloat("_JumpVelocity", currentVelocity);
         }
     }
 }

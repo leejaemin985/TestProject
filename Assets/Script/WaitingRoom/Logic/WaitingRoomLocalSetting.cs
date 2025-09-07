@@ -66,7 +66,7 @@ namespace WaitingRoom
 
         private async Task LoadModel(CancellationToken cancellationToken)
         {
-            GameObject samuraiModel = await AddressableManager.LoadAsst<GameObject>(AddressableKey.PK_SamuraiModel);
+            GameObject samuraiModel = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_SamuraiModel);
             
             try
             {

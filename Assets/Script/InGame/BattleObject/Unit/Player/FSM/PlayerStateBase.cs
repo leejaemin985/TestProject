@@ -23,17 +23,17 @@ namespace Unit
         protected Player player;
         protected PlayerFSM fsm;
         protected SimpleKCC cc;
-        protected Animator anim;
-        protected Animator interpolatedAnim;
+        protected Animator latencyInterpolationAnim;
+        protected Animator modelAnim;
         protected Katana weap;
 
-        public virtual void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator anim, Animator interpolatedAnim, Katana weap)
+        public virtual void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, Katana weap)
         {
             this.player = player;
             this.fsm = fsm;
             this.cc = cc;
-            this.anim = anim;
-            this.interpolatedAnim = interpolatedAnim;
+            this.modelAnim = modelAnim;
+            this.latencyInterpolationAnim = latencyInterpolationAnim;
             this.weap = weap;
         }
 
@@ -41,7 +41,7 @@ namespace Unit
         protected void PlayAnim(string stateName, float fixedTransitionDuration, bool sync)
         {
             if (!HasStateAuthority || sync == false)
-                anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration);
+                modelAnim.CrossFadeInFixedTime(stateName, fixedTransitionDuration);
             else
                 RPC_AnimCrossFadeInFixedTime(stateName, fixedTransitionDuration, Runner.Tick);
         }
@@ -54,10 +54,10 @@ namespace Unit
             if (Runner.IsSharedModeMasterClient)
             {
                 float latency = (Runner.Tick - tick) * Runner.DeltaTime;
-                interpolatedAnim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, latency);
+                latencyInterpolationAnim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, latency);
             }
 
-            anim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, 0);
+            modelAnim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, 0);
         }
 
         #region Base

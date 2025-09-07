@@ -7,7 +7,7 @@
       "dependencies": {
         "com.unity.mathematics": "1.2.6"
       },
-      "hash": "2518bf2bba8c3883add8f03bb3b38358a9c1fec2"
+      "hash": "bea1b8a6ffec289cf15cd539cffb60f3baddf7c5"
     },
     "com.unity.addressables": {
       "version": "1.22.3",

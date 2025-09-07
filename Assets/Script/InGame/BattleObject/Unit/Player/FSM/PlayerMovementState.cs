@@ -87,13 +87,13 @@ namespace Unit
 
             float curvSpeed = .2f;
 
-            float currentHorizontal = anim.GetFloat(HORIZONTAL);
-            float currentVertical = anim.GetFloat(VERTICAL);
-            float currentRunWeight = anim.GetFloat(RUNWEIGHT);
+            float currentHorizontal = modelAnim.GetFloat(HORIZONTAL);
+            float currentVertical = modelAnim.GetFloat(VERTICAL);
+            float currentRunWeight = modelAnim.GetFloat(RUNWEIGHT);
 
-            anim.SetFloat(HORIZONTAL, Mathf.Lerp(currentHorizontal, moveAnimDir.x, curvSpeed));
-            anim.SetFloat(VERTICAL, Mathf.Lerp(currentVertical, moveAnimDir.z, curvSpeed));
-            anim.SetFloat(RUNWEIGHT, Mathf.Lerp(currentRunWeight, runWeight, curvSpeed));
+            modelAnim.SetFloat(HORIZONTAL, Mathf.Lerp(currentHorizontal, moveAnimDir.x, curvSpeed));
+            modelAnim.SetFloat(VERTICAL, Mathf.Lerp(currentVertical, moveAnimDir.z, curvSpeed));
+            modelAnim.SetFloat(RUNWEIGHT, Mathf.Lerp(currentRunWeight, runWeight, curvSpeed));
         }
     }
 }

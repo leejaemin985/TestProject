@@ -53,11 +53,11 @@ namespace Unit
 
             float curvSpeed = .1f;
 
-            float currentHorizontal = anim.GetFloat(HORIZONTAL);
-            float currentVertical = anim.GetFloat(VERTICAL);
+            float currentHorizontal = modelAnim.GetFloat(HORIZONTAL);
+            float currentVertical = modelAnim.GetFloat(VERTICAL);
 
-            anim.SetFloat(HORIZONTAL, Mathf.Lerp(currentHorizontal, moveAnimDir.x, curvSpeed));
-            anim.SetFloat(VERTICAL, Mathf.Lerp(currentVertical, moveAnimDir.z, curvSpeed));
+            modelAnim.SetFloat(HORIZONTAL, Mathf.Lerp(currentHorizontal, moveAnimDir.x, curvSpeed));
+            modelAnim.SetFloat(VERTICAL, Mathf.Lerp(currentVertical, moveAnimDir.z, curvSpeed));
         }
     }
 }

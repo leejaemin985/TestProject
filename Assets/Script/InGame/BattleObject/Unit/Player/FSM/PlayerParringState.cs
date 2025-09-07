@@ -6,7 +6,7 @@ namespace Unit
     public class PlayerParringState : PlayerStateBase
     {
         public override StateType GetStateType() => StateType.Parring;
-        public const float parringMotionDuration = .5f;
+        public const float parringMotionDuration = .4f;
 
         private int parringEndTick;
 
@@ -26,7 +26,7 @@ namespace Unit
             base.EnterState(sync);
 
             parringEndTick = Runner.Tick + Mathf.RoundToInt(parringMotionDuration * Runner.TickRate);
-            PlayAnim("_Parring_1", 0, sync);
+            PlayAnim($"_Parring_{Random.Range(1, 5)}", 0.1f, sync);
 
             parringPushEndTick = Runner.Tick + Mathf.RoundToInt(parringPushTime * Runner.TickRate);
         }

@@ -47,7 +47,7 @@ namespace Addressable
         public static void ReleaseCatalog()
             => addressableUtil.ReleaseCatalog(operationHandle);
 
-        public static async Task<T> LoadAsst<T>(AddressableKey addressableKey)
+        public static async Task<T> LoadAsset<T>(AddressableKey addressableKey)
         {
             if (assetHandles.ContainsKey(addressableKey.key))
                 return (T)assetHandles[addressableKey.key].Result;
