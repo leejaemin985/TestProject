@@ -40,7 +40,7 @@ namespace Unit
         private IEnumerator comboDelayHandle = null;
 
 
-        public override void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, Katana weap)
+        public override void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, IWeapon weap)
         {
             base.Initialize(player, fsm, cc, modelAnim, latencyInterpolationAnim, weap);
 
@@ -125,7 +125,7 @@ namespace Unit
 
         protected override void OnExitRender()
         {
-            weap.SetSlashParticleActive(false);
+            weap.SetSlashEffectActive(false);
         }
 
         protected override void OnMasterTick()
@@ -225,7 +225,7 @@ namespace Unit
 
         private void SetSlashParticleAcitve(string param)
         {
-            weap.SetSlashParticleActive(param.Equals("0") == false);
+            weap.SetSlashEffectActive(param.Equals("0") == false);
         }
     }
 }

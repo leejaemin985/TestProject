@@ -44,7 +44,7 @@ namespace Unit
             }
         }
 
-        public void Initialized(Player player, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, Katana playerWeapon)
+        public void Initialized(Player player, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, IWeapon playerWeapon)
         {
             this.player = player;
             input = new();
@@ -179,6 +179,7 @@ namespace Unit
             if (Runner.IsSharedModeMasterClient) CurrentState?.OnMasterTick();
         }
 
+        #region Test
         private bool isTest = false;
         private IEnumerator TestCoroutine()
         {
@@ -188,6 +189,7 @@ namespace Unit
                 isTest = !isTest;
             }
         }
+        #endregion
 
         public override void FixedUpdateNetwork()
         {

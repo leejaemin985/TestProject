@@ -104,6 +104,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SlashParticleSystem
       objectReference: {fileID: 0}
+    - target: {fileID: 5348251467950643698, guid: 3548cd223ab4b5040bed6b6d6a523557, type: 3}
+      propertyPath: EmissionModule.rateOverDistance.scalar
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 7781741753449921618, guid: 3548cd223ab4b5040bed6b6d6a523557, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

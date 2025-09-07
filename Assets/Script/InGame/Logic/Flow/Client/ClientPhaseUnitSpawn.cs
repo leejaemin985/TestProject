@@ -66,13 +66,6 @@ namespace InGame.Logic.Flow
                 position: targetPos.Item1,
                 rotation: targetPos.Item2,
                 inputAuthority: runner.LocalPlayer);
-
-            //test
-            var samurai = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_SamuraiModel);
-            var katana = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_Katana);
-            Instantiate(samurai);
-            Instantiate(katana);
-
         }
 
         #endregion

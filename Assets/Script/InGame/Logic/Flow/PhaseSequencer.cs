@@ -5,7 +5,6 @@ using UnityEngine;
 using Fusion;
 
 using SceneType;
-using System.Linq;
 
 namespace InGame.Logic.Flow
 {

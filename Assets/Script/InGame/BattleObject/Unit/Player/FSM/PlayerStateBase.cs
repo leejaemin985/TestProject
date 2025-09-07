@@ -2,6 +2,7 @@ using UnityEngine;
 
 using Fusion;
 using Fusion.Addons.SimpleKCC;
+using InGame.Weapon;
 
 namespace Unit
 {
@@ -25,9 +26,9 @@ namespace Unit
         protected SimpleKCC cc;
         protected Animator latencyInterpolationAnim;
         protected Animator modelAnim;
-        protected Katana weap;
+        protected IWeapon weap;
 
-        public virtual void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, Katana weap)
+        public virtual void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, IWeapon weap)
         {
             this.player = player;
             this.fsm = fsm;

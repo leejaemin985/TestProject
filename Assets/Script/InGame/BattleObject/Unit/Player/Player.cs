@@ -9,18 +9,21 @@ using Fusion.Addons.SimpleKCC;
 using CustomPhysics;
 using System.Threading.Tasks;
 using Addressable;
+using UnityEditor;
+using InGame.Weapon;
 
 namespace Unit
 {
     public class Player : Unit
     {
+        #region Spawned Callback
         private static Dictionary<PlayerRef, Player> registedUsers = new();
         public static IReadOnlyDictionary<PlayerRef, Player> RegistedUsers => registedUsers;
 
         private static void RegisterUser(PlayerRef userRef, Player player) => registedUsers[userRef] = player;
 
         private static void UnregisterUser(PlayerRef userRef) => registedUsers.Remove(userRef);
-
+        #endregion
 
         [Header("Player")]
         [SerializeField] private SimpleKCC cc;
@@ -30,11 +33,10 @@ namespace Unit
 
         [SerializeField] private Animator latencyInterpolationAnim;
         [SerializeField] private Transform latencyInterpolationWeapPos;
+
+        private IWeapon weapon;
         private Animator modelAnim;
         private PlayerAnimEventer animEventer;
-
-
-        [SerializeField] private Katana weapon;
 
         [SerializeField] private PlayerCam playerCam;
 
@@ -62,22 +64,22 @@ namespace Unit
         {
             base.Initialize();
 
-            await LoadModel();
+            await LoadAssets();
 
             StartCamSet();
             
             playerHitBox = InitPlayerHitBox();
 
-            weapon.transform.SetParent(modelAnim.GetComponent<AddressableAsset_SamuraiModel>().weaponParentTransform);
-            weapon.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-            weapon.Initialize(playerHitBox);
-            weapon.SetCollisionPos(latencyInterpolationWeapPos);
+            //weapon.transform.SetParent(modelAnim.GetComponent<AddressableAsset_SamuraiModel>().weaponParentTransform);
+            //weapon.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            //weapon.Initialize(playerHitBox);
+            //weapon.SetCollisionPos(latencyInterpolationWeapPos);
             
             fsm.Initialized(this, cc, modelAnim, latencyInterpolationAnim, weapon);
             animEventer.Initialize(fsm.AnimEvent);
         }
 
-        private async Task LoadModel()
+        private async Task LoadAssets()
         {
             var modelAsset = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_SamuraiModel);
             var model = Instantiate(modelAsset);
@@ -87,6 +89,16 @@ namespace Unit
             modelAnim = model.GetComponent<Animator>();
             modelAnim.runtimeAnimatorController = latencyInterpolationAnim.runtimeAnimatorController;
             animEventer = model.AddComponent<PlayerAnimEventer>();
+
+
+            //var katanaAsset = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_Katana);
+            //var katana = Instantiate(katanaAsset);
+            //var weapSettings=katana.GetComponent<AddressableAsset_Weapon>();
+            //
+            //weapon = katana.AddComponent<Katana>();
+            //katana.transform.SetParent(model.GetComponent<AddressableAsset_SamuraiModel>().weaponParentTransform);
+            //katana.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+
         }
 
         public void SetCanController(bool set) => canControll = set;
