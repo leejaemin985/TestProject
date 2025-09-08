@@ -18,8 +18,6 @@ namespace Localinitialize
         {
             await introDownload.DownloadAddressables();
 
-            var weaponAsset = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_Katana);
-
             JoinLobby();
         }
 

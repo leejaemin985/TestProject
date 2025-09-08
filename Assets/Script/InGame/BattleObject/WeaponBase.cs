@@ -4,7 +4,7 @@ using Unit;
 
 namespace InGame.Weapon
 {
-    public abstract class WeaponBase : MonoBehaviour, IWeapon
+    public class WeaponBase : MonoBehaviour, IWeapon
     {
         [SerializeField] private AttackBox collisionBox;
         [SerializeField] private GameObject slashParticleObject;

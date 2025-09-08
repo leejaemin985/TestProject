@@ -9,6 +9,7 @@ using Fusion.Addons.SimpleKCC;
 
 using CustomPhysics;
 using Addressable;
+using InGame.Weapon;
 
 namespace Unit
 {
@@ -88,10 +89,13 @@ namespace Unit
             modelAnim.runtimeAnimatorController = latencyInterpolationAnim.runtimeAnimatorController;
             animEventer = model.AddComponent<PlayerAnimEventer>();
 
-            //var settingInfo = model.GetComponent<AddressableAsset_UserModelSettingInfo>();
-            //var weapon = Instantiate(weaponAsset);
-            //weapon.transform.SetParent(settingInfo.weaponParentTransform);
-            //weapon.transform.SetLocalPositionAndRotation(settingInfo.weaponLocalPos, Quaternion.Euler(settingInfo.weaponLocalRot));
+            var settingPosInfo = model.GetComponent<AddressableAsset_UserModelSettingInfo>();
+            var settingWeapInfo = model.GetComponent<AddressableAsset_WeaponSettingInfo>();
+            var weapon = Instantiate(weaponAsset);
+            weapon.transform.SetParent(settingPosInfo.weaponParentTransform);
+            weapon.transform.SetLocalPositionAndRotation(settingPosInfo.weaponLocalPos, Quaternion.Euler(settingPosInfo.weaponLocalRot));
+            this.weapon = weapon.AddComponent<WeaponBase>();
+            
         }
 
 
