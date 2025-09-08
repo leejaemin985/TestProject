@@ -5,7 +5,8 @@ using UnityEngine.SceneManagement;
 
 using Utility.Spinner;
 using Utility.CommonPopup;
-using System.Runtime.CompilerServices;
+
+using Addressable;
 
 namespace Localinitialize
 {
@@ -16,6 +17,8 @@ namespace Localinitialize
         private async void Start()
         {
             await introDownload.DownloadAddressables();
+
+            var weaponAsset = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_Katana);
 
             JoinLobby();
         }

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -7,10 +8,7 @@ using Fusion;
 using Fusion.Addons.SimpleKCC;
 
 using CustomPhysics;
-using System.Threading.Tasks;
 using Addressable;
-using UnityEditor;
-using InGame.Weapon;
 
 namespace Unit
 {
@@ -65,13 +63,11 @@ namespace Unit
             base.Initialize();
 
             await LoadAssets();
-
+            
             StartCamSet();
             
             playerHitBox = InitPlayerHitBox();
 
-            //weapon.transform.SetParent(modelAnim.GetComponent<AddressableAsset_SamuraiModel>().weaponParentTransform);
-            //weapon.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             //weapon.Initialize(playerHitBox);
             //weapon.SetCollisionPos(latencyInterpolationWeapPos);
             
@@ -82,6 +78,8 @@ namespace Unit
         private async Task LoadAssets()
         {
             var modelAsset = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_SamuraiModel);
+            var weaponAsset = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_Katana);
+            
             var model = Instantiate(modelAsset);
             model.transform.SetParent(transform);
             model.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
@@ -90,16 +88,13 @@ namespace Unit
             modelAnim.runtimeAnimatorController = latencyInterpolationAnim.runtimeAnimatorController;
             animEventer = model.AddComponent<PlayerAnimEventer>();
 
-
-            //var katanaAsset = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_Katana);
-            //var katana = Instantiate(katanaAsset);
-            //var weapSettings=katana.GetComponent<AddressableAsset_Weapon>();
-            //
-            //weapon = katana.AddComponent<Katana>();
-            //katana.transform.SetParent(model.GetComponent<AddressableAsset_SamuraiModel>().weaponParentTransform);
-            //katana.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-
+            //var settingInfo = model.GetComponent<AddressableAsset_UserModelSettingInfo>();
+            //var weapon = Instantiate(weaponAsset);
+            //weapon.transform.SetParent(settingInfo.weaponParentTransform);
+            //weapon.transform.SetLocalPositionAndRotation(settingInfo.weaponLocalPos, Quaternion.Euler(settingInfo.weaponLocalRot));
         }
+
+
 
         public void SetCanController(bool set) => canControll = set;
 
@@ -118,6 +113,7 @@ namespace Unit
             return ret;
         }
 
+        #region Event
         private void HitEvent(CollisionInfoData collisionInfoData)
         {
             HitInfo hitInfo = ((PlayerCollisionInfo)collisionInfoData).hitInfo;
@@ -158,6 +154,8 @@ namespace Unit
 
             playerHitBox?.SetActive(false);
         }
+
+        #endregion
 
         #region Cam
         private void StartCamSet()
