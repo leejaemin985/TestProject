@@ -92,7 +92,6 @@ namespace Unit
             modelAnim.runtimeAnimatorController = latencyInterpolationAnim.runtimeAnimatorController;
             animEventer = model.AddComponent<PlayerAnimEventer>();
 
-
             weapon.transform.SetParent(settingPosInfo.weaponParentTransform);
             weapon.transform.SetLocalPositionAndRotation(settingPosInfo.weaponLocalPos, Quaternion.Euler(settingPosInfo.weaponLocalRot));
             this.weapon = WeaponBase.CreateInstance<Katana>(weapon, (AttackBox)settingWeapInfo.collisionBox, settingWeapInfo.slashEffectParticle);
