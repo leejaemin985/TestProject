@@ -125,7 +125,7 @@ namespace Unit
 
         protected override void OnExitRender()
         {
-            weap.SetSlashEffectActive(false);
+            weap.SetTrailEffectActive(false);
         }
 
         protected override void OnMasterTick()
@@ -173,8 +173,8 @@ namespace Unit
                 case "AttackMove":
                     OnAttackMove(parts[1]);
                     break;
-                case "SetSlashParticleEffect":
-                    SetSlashParticleAcitve(parts[1]);
+                case "SetTrailEffect":
+                    SetTrailEffectAcitve(parts[1]);
                     break;
             }
         }
@@ -223,9 +223,9 @@ namespace Unit
             }
         }
 
-        private void SetSlashParticleAcitve(string param)
+        private void SetTrailEffectAcitve(string param)
         {
-            weap.SetSlashEffectActive(param.Equals("0") == false);
+            weap.SetTrailEffectActive(param.Equals("0") == false);
         }
     }
 }

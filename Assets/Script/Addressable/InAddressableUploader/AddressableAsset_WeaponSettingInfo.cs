@@ -8,6 +8,7 @@ namespace Addressable
     public class AddressableAsset_WeaponSettingInfo : MonoBehaviour
     {
         public PhysicsObject collisionBox;
-        public ParticleSystem slashEffectParticle;
+        public ParticleSystem trailParticle;
+        public GameObject slashEffect;
     }
 }

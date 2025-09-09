@@ -94,7 +94,12 @@ namespace Unit
 
             weapon.transform.SetParent(settingPosInfo.weaponParentTransform);
             weapon.transform.SetLocalPositionAndRotation(settingPosInfo.weaponLocalPos, Quaternion.Euler(settingPosInfo.weaponLocalRot));
-            this.weapon = WeaponBase.CreateInstance<Katana>(weapon, (AttackBox)settingWeapInfo.collisionBox, settingWeapInfo.slashEffectParticle);
+            this.weapon = WeaponBase.CreateInstance<Katana>(weapon, (AttackBox)settingWeapInfo.collisionBox, settingWeapInfo.trailParticle);
+            Instantiate(settingWeapInfo.slashEffect).transform.SetParent(weapon.transform);
+            //testCode-====-====!@#######################################################
+            await Task.Delay(1000);
+            settingWeapInfo.collisionBox.transform.SetParent(latencyInterpolationWeapPos);
+
         }
 
 

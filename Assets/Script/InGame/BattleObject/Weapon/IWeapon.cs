@@ -10,5 +10,5 @@ public interface IWeapon
 
     public void SetHitInfo(HitInfo hitInfo);
 
-    public void SetSlashEffectActive(bool set);
+    public void SetTrailEffectActive(bool set);
 }

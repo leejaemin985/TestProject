@@ -69294,7 +69294,7 @@ AnimationClip:
     messageOptions: 0
   - time: 0.3
     functionName: OnEvent
-    data: SetSlashParticleEffect//1
+    data: SetTrailEffect//1
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
@@ -69315,7 +69315,7 @@ AnimationClip:
     messageOptions: 0
   - time: 0.46666667
     functionName: OnEvent
-    data: SetSlashParticleEffect//0
+    data: SetTrailEffect//0
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
