@@ -1,26 +1,42 @@
 using UnityEngine;
 using CustomPhysics;
 using Unit;
+using System;
 
 namespace InGame.Weapon
 {
-    public class WeaponBase : MonoBehaviour, IWeapon
+    public abstract class WeaponBase : MonoBehaviour, IWeapon
     {
-        [SerializeField] private AttackBox collisionBox;
-        [SerializeField] private GameObject slashParticleObject;
+        private AttackBox collisionBox;
+        private GameObject slashParticleObject;
 
         private const float SLASH_PARTICLE_ACTIVE_VALUE = 200;
 
         private ParticleSystem slashParticle;
         private HitInfo hitInfo;
 
-        public virtual void Initialize(PhysicsObject userPhysicsObject)
+        public static T CreateInstance<T>(GameObject modelPrefab, AttackBox collisionBox, ParticleSystem slashParticleObject) where T : WeaponBase
         {
+            var ret = modelPrefab.AddComponent<T>();
+            ret.Initialize(collisionBox, slashParticleObject);
+
+            return ret;
+        }
+
+        protected virtual void Initialize(AttackBox attackBox, ParticleSystem slashParticle)
+        {
+            this.collisionBox = attackBox;
+            this.slashParticle = slashParticle;
+
             collisionBox.gameObject.SetActive(true);
             collisionBox.Initialize(OnHit);
-            collisionBox.AddIgnoreUid(userPhysicsObject);
-
+            
             InitEffect();
+        }
+
+        private void AddIgnorePhsics(PhysicsObject userPhysicsObject)
+        {
+            collisionBox.AddIgnoreUid(userPhysicsObject);
         }
 
         private void OnHit(CollisionInfos collisionInfos)
@@ -33,16 +49,16 @@ namespace InGame.Weapon
 
         private void InitEffect()
         {
-            slashParticle = slashParticleObject.GetComponent<ParticleSystem>();
+            //slashParticle = slashParticleObject.GetComponent<ParticleSystem>();
             slashParticle.Play();
             SetSlashEffectActive(false);
         }
 
-        public virtual void SetCollisionActive(bool set) => collisionBox.SetActive(set);
+        protected virtual void SetCollisionActive(bool set) => collisionBox.SetActive(set);
 
-        public virtual void SetHitInfo(HitInfo hitInfo) => this.hitInfo = hitInfo;
+        protected virtual void SetHitInfo(HitInfo hitInfo) => this.hitInfo = hitInfo;
 
-        public virtual void SetSlashEffectActive(bool set)
+        protected virtual void SetSlashEffectActive(bool set)
         {
             if (slashParticle == null) return;
             var emission = slashParticle.emission;
@@ -53,7 +69,7 @@ namespace InGame.Weapon
         #region IWeapon
         bool IWeapon.collisionActive => collisionBox.Active;
 
-        void IWeapon.Initialize(PhysicsObject userPhysicsObject) => Initialize(userPhysicsObject);
+        void IWeapon.AddIgnorePhysics(PhysicsObject newIgnorePhysics) => AddIgnorePhsics(newIgnorePhysics);
 
         void IWeapon.SetCollisionActive(bool set) => SetCollisionActive(set);
 

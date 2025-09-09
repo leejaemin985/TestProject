@@ -4,7 +4,7 @@ public interface IWeapon
 {
     public bool collisionActive { get; }
 
-    public void Initialize(PhysicsObject userPhysicsObject);
+    public void AddIgnorePhysics(PhysicsObject newIgnorePhysicsObject);
 
     public void SetCollisionActive(bool set);
 

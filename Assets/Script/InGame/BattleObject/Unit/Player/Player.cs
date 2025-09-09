@@ -68,9 +68,7 @@ namespace Unit
             StartCamSet();
             
             playerHitBox = InitPlayerHitBox();
-
-            //weapon.Initialize(playerHitBox);
-            //weapon.SetCollisionPos(latencyInterpolationWeapPos);
+            this.weapon.AddIgnorePhysics(playerHitBox);
             
             fsm.Initialized(this, cc, modelAnim, latencyInterpolationAnim, weapon);
             animEventer.Initialize(fsm.AnimEvent);
@@ -82,22 +80,23 @@ namespace Unit
             var weaponAsset = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_Katana);
             
             var model = Instantiate(modelAsset);
+            var weapon = Instantiate(weaponAsset);
+
+            var settingPosInfo = model.GetComponent<AddressableAsset_UserModelSettingInfo>();
+            var settingWeapInfo = weapon.GetComponent<AddressableAsset_WeaponSettingInfo>();
+
+
             model.transform.SetParent(transform);
             model.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-            
             modelAnim = model.GetComponent<Animator>();
             modelAnim.runtimeAnimatorController = latencyInterpolationAnim.runtimeAnimatorController;
             animEventer = model.AddComponent<PlayerAnimEventer>();
 
-            var settingPosInfo = model.GetComponent<AddressableAsset_UserModelSettingInfo>();
-            var settingWeapInfo = model.GetComponent<AddressableAsset_WeaponSettingInfo>();
-            var weapon = Instantiate(weaponAsset);
+
             weapon.transform.SetParent(settingPosInfo.weaponParentTransform);
             weapon.transform.SetLocalPositionAndRotation(settingPosInfo.weaponLocalPos, Quaternion.Euler(settingPosInfo.weaponLocalRot));
-            this.weapon = weapon.AddComponent<WeaponBase>();
-            
+            this.weapon = WeaponBase.CreateInstance<Katana>(weapon, (AttackBox)settingWeapInfo.collisionBox, settingWeapInfo.slashEffectParticle);
         }
-
 
 
         public void SetCanController(bool set) => canControll = set;
