@@ -10,7 +10,7 @@ namespace InGame.Weapon
         [SerializeField] private ParticleSystem[] slashParticleRing;
 
         private IEnumerator effectLifeTimeHandle;
-        private readonly WaitForSeconds LIFE_TIME = new WaitForSeconds(3);
+        private readonly WaitForSeconds LIFE_TIME = new WaitForSeconds(500);
 
 
         protected override void OnEffect(Action completeListener)

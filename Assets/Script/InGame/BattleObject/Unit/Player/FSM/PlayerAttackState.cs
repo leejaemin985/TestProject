@@ -177,7 +177,26 @@ namespace Unit
                 case "SetTrailEffect":
                     SetTrailEffectAcitve(parts[1]);
                     break;
+                case "OnSlashEffect":
+                    OnSlashEffect(parts[1]);
+                    break;
             }
+        }
+
+        private Vector3 ConvertToVector3(string param)
+        {
+            string[] moveVector = param
+                .Split(',')
+                .Select(p => p.Trim())
+                .ToArray();
+
+            if (moveVector.Length == 3 &&
+                float.TryParse(moveVector[0], out float x) &&
+                float.TryParse(moveVector[1], out float y) &&
+                float.TryParse(moveVector[2], out float z))
+                return new Vector3(x, y, z);
+
+            return Vector3.zero;
         }
 
         private void OnAttackMove(string param)
@@ -190,44 +209,41 @@ namespace Unit
                 return;
             }
 
-            string[] moveVector = param
-                .Split(',')
-                .Select(p => p.Trim())
-                .ToArray();
+            var input = ConvertToVector3(param);
+            Vector3 forward = player.transform.forward;
+            float moveRatio = 1f;
 
-            if (moveVector.Length == 3 &&
-                float.TryParse(moveVector[0], out float x) &&
-                float.TryParse(moveVector[1], out float y) &&
-                float.TryParse(moveVector[2], out float z))
+            var enemy = FindEnemy();
+            if (enemy != null)
             {
-                Vector3 input = new Vector3(x, y, z);
+                Vector3 toEnemy = (enemy.transform.position - player.transform.position);
+                toEnemy.y = 0;
+                toEnemy.Normalize();
 
-                Vector3 forward = player.transform.forward;
-                float moveRatio = 1f;
-
-                var enemy = FindEnemy();
-                if (enemy != null)
-                {
-                    Vector3 toEnemy = (enemy.transform.position - player.transform.position);
-                    toEnemy.y = 0;
-                    toEnemy.Normalize();
-
-                    forward = toEnemy.normalized;
-                    moveRatio = Mathf.Clamp((toEnemy.magnitude - ATTACK_MOVE_DISTANCE_OFFSET) / 1f, 0, ATTACK_MOVE_RATIO_CLAMP_MAX);
-                }
-                Vector3 right = Vector3.Cross(Vector3.up, forward);
-
-                Vector3 rawMove = (forward * input.z + right * input.x).normalized;
-                Vector3 worldMoveDir = rawMove * input.magnitude;
-
-                currentAttackMove = worldMoveDir * moveRatio;
+                forward = toEnemy.normalized;
+                moveRatio = Mathf.Clamp((toEnemy.magnitude - ATTACK_MOVE_DISTANCE_OFFSET) / 1f, 0, ATTACK_MOVE_RATIO_CLAMP_MAX);
             }
+            Vector3 right = Vector3.Cross(Vector3.up, forward);
+
+            Vector3 rawMove = (forward * input.z + right * input.x).normalized;
+            Vector3 worldMoveDir = rawMove * input.magnitude;
+
+            currentAttackMove = worldMoveDir * moveRatio;
         }
 
         private void SetTrailEffectAcitve(string param)
         {
             weap.SetTrailEffectActive(param.Equals("0") == false);
-            weap.SetSlashEffectActive(default, default);
+        }
+
+        private void OnSlashEffect(string param)
+        {
+            var parts = param.Split("/");
+
+            Vector3 pos = ConvertToVector3(parts[0]);
+            Vector3 rot = ConvertToVector3(parts[1]);
+
+            weap.SetSlashEffectActive(pos, Quaternion.Euler(rot));
         }
     }
 }
