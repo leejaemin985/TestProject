@@ -10,6 +10,7 @@ using Fusion.Addons.SimpleKCC;
 using CustomPhysics;
 using Addressable;
 using InGame.Weapon;
+using Utility.EffectObject;
 
 namespace Unit
 {
@@ -95,11 +96,18 @@ namespace Unit
             weapon.transform.SetParent(settingPosInfo.weaponParentTransform);
             weapon.transform.SetLocalPositionAndRotation(settingPosInfo.weaponLocalPos, Quaternion.Euler(settingPosInfo.weaponLocalRot));
             this.weapon = WeaponBase.CreateInstance<Katana>(weapon, (AttackBox)settingWeapInfo.collisionBox, settingWeapInfo.trailParticle);
-            Instantiate(settingWeapInfo.slashEffect).transform.SetParent(weapon.transform);
-            //testCode-====-====!@#######################################################
-            await Task.Delay(1000);
-            settingWeapInfo.collisionBox.transform.SetParent(latencyInterpolationWeapPos);
 
+            var localPos = settingWeapInfo.collisionBox.transform.localPosition;
+            var localRot = settingWeapInfo.collisionBox.transform.localEulerAngles;
+
+            settingWeapInfo.collisionBox.transform.SetParent(latencyInterpolationWeapPos);
+            settingWeapInfo.collisionBox.transform.SetLocalPositionAndRotation(
+                settingPosInfo.weaponLocalPos + localPos,
+                Quaternion.Euler(settingPosInfo.weaponLocalRot + localRot));
+            TestPool=
+            EffectObjectPool.CreatePoolInstance(
+                settingWeapInfo.slashEffect,
+                new() { count = 10, effectRoot = transform });
         }
 
 
@@ -118,6 +126,16 @@ namespace Unit
             ret.SetActive(true);
 
             return ret;
+        }
+
+
+        private EffectObjectPool TestPool;
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Mouse0))
+            {
+                TestPool.OnPlayEffect(default, default);
+            }
         }
 
         #region Event

@@ -2,6 +2,7 @@ using CustomPhysics;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Utility.EffectObject;
 
 namespace Addressable
 {
@@ -9,6 +10,6 @@ namespace Addressable
     {
         public PhysicsObject collisionBox;
         public ParticleSystem trailParticle;
-        public GameObject slashEffect;
+        public EffectObject slashEffect;
     }
 }
