@@ -86,16 +86,24 @@ namespace Unit
             var settingPosInfo = model.GetComponent<AddressableAsset_UserModelSettingInfo>();
             var settingWeapInfo = weapon.GetComponent<AddressableAsset_WeaponSettingInfo>();
 
-
+            #region Model Setting
             model.transform.SetParent(transform);
             model.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             modelAnim = model.GetComponent<Animator>();
             modelAnim.runtimeAnimatorController = latencyInterpolationAnim.runtimeAnimatorController;
             animEventer = model.AddComponent<PlayerAnimEventer>();
+            #endregion
 
+            #region Weapon Setting
             weapon.transform.SetParent(settingPosInfo.weaponParentTransform);
             weapon.transform.SetLocalPositionAndRotation(settingPosInfo.weaponLocalPos, Quaternion.Euler(settingPosInfo.weaponLocalRot));
-            this.weapon = WeaponBase.CreateInstance<Katana>(weapon, (AttackBox)settingWeapInfo.collisionBox, settingWeapInfo.trailParticle);
+
+            var slashEffectPool =
+            EffectObjectPool.CreatePoolInstance(
+                settingWeapInfo.slashEffect,
+                new() { count = 10, effectRoot = transform });
+
+            this.weapon = WeaponBase.CreateInstance<Katana>(weapon, (AttackBox)settingWeapInfo.collisionBox, settingWeapInfo.trailParticle, slashEffectPool);
 
             var localPos = settingWeapInfo.collisionBox.transform.localPosition;
             var localRot = settingWeapInfo.collisionBox.transform.localEulerAngles;
@@ -104,10 +112,8 @@ namespace Unit
             settingWeapInfo.collisionBox.transform.SetLocalPositionAndRotation(
                 settingPosInfo.weaponLocalPos + localPos,
                 Quaternion.Euler(settingPosInfo.weaponLocalRot + localRot));
-            TestPool=
-            EffectObjectPool.CreatePoolInstance(
-                settingWeapInfo.slashEffect,
-                new() { count = 10, effectRoot = transform });
+
+            #endregion
         }
 
 
@@ -126,16 +132,6 @@ namespace Unit
             ret.SetActive(true);
 
             return ret;
-        }
-
-
-        private EffectObjectPool TestPool;
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.Mouse0))
-            {
-                TestPool.OnPlayEffect(default, default);
-            }
         }
 
         #region Event

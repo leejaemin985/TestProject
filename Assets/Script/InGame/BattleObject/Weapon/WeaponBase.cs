@@ -2,6 +2,7 @@ using UnityEngine;
 using CustomPhysics;
 using Unit;
 using System;
+using Utility.EffectObject;
 
 namespace InGame.Weapon
 {
@@ -12,20 +13,27 @@ namespace InGame.Weapon
         private const float SLASH_PARTICLE_ACTIVE_VALUE = 200;
 
         private ParticleSystem trailParticle;
+        private EffectObjectPool slashEffectPool;
         private HitInfo hitInfo;
 
-        public static T CreateInstance<T>(GameObject modelPrefab, AttackBox collisionBox, ParticleSystem slashParticleObject) where T : WeaponBase
+        public static T CreateInstance<T>(
+            GameObject modelPrefab,
+            AttackBox collisionBox,
+            ParticleSystem slashParticleObject,
+            EffectObjectPool slashEffectPool) where T : WeaponBase
         {
             var ret = modelPrefab.AddComponent<T>();
-            ret.Initialize(collisionBox, slashParticleObject);
+            ret.Initialize(collisionBox, slashParticleObject, slashEffectPool);
 
             return ret;
         }
 
-        protected virtual void Initialize(AttackBox attackBox, ParticleSystem slashParticle)
+        protected virtual void Initialize(AttackBox attackBox, ParticleSystem slashParticle, EffectObjectPool slashEffectPool)
         {
             this.collisionBox = attackBox;
             this.trailParticle = slashParticle;
+            this.slashEffectPool = slashEffectPool;
+            this.slashEffectPool.transform.SetParent(transform);
 
             collisionBox.gameObject.SetActive(true);
             collisionBox.Initialize(OnHit);
@@ -61,7 +69,11 @@ namespace InGame.Weapon
             if (trailParticle == null) return;
             var emission = trailParticle.emission;
             emission.rateOverTime = set ? SLASH_PARTICLE_ACTIVE_VALUE : 0;
+        }
 
+        protected virtual void SetSlashEffectActive(Vector3 localPos, Quaternion localRot)
+        {
+            slashEffectPool?.OnPlayEffect(localPos, localRot);
         }
 
         #region IWeapon
@@ -74,6 +86,8 @@ namespace InGame.Weapon
         void IWeapon.SetHitInfo(HitInfo hitInfo) => SetHitInfo(hitInfo);
 
         void IWeapon.SetTrailEffectActive(bool set) => SetTrailEffectActive(set);
+
+        void IWeapon.SetSlashEffectActive(Vector3 localPos, Quaternion localRot) => SetSlashEffectActive(localPos, localRot);
         #endregion
     }
 }

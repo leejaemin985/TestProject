@@ -1,4 +1,5 @@
 using CustomPhysics;
+using UnityEngine;
 
 public interface IWeapon
 {
@@ -11,4 +12,6 @@ public interface IWeapon
     public void SetHitInfo(HitInfo hitInfo);
 
     public void SetTrailEffectActive(bool set);
+
+    public void SetSlashEffectActive(Vector3 localPos, Quaternion localRot);
 }

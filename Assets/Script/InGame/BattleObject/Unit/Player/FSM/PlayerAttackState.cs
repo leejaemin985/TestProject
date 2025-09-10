@@ -7,6 +7,7 @@ using UnityEngine;
 
 using Fusion;
 using Fusion.Addons.SimpleKCC;
+using UnityEngine.Networking;
 
 namespace Unit
 {
@@ -226,6 +227,7 @@ namespace Unit
         private void SetTrailEffectAcitve(string param)
         {
             weap.SetTrailEffectActive(param.Equals("0") == false);
+            weap.SetSlashEffectActive(default, default);
         }
     }
 }
