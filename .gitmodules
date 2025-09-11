@@ -1,0 +1,4 @@
+[submodule "Packages/com.testprojectsubmodule.shared"]
+	path = Packages/com.testprojectsubmodule.shared
+	url = https://github.com/leejaemin985/TestProjectSubmodule.git
+	branch = main
