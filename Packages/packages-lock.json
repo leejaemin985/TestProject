@@ -9,6 +9,12 @@
       },
       "hash": "ffd39f1f12d22355e5f7658e50509a78d27d1051"
     },
+    "com.testprojectsubmodule.shared": {
+      "version": "file:com.testprojectsubmodule.shared",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.unity.addressables": {
       "version": "1.22.3",
       "depth": 0,
