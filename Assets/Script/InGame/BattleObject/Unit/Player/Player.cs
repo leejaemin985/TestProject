@@ -40,6 +40,8 @@ namespace Unit
 
         [SerializeField] private PlayerCam playerCam;
 
+        private AddressableAsset_UserModelSettingInfo modelSettingInfo;
+        private AddressableAsset_WeaponSettingInfo weapSettingInfo;
 
         public bool canControll { get; private set; }
 
@@ -77,43 +79,48 @@ namespace Unit
 
         private async Task LoadAssets()
         {
+            await ModelAssetSetting();
+            await WeaponAssetSetting();
+        }
+
+        private async Task ModelAssetSetting()
+        {
             var modelAsset = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_SamuraiModel);
-            var weaponAsset = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_Katana);
-            
             var model = Instantiate(modelAsset);
-            var weapon = Instantiate(weaponAsset);
+            modelSettingInfo = model.GetComponent<AddressableAsset_UserModelSettingInfo>();
 
-            var settingPosInfo = model.GetComponent<AddressableAsset_UserModelSettingInfo>();
-            var settingWeapInfo = weapon.GetComponent<AddressableAsset_WeaponSettingInfo>();
-
-            #region Model Setting
             model.transform.SetParent(transform);
             model.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
             modelAnim = model.GetComponent<Animator>();
             modelAnim.runtimeAnimatorController = latencyInterpolationAnim.runtimeAnimatorController;
             animEventer = model.AddComponent<PlayerAnimEventer>();
-            #endregion
+        }
 
-            #region Weapon Setting
-            weapon.transform.SetParent(settingPosInfo.weaponParentTransform);
-            weapon.transform.SetLocalPositionAndRotation(settingPosInfo.weaponLocalPos, Quaternion.Euler(settingPosInfo.weaponLocalRot));
+        private async Task WeaponAssetSetting()
+        {
+            var weaponAsset = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_Katana);
+            var weapon = Instantiate(weaponAsset);
+            weapSettingInfo = weapon.GetComponent<AddressableAsset_WeaponSettingInfo>();
+
+
+            weapon.transform.SetParent(modelSettingInfo.weaponParentTransform);
+            weapon.transform.SetLocalPositionAndRotation(weapSettingInfo.weaponLocalPos, Quaternion.Euler(weapSettingInfo.weaponLocalRot));
 
             var slashEffectPool =
             EffectObjectPool.CreatePoolInstance(
-                settingWeapInfo.slashEffect,
+                weapSettingInfo.slashEffect,
                 new() { count = 10, effectRoot = transform });
 
-            this.weapon = WeaponBase.CreateInstance<Katana>(weapon, (AttackBox)settingWeapInfo.collisionBox, settingWeapInfo.trailParticle, slashEffectPool);
+            this.weapon = WeaponBase.CreateInstance<Katana>(weapon, (AttackBox)weapSettingInfo.collisionBox, weapSettingInfo.trailParticle, slashEffectPool);
 
-            var localPos = settingWeapInfo.collisionBox.transform.localPosition;
-            var localRot = settingWeapInfo.collisionBox.transform.localEulerAngles;
+            var localPos = weapSettingInfo.collisionBox.transform.localPosition;
+            var localRot = weapSettingInfo.collisionBox.transform.localEulerAngles;
 
-            settingWeapInfo.collisionBox.transform.SetParent(latencyInterpolationWeapPos);
-            settingWeapInfo.collisionBox.transform.SetLocalPositionAndRotation(
-                settingPosInfo.weaponLocalPos + localPos,
-                Quaternion.Euler(settingPosInfo.weaponLocalRot + localRot));
-
-            #endregion
+            weapSettingInfo.collisionBox.transform.SetParent(latencyInterpolationWeapPos);
+            weapSettingInfo.collisionBox.transform.SetLocalPositionAndRotation(
+                weapSettingInfo.weaponLocalPos + localPos,
+                Quaternion.Euler(weapSettingInfo.weaponLocalRot + localRot));
+            
         }
 
 
@@ -135,19 +142,19 @@ namespace Unit
         }
 
 
-//#if UNITY_EDITOR
+#if UNITY_EDITOR
 
-//        private bool isTestTime = false;
+        private bool isTestTime = false;
 
-//        private void Update()
-//        {
-//            if (Input.GetKeyDown(KeyCode.T))
-//            {
-//                isTestTime = !isTestTime;
-//                Time.timeScale = isTestTime ? 0 : 1;
-//            }
-//        }
-//#endif
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+                isTestTime = !isTestTime;
+                Time.timeScale = isTestTime ? 0 : 1;
+            }
+        }
+#endif
 
         #region Event
         private void HitEvent(CollisionInfoData collisionInfoData)
