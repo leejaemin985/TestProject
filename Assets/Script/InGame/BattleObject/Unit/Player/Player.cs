@@ -134,6 +134,21 @@ namespace Unit
             return ret;
         }
 
+
+//#if UNITY_EDITOR
+
+//        private bool isTestTime = false;
+
+//        private void Update()
+//        {
+//            if (Input.GetKeyDown(KeyCode.T))
+//            {
+//                isTestTime = !isTestTime;
+//                Time.timeScale = isTestTime ? 0 : 1;
+//            }
+//        }
+//#endif
+
         #region Event
         private void HitEvent(CollisionInfoData collisionInfoData)
         {
