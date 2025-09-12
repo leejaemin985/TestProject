@@ -111,7 +111,16 @@ namespace Unit
                 weapSettingInfo.slashEffect,
                 new() { count = 10, effectRoot = transform });
 
-            this.weapon = WeaponBase.CreateInstance<Katana>(weapon, (AttackBox)weapSettingInfo.collisionBox, weapSettingInfo.trailParticle, slashEffectPool);
+            var parrignEffectPool =
+                EffectObjectPool.CreatePoolInstance(
+                    weapSettingInfo.parringEffect,
+                    new() { count = 10, effectRoot = null });
+
+            this.weapon = WeaponBase.CreateInstance<Katana>(
+                weapon,
+                (AttackBox)weapSettingInfo.collisionBox,
+                weapSettingInfo.trailParticle,
+                slashEffectPool, parrignEffectPool);
 
             var localPos = weapSettingInfo.collisionBox.transform.localPosition;
             var localRot = weapSettingInfo.collisionBox.transform.localEulerAngles;

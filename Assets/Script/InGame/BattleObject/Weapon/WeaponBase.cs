@@ -14,26 +14,30 @@ namespace InGame.Weapon
 
         private ParticleSystem trailParticle;
         private EffectObjectPool slashEffectPool;
+        private EffectObjectPool parringEffectPool;
         private HitInfo hitInfo;
 
         public static T CreateInstance<T>(
             GameObject modelPrefab,
             AttackBox collisionBox,
             ParticleSystem slashParticleObject,
-            EffectObjectPool slashEffectPool) where T : WeaponBase
+            EffectObjectPool slashEffectPool,
+            EffectObjectPool parringEffectPool) where T : WeaponBase
         {
             var ret = modelPrefab.AddComponent<T>();
-            ret.Initialize(collisionBox, slashParticleObject, slashEffectPool);
+            ret.Initialize(collisionBox, slashParticleObject, slashEffectPool, parringEffectPool);
 
             return ret;
         }
 
-        protected virtual void Initialize(AttackBox attackBox, ParticleSystem slashParticle, EffectObjectPool slashEffectPool)
+        protected virtual void Initialize(AttackBox attackBox, ParticleSystem slashParticle, EffectObjectPool slashEffectPool, EffectObjectPool parringEffectPool)
         {
             this.collisionBox = attackBox;
             this.trailParticle = slashParticle;
             this.slashEffectPool = slashEffectPool;
             this.slashEffectPool.transform.SetParent(transform);
+            this.parringEffectPool = parringEffectPool;
+            this.parringEffectPool.transform.SetParent(transform);
 
             collisionBox.gameObject.SetActive(true);
             collisionBox.Initialize(OnHit);
