@@ -69315,6 +69315,13 @@ AnimationClip:
     messageOptions: 0
   - time: 0.46666667
     functionName: OnEvent
+    data: OnSlashEffect//0,1,0/60,-100,-44
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.46666667
+    functionName: OnEvent
     data: SetTrailEffect//0
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

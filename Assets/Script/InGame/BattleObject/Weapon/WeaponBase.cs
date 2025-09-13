@@ -80,6 +80,11 @@ namespace InGame.Weapon
             slashEffectPool?.OnPlayEffect(localPos, localRot);
         }
 
+        protected virtual void SetParringEffectActive(Vector3 localPos, Quaternion localRot)
+        {
+            parringEffectPool?.OnPlayEffect(localPos, localRot);
+        }
+
         #region IWeapon
         bool IWeapon.collisionActive => collisionBox.Active;
 
@@ -92,6 +97,8 @@ namespace InGame.Weapon
         void IWeapon.SetTrailEffectActive(bool set) => SetTrailEffectActive(set);
 
         void IWeapon.SetSlashEffectActive(Vector3 localPos, Quaternion localRot) => SetSlashEffectActive(localPos, localRot);
+
+        void IWeapon.SetParringEffectActive(Vector3 localPos, Quaternion localRot) => SetParringEffectActive(localPos, localRot);
         #endregion
     }
 }

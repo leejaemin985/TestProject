@@ -14,4 +14,6 @@ public interface IWeapon
     public void SetTrailEffectActive(bool set);
 
     public void SetSlashEffectActive(Vector3 localPos, Quaternion localRot);
+
+    public void SetParringEffectActive(Vector3 localPos, Quaternion localRot);
 }

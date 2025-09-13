@@ -51,5 +51,10 @@ namespace Unit
                 cc.Move(targetDir * parringPushSpeed * Runner.DeltaTime);
             }
         }
+
+        protected override void OnEnterRender()
+        {
+            this.weap.SetParringEffectActive(player.transform.position + Vector3.up, Quaternion.identity);
+        }
     }
 }

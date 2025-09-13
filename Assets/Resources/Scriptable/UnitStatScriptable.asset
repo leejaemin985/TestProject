@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitStatusInitDatas:
   - unitType: 0
-    maxHp: 100
+    maxHp: 1000000
     maxPosture: 100
