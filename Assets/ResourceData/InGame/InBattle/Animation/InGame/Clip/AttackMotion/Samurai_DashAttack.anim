@@ -69315,7 +69315,7 @@ AnimationClip:
     messageOptions: 0
   - time: 0.46666667
     functionName: OnEvent
-    data: OnSlashEffect//0,1,0/60,-100,-44
+    data: OnSlashEffect//0,1,0/55,-125,-60
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

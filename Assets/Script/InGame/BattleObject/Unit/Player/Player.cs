@@ -11,6 +11,7 @@ using CustomPhysics;
 using Addressable;
 using InGame.Weapon;
 using Utility.EffectObject;
+using InGame;
 
 namespace Unit
 {
@@ -34,11 +35,12 @@ namespace Unit
         [SerializeField] private Animator latencyInterpolationAnim;
         [SerializeField] private Transform latencyInterpolationWeapPos;
 
+        [Header("InGame")]
+        [SerializeField] private InGameCamManager camManager;
+
         private IWeapon weapon;
         private Animator modelAnim;
         private PlayerAnimEventer animEventer;
-
-        [SerializeField] private PlayerCam playerCam;
 
         private AddressableAsset_UserModelSettingInfo modelSettingInfo;
         private AddressableAsset_WeaponSettingInfo weapSettingInfo;
@@ -46,8 +48,6 @@ namespace Unit
         public bool canControll { get; private set; }
 
         private HitBox playerHitBox;
-
-        private IEnumerator CamSettingHandle = default;
         
         public override void Spawned()
         {
@@ -68,13 +68,14 @@ namespace Unit
 
             await LoadAssets();
             
-            StartCamSet();
-            
             playerHitBox = InitPlayerHitBox();
             this.weapon.AddIgnorePhysics(playerHitBox);
             
             fsm.Initialized(this, cc, modelAnim, latencyInterpolationAnim, weapon);
             animEventer.Initialize(fsm.AnimEvent);
+
+            if (HasStateAuthority)
+                camManager.Initialize(Camera.main, modelSettingInfo.camPos);
         }
 
         private async Task LoadAssets()
@@ -207,26 +208,6 @@ namespace Unit
             playerHitBox?.SetActive(false);
         }
 
-        #endregion
-
-        #region Cam
-        private void StartCamSet()
-        {
-            if (HasInputAuthority == false) return;
-
-            if (CamSettingHandle != null) StopCoroutine(CamSettingHandle);
-            StartCoroutine(CamSettingHandle = CamSetting());
-
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-
-        private IEnumerator CamSetting()
-        {
-            yield return new WaitUntil(() => Runner.IsRunning);
-
-            playerCam.SetCam();
-        }
         #endregion
     }
 }
