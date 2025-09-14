@@ -7,18 +7,19 @@ namespace InGame
 {
     public class InGameCamManager : MonoBehaviour
     {
+        [SerializeField] private CinemachineFreeLook freeLookCam;
+        [SerializeField] private Transform lookTarget;
+
         private Camera cam;
-        private CinemachineFreeLook freeLookCam;
-        private Transform lookTarget;
 
         public void Initialize(Camera cam, Transform lookTarget)
         {
             this.cam = cam;
-            this.lookTarget = lookTarget;
+            //this.lookTarget = lookTarget;
 
-            freeLookCam = gameObject.AddComponent<CinemachineFreeLook>();
-            freeLookCam.LookAt = lookTarget;
-            freeLookCam.Follow = lookTarget;
+            freeLookCam.enabled = true;
+            freeLookCam.LookAt = this.lookTarget;//lookTarget;
+            freeLookCam.Follow = this.lookTarget;//lookTarget;
 
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
