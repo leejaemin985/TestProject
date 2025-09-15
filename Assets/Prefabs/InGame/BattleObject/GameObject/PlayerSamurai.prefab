@@ -770,7 +770,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   freeLookCam: {fileID: 8327480783071105727}
-  lookTarget: {fileID: 6394677280302608678}
+  test: {fileID: 6394677280302608678}
 --- !u!114 &8327480783071105727
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -75,7 +75,7 @@ namespace Unit
             animEventer.Initialize(fsm.AnimEvent);
 
             if (HasStateAuthority)
-                camManager.Initialize(Camera.main, modelSettingInfo.camPos);
+                camManager.Initialize(Camera.main, modelSettingInfo.defaultCamPos, modelSettingInfo.actionCamPos);
         }
 
         private async Task LoadAssets()
@@ -152,7 +152,7 @@ namespace Unit
         }
 
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR && false
 
         private bool isTestTime = false;
 

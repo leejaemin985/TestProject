@@ -8,42 +8,34 @@ namespace InGame
 {
     public class InGameCamManager : MonoBehaviour
     {
-        [SerializeField] private CinemachineFreeLook freeLookCam;
-        [SerializeField] private Transform lookTarget;
-
-        //[SerializeField] private float speed = .2f;
-        //private Transform head;
-
-        private Camera cam;
-
-        public void Initialize(Camera cam, Transform lookTarget)
+        public enum CamActionState
         {
-            this.cam = cam;
-            //this.lookTarget = lookTarget;
-            //head = lookTarget;
-            //Debug.Log($"Test - head: {lookTarget}");
+            None,
+            Motion
+        }
 
+        [SerializeField] private CinemachineFreeLook freeLookCam;
+        
+        private Transform noneStateTransform;
+        private Transform motionStateTransform;
+
+        public void Initialize(Camera cam, Transform noneStateTransform, Transform motionStateTransform)
+        {
             freeLookCam.enabled = true;
-            freeLookCam.LookAt = this.lookTarget;
-            freeLookCam.Follow = this.lookTarget;
+            this.noneStateTransform = noneStateTransform;
+            this.motionStateTransform = motionStateTransform;
+            SetCamState(CamActionState.None);
 
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
 
-        public void ShakeTest(float value)
+        public void SetCamState(CamActionState state)
         {
-            freeLookCam.AddComponent<CinemachineBasicMultiChannelPerlin>();
-
+            Transform targetPos = state == CamActionState.None ? noneStateTransform : motionStateTransform;
+            freeLookCam.LookAt = targetPos;
+            freeLookCam.Follow = targetPos;
         }
-
-        //private void Update()
-        //{
-        //    if (head == null) return;
-        //    lookTarget.position = Vector3.Lerp(lookTarget.position, head.position, speed);
-            
-        //}
-
 
         /// Entry Point에서 락 해제 중
         //private void OnDestroy()
