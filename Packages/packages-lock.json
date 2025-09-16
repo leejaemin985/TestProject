@@ -7,7 +7,7 @@
       "dependencies": {
         "com.unity.mathematics": "1.2.6"
       },
-      "hash": "ffd39f1f12d22355e5f7658e50509a78d27d1051"
+      "hash": "876bb09aa372558532381aff1842ac851ffcda62"
     },
     "com.testprojectsubmodule.shared": {
       "version": "file:com.testprojectsubmodule.shared",

@@ -5,6 +5,7 @@ using UnityEngine;
 
 using Fusion;
 using Fusion.Addons.SimpleKCC;
+using System;
 
 namespace Unit
 {
@@ -17,7 +18,7 @@ namespace Unit
         [SerializeField] private PlayerStateBase[] stateArray = default;
 
         private Dictionary<PlayerStateBase.StateType, PlayerStateBase> stateMap;
-
+        private Action<PlayerStateBase.StateType> changeStateTypeListener;
 
         public InputInterpreter input;
 
@@ -44,7 +45,12 @@ namespace Unit
             }
         }
 
-        public void Initialized(Player player, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, IWeapon playerWeapon)
+        public void Initialized(
+            Player player,
+            SimpleKCC cc,
+            Animator modelAnim,
+            Animator latencyInterpolationAnim,
+            IWeapon playerWeapon)
         {
             this.player = player;
             input = new();
@@ -61,6 +67,11 @@ namespace Unit
             isInitialized = true;
 
             StartCoroutine(TestCoroutine());
+        }
+
+        public void AddChangeStateListener(Action<PlayerStateBase.StateType> changeStateTypeListener)
+        {
+            this.changeStateTypeListener += changeStateTypeListener;
         }
 
         public HitResultType CheckHittable(HitInfo hitInfo)
@@ -137,6 +148,8 @@ namespace Unit
                 currentStateType = CurrentState.GetStateType();
                 if (sync) RPC_SyncState();
             }
+
+
         }
 
         public void SetState<TState, TInfo>(TInfo info, bool sync = true)
@@ -160,6 +173,8 @@ namespace Unit
                 currentStateType = CurrentState.GetStateType();
                 if (sync) RPC_SyncState();
             }
+
+            changeStateTypeListener?.Invoke(currentStateType);
         }
 
 

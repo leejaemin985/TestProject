@@ -1,8 +1,7 @@
-using Cinemachine;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
+using System;
 using UnityEngine;
+using Cinemachine;
+using Unit;
 
 namespace InGame
 {
@@ -19,9 +18,11 @@ namespace InGame
         private Transform noneStateTransform;
         private Transform motionStateTransform;
 
-        public void Initialize(Camera cam, Transform noneStateTransform, Transform motionStateTransform)
+        public void Initialize(Camera cam,Transform player,Transform noneStateTransform, Transform motionStateTransform)
         {
             freeLookCam.enabled = true;
+            freeLookCam.Follow = player;
+
             this.noneStateTransform = noneStateTransform;
             this.motionStateTransform = motionStateTransform;
             SetCamState(CamActionState.None);
@@ -30,18 +31,25 @@ namespace InGame
             Cursor.visible = false;
         }
 
-        public void SetCamState(CamActionState state)
+        private void SetCamState(CamActionState state)
         {
-            Transform targetPos = state == CamActionState.None ? noneStateTransform : motionStateTransform;
-            freeLookCam.LookAt = targetPos;
-            freeLookCam.Follow = targetPos;
+            freeLookCam.LookAt = state == CamActionState.None ? noneStateTransform : motionStateTransform;
         }
 
-        /// Entry Point에서 락 해제 중
-        //private void OnDestroy()
-        //{
-        //    Cursor.lockState = CursorLockMode.None;
-        //    Cursor.visible = true;
-        //}
+        public void ChangeUserStateListener(PlayerStateBase.StateType stateType)
+        {
+            switch (stateType)
+            {
+                case PlayerStateBase.StateType.Hit:
+                case PlayerStateBase.StateType.Parring:
+                    SetCamState(CamActionState.Motion);
+                    break;
+
+                default:
+                    SetCamState(CamActionState.None);
+                    break;
+            }
+        }
+
     }
 }

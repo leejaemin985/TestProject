@@ -71,11 +71,15 @@ namespace Unit
             playerHitBox = InitPlayerHitBox();
             this.weapon.AddIgnorePhysics(playerHitBox);
             
+            
             fsm.Initialized(this, cc, modelAnim, latencyInterpolationAnim, weapon);
             animEventer.Initialize(fsm.AnimEvent);
 
             if (HasStateAuthority)
-                camManager.Initialize(Camera.main, modelSettingInfo.defaultCamPos, modelSettingInfo.actionCamPos);
+            {
+                camManager.Initialize(Camera.main, transform, modelSettingInfo.defaultCamPos, modelSettingInfo.actionCamPos);
+                fsm.AddChangeStateListener(camManager.ChangeUserStateListener);
+            }
         }
 
         private async Task LoadAssets()
@@ -123,14 +127,11 @@ namespace Unit
                 weapSettingInfo.trailParticle,
                 slashEffectPool, parrignEffectPool);
 
-            var localPos = weapSettingInfo.collisionBox.transform.localPosition;
-            var localRot = weapSettingInfo.collisionBox.transform.localEulerAngles;
-
-            weapSettingInfo.collisionBox.transform.SetParent(latencyInterpolationWeapPos);
-            weapSettingInfo.collisionBox.transform.SetLocalPositionAndRotation(
-                weapSettingInfo.weaponLocalPos + localPos,
-                Quaternion.Euler(weapSettingInfo.weaponLocalRot + localRot));
+            var finalPos = weapSettingInfo.weaponLocalPos + weapSettingInfo.collisionBox.transform.localPosition;
+            var finalRot = Quaternion.Euler(weapSettingInfo.weaponLocalRot) * Quaternion.Euler(weapSettingInfo.collisionBox.transform.localEulerAngles);
             
+            weapSettingInfo.collisionBox.transform.SetParent(latencyInterpolationWeapPos);
+            weapSettingInfo.collisionBox.transform.SetLocalPositionAndRotation(finalPos, finalRot);
         }
 
 
