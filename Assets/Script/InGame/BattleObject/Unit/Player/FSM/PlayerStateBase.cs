@@ -21,6 +21,17 @@ namespace Unit
             Died
         }
 
+        public enum StatePriorityType
+        {
+            Free = 10,
+
+            Event = 20,
+
+            Override = 30,
+
+            Terminal = 40
+        }
+
         protected Player player;
         protected PlayerFSM fsm;
         protected SimpleKCC cc;
@@ -39,18 +50,18 @@ namespace Unit
         }
 
 
-        protected void PlayAnim(string stateName, float fixedTransitionDuration, bool sync)
+        protected void PlayAnim(PlayerFSM.TransitionType transitionType, StatePriorityType statePriorityType, string stateName, float fixedTransitionDuration, bool sync)
         {
             if (!HasStateAuthority || sync == false)
                 modelAnim.CrossFadeInFixedTime(stateName, fixedTransitionDuration);
             else
-                RPC_AnimCrossFadeInFixedTime(stateName, fixedTransitionDuration, Runner.Tick);
+                RPC_AnimCrossFadeInFixedTime(transitionType, statePriorityType, stateName, fixedTransitionDuration, Runner.Tick);
         }
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-        public void RPC_AnimCrossFadeInFixedTime(string stateName, float fixedTransitionDuration, int tick)
+        public void RPC_AnimCrossFadeInFixedTime(PlayerFSM.TransitionType transitionType, StatePriorityType statePriorityType, string stateName, float fixedTransitionDuration, int tick)
         {
-            if (fsm.isStateLockActive) return;
+            if (fsm.CanSetState(transitionType, statePriorityType) == false) return;
 
             if (Runner.IsSharedModeMasterClient)
             {
@@ -65,11 +76,11 @@ namespace Unit
 
         public abstract StateType GetStateType();
 
-        public int priority => (int)GetStateType();
+        protected abstract StatePriorityType Priority { get; }
 
         protected virtual void SetInfo(INetworkStruct info) { }
 
-        protected virtual void EnterState(bool sync = true) { }
+        protected virtual void EnterState(PlayerFSM.TransitionType transitionType, bool sync = true) { }
 
         protected virtual void OnState() { }
 
@@ -90,9 +101,11 @@ namespace Unit
 
         #region IState
 
+        StatePriorityType IState.priority => Priority;
+
         void IState.SetInfo(INetworkStruct info) => SetInfo(info);
 
-        void IState.EnterState(bool sync) => EnterState(sync);
+        void IState.EnterState(PlayerFSM.TransitionType transitionType, bool sync) => EnterState(transitionType, sync);
 
         void IState.OnState() => OnState();
 

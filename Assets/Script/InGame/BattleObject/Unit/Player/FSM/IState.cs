@@ -6,11 +6,11 @@ namespace Unit
     {
         PlayerStateBase.StateType GetStateType();
 
-        int priority { get; }
+        PlayerStateBase.StatePriorityType priority { get; }
 
         void SetInfo(INetworkStruct info);
 
-        void EnterState(bool syncMotion);
+        void EnterState(PlayerFSM.TransitionType transitionType, bool syncMotion);
 
         void OnState();
 

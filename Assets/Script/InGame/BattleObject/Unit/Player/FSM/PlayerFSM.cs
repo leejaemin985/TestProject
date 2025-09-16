@@ -6,6 +6,7 @@ using UnityEngine;
 using Fusion;
 using Fusion.Addons.SimpleKCC;
 using System;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace Unit
 {
@@ -103,87 +104,81 @@ namespace Unit
 
         public void OnHitState(HitInfo hitInfo)
         {
-            SetState<PlayerHitState, HitInfo>(hitInfo, false);
-
-            OnStateLock(PlayerHitState.hitMotionDuration);
+            SetState<PlayerHitState, HitInfo>(TransitionType.System, hitInfo, false);
         }
 
         public void OnParringState(HitInfo hitInfo)
         {
-            SetState<PlayerParringState, HitInfo>(hitInfo, false);
-            OnStateLock(PlayerParringState.parringMotionDuration);
+            SetState<PlayerParringState, HitInfo>(TransitionType.System, hitInfo, false);
         }
 
         public void OnDiedState(HitInfo hitInfo)
         {
-            SetState<PlayerDiedState>(false);
-            OnStateLock(5);
+            SetState<PlayerDiedState>(TransitionType.System, false);
         }
 
-        private void OnStateLock(float sec)
-        {
-            if (!Runner.IsSharedModeMasterClient || HasStateAuthority) return;
 
-            isStateLockActive = true;
-            if (stateLockCoroutineHandle != null) StartCoroutine(stateLockCoroutineHandle);
-            StartCoroutine(stateLockCoroutineHandle = StateLockCoroutine(sec));
+        public bool CanSetState(TransitionType transitionType, PlayerStateBase.StatePriorityType priorityType)
+        {
+            return transitionType == TransitionType.System || CurrentState.priority <= priorityType;
         }
 
-        public bool isStateLockActive { get; private set; }
-        private IEnumerator stateLockCoroutineHandle = null;
-        private IEnumerator StateLockCoroutine(float sec)
+        public bool CanSetState(TransitionType transitionType, IState state)
         {
-            yield return new WaitForSeconds(sec);
-            isStateLockActive = false;
+            if (CurrentState == null) return true;
+            return transitionType == TransitionType.System || CurrentState.priority <= state.priority;
         }
 
-        public void SetState<T>(TransitionType transitionType, bool sync = true)where T : class, IState
+        private bool TryGetIState<T>(out IState? ret) where T : IState
         {
+            ret = null;
 
-        }
-
-        public void SetState<T>(bool sync = true) where T : class, IState
-        {
             for (int index = 0, max = stateArray.Length; index < max; ++index)
             {
                 if (stateArray[index] is T state)
                 {
-                    CurrentState?.ExitState();
-                    CurrentState = state;
-                    CurrentState?.EnterState(sync);
-                    break;
+                    ret = state;
+                    return true;
                 }
             }
+            return false;
+        }
+
+        public void SetState<TState>(TransitionType transitionType, bool sync = true)
+            where TState : class, IState 
+        {
+            if (TryGetIState<TState>(out var state) == false) return;
+            if (CanSetState(transitionType, state) == false) return;
+
+            CurrentState?.ExitState();
+            CurrentState = state;
+            CurrentState?.EnterState(transitionType, sync);
 
             if (HasStateAuthority)
             {
                 currentStateType = CurrentState.GetStateType();
-                if (sync) RPC_SyncState();
+                if (sync) RPC_SyncState(transitionType);
             }
 
             changeStateTypeListener?.Invoke(currentStateType);
         }
 
-        public void SetState<TState, TInfo>(TInfo info, bool sync = true)
+        public void SetState<TState, TInfo>(TransitionType transitionType, TInfo info, bool sync = true)
             where TState : PlayerStateBase, IState
             where TInfo:struct, INetworkStruct
         {
-            for (int index = 0, max = stateArray.Length; index < max; ++index)
-            {
-                if (stateArray[index] is TState state)
-                {
-                    CurrentState?.ExitState();
-                    CurrentState = state;
-                    CurrentState.SetInfo(info);
-                    CurrentState?.EnterState(sync);
-                    break;
-                }
-            }
+            if (TryGetIState<TState>(out var state) == false) return;
+            if (CanSetState(transitionType, state) == false) return;
+
+            CurrentState?.ExitState();
+            CurrentState = state;
+            CurrentState.SetInfo(info);
+            CurrentState?.EnterState(transitionType, sync);
 
             if (HasStateAuthority)
             {
                 currentStateType = CurrentState.GetStateType();
-                if (sync) RPC_SyncState();
+                if (sync) RPC_SyncState(transitionType);
             }
 
             changeStateTypeListener?.Invoke(currentStateType);
@@ -191,9 +186,10 @@ namespace Unit
 
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-        public void RPC_SyncState()
+        public void RPC_SyncState(TransitionType transitionType)
         {
-            if (isStateLockActive || HasStateAuthority) return;
+            if (HasStateAuthority || CanSetState(transitionType, stateMap[currentStateType]) == false) return;
+
             CurrentState = stateMap[currentStateType];
         }
 

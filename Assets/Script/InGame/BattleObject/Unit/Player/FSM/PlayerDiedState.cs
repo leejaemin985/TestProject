@@ -4,6 +4,8 @@ namespace Unit
     {
         public override StateType GetStateType() => StateType.Died;
 
+        protected override StatePriorityType Priority => StatePriorityType.Terminal;
+
         private string[] dieMotionNames = new string[]
         {
             "Died_1",
@@ -11,9 +13,9 @@ namespace Unit
             "Died_3"
         };
 
-        protected override void EnterState(bool sync = true)
+        protected override void EnterState(PlayerFSM.TransitionType transitionType, bool sync = true)
         {
-            PlayAnim(dieMotionNames[UnityEngine.Random.Range(0, dieMotionNames.Length)], .1f, false);
+            PlayAnim(transitionType, Priority, dieMotionNames[UnityEngine.Random.Range(0, dieMotionNames.Length)], .1f, false);
         }
     }
 }

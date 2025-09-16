@@ -32,7 +32,9 @@ namespace Unit
 
         public override StateType GetStateType() => StateType.Hit;
 
-        public const float hitMotionDuration = 1f;
+        protected override StatePriorityType Priority => StatePriorityType.Event;
+
+        private const float hitMotionDuration = 1f;
         private int hitEndTick;
 
         private HitInfo currentHitInfo;
@@ -52,10 +54,8 @@ namespace Unit
             bloodEffect.Play();
         }
 
-        protected override void EnterState(bool sync = true)
+        protected override void EnterState(PlayerFSM.TransitionType transitionType, bool sync = true)
         {
-            base.EnterState();
-
             HitMotionInfo currentMotionInfo = null;
 
             Vector3 attackerDir = (currentHitInfo.attackerPos - player.transform.position).normalized;
@@ -71,7 +71,7 @@ namespace Unit
             currentMotionInfo = animInfoList[UnityEngine.Random.Range(0, animInfoList.Count)];
 
             hitEndTick = Runner.Tick + Mathf.RoundToInt(hitMotionDuration * Runner.TickRate);
-            PlayAnim(currentMotionInfo.motionName, 0, sync);
+            PlayAnim(transitionType, Priority, currentMotionInfo.motionName, 0, sync);
         }
 
         protected override void OnState()
@@ -80,7 +80,7 @@ namespace Unit
 
             if (Runner.Tick >= hitEndTick)
             {
-                fsm.SetState<PlayerMovementState>();
+                fsm.SetState<PlayerMovementState>(PlayerFSM.TransitionType.System);
                 return;
             }
 

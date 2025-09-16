@@ -6,7 +6,10 @@ namespace Unit
     public class PlayerParringState : PlayerStateBase
     {
         public override StateType GetStateType() => StateType.Parring;
-        public const float parringMotionDuration = .4f;
+
+        protected override StatePriorityType Priority => StatePriorityType.Event;
+
+        private const float parringMotionDuration = .4f;
 
         private int parringEndTick;
 
@@ -21,12 +24,10 @@ namespace Unit
 
         protected override void SetInfo(INetworkStruct info) => receivedHitInfo = (HitInfo)info;
 
-        protected override void EnterState(bool sync = true)
+        protected override void EnterState(PlayerFSM.TransitionType transitionType, bool sync = true)
         {
-            base.EnterState(sync);
-
             parringEndTick = Runner.Tick + Mathf.RoundToInt(parringMotionDuration * Runner.TickRate);
-            PlayAnim($"_Parring_{Random.Range(1, 5)}", 0.1f, sync);
+            PlayAnim(transitionType, Priority, $"_Parring_{Random.Range(1, 5)}", 0.1f, sync);
 
             parringPushEndTick = Runner.Tick + Mathf.RoundToInt(parringPushTime * Runner.TickRate);
         }
@@ -38,7 +39,7 @@ namespace Unit
 
             if (Runner.Tick >= parringEndTick)
             {
-                fsm.SetState<PlayerDefenseState>();
+                fsm.SetState<PlayerDefenseState>(PlayerFSM.TransitionType.System);
                 return;
             }
 

@@ -8,6 +8,8 @@ namespace Unit
     {
         public override StateType GetStateType() => StateType.Jump;
 
+        protected override StatePriorityType Priority => StatePriorityType.Free;
+
         [SerializeField] private float jumpVelocity;
 
         [Networked] private float currentVelocity { get; set; }
@@ -16,10 +18,10 @@ namespace Unit
 
         protected override void SetInfo(INetworkStruct info) => currentMoveInfo = (MoveInfo)info;
 
-        protected override void EnterState(bool sync = true)
+        protected override void EnterState(PlayerFSM.TransitionType transitionType, bool sync = true)
         {
             currentVelocity = 0;
-            PlayAnim("_Jump", .1f, true);
+            PlayAnim(transitionType, Priority, "_Jump", .1f, true);
 
             cc.Move(default, jumpVelocity);
         }
@@ -30,7 +32,7 @@ namespace Unit
 
             if (cc.IsGrounded)
             {
-                fsm.SetState<PlayerLandState>();
+                fsm.SetState<PlayerLandState>(PlayerFSM.TransitionType.Request);
                 return;
             }
 

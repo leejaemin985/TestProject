@@ -15,6 +15,7 @@ namespace Unit
     {
         public override StateType GetStateType() => StateType.Attack;
 
+        protected override StatePriorityType Priority => StatePriorityType.Free;
 
         [SerializeField] private float attackTryWindowTime = .1f;
 
@@ -56,7 +57,7 @@ namespace Unit
 
         protected override void SetInfo(INetworkStruct info) => currentMotionInfo = (AttackInfo)info;
 
-        protected override void EnterState(bool sync = true)
+        protected override void EnterState(PlayerFSM.TransitionType transitionType, bool sync = true)
         {
             currentMotionIndex = currentCombo++ % attackMotionInfos[currentMotionInfo.attackMotionType].Count;
             var currentMotion = ResolveAttackMotion();
@@ -69,7 +70,7 @@ namespace Unit
             attackRetryTick = attackEndTick - Mathf.RoundToInt(attackTryWindowTime * tickRate);
 
             currentMotionStartTick = Runner.Tick;
-            PlayAnim(currentMotion.motionName, .1f, sync);
+            PlayAnim(transitionType, Priority, currentMotion.motionName, .1f, sync);
 
             currentAttackMove = Vector3.zero;
 
@@ -98,13 +99,13 @@ namespace Unit
             if (!HasStateAuthority) return;
             if (attackRetryTick <= Runner.Tick && fsm.input.IsSet(x => x.attack))
             {
-                fsm.SetState<PlayerAttackState>();
+                fsm.SetState<PlayerAttackState>(PlayerFSM.TransitionType.Request);
                 return;
             }
 
             if (attackEndTick <= Runner.Tick)
             {
-                fsm.SetState<PlayerMovementState>();
+                fsm.SetState<PlayerMovementState>(PlayerFSM.TransitionType.Request);
             }
 
             cc.Move(currentAttackMove * attackMoveSpeed * Runner.DeltaTime);

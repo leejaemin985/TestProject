@@ -8,6 +8,8 @@ namespace Unit
     {
         public override StateType GetStateType() => StateType.Sprint;
 
+        protected override StatePriorityType Priority => StatePriorityType.Free;
+
         [SerializeField] private float sprintSpeed;
 
         private float curvSpeed = 10;
@@ -20,9 +22,9 @@ namespace Unit
 
         protected override void SetInfo(INetworkStruct info) => currentMoveInfo = (MoveInfo)info;
 
-        protected override void EnterState(bool sync = true)
+        protected override void EnterState(PlayerFSM.TransitionType transitionType, bool sync = true)
         {
-            PlayAnim("_Movement", .2f, sync);
+            PlayAnim(transitionType, Priority, "_Movement", .2f, sync);
         }
 
         protected override void OnState()
@@ -31,19 +33,19 @@ namespace Unit
 
             if (fsm.input.WasPressed(x => x.jump))
             {
-                fsm.SetState<PlayerJumpState, MoveInfo>(currentMoveInfo, true);
+                fsm.SetState<PlayerJumpState, MoveInfo>(PlayerFSM.TransitionType.Request, currentMoveInfo, true);
                 return;
             }
 
             if (fsm.input.Current.moveDir.sqrMagnitude < .01f || fsm.input.IsSet(x => x.dash) == false)
             {
-                fsm.SetState<PlayerMovementState>();
+                fsm.SetState<PlayerMovementState>(PlayerFSM.TransitionType.Request);
                 return;
             }
 
             if (fsm.input.IsSet(x => x.attack))
             {
-                fsm.SetState<PlayerAttackState, AttackInfo>(new() { attackMotionType = AttackMotionType.Dash });
+                fsm.SetState<PlayerAttackState, AttackInfo>(PlayerFSM.TransitionType.Request, new() { attackMotionType = AttackMotionType.Dash });
                 return;
             }
 

@@ -6,6 +6,9 @@ namespace Unit
     public class PlayerDefenseState : PlayerStateBase
     {
         public override StateType GetStateType() => StateType.Defense;
+
+        protected override StatePriorityType Priority => StatePriorityType.Free;
+
         public const float defenseStartupTime = 0.1f;
 
         [SerializeField] private float defenseMoveSpeed;
@@ -16,9 +19,9 @@ namespace Unit
 
         [Networked] private Vector3 moveAnimDir { get; set; }
 
-        protected override void EnterState(bool sync = true)
+        protected override void EnterState(PlayerFSM.TransitionType transitionType, bool sync = true)
         {
-            PlayAnim("_DefenseMove", .15f, true);
+            PlayAnim(transitionType, Priority, "_DefenseMove", .15f, true);
         }
 
         protected override void OnState()
@@ -26,7 +29,7 @@ namespace Unit
             if (!HasStateAuthority) return;
             if (fsm.input.IsSet(x => x.defense == false))
             {
-                fsm.SetState<PlayerMovementState>();
+                fsm.SetState<PlayerMovementState>(PlayerFSM.TransitionType.Request);
                 return;
             }
 

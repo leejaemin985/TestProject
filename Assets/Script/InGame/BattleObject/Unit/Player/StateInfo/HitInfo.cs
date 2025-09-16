@@ -1,6 +1,6 @@
-using Fusion;
 using System;
 using UnityEngine;
+using Fusion;
 
 public enum AttackType
 {
