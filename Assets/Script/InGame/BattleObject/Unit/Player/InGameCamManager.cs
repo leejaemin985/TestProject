@@ -14,7 +14,8 @@ namespace InGame
         }
 
         [SerializeField] private CinemachineFreeLook freeLookCam;
-        
+        [SerializeField] private NoiseSettings noiseProfile;
+
         private Transform noneStateTransform;
         private Transform motionStateTransform;
 

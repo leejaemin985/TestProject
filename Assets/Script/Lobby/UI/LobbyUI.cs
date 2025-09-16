@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 
 using TMPro;
+using UnityEngine.Device;
 
 namespace Lobby.UI
 {
@@ -28,6 +29,5 @@ namespace Lobby.UI
         public void SetSessionNameInputFieldText(string text) => sessionNameInputField.text = text;
 
         public void SetMakeRoomPopup(bool set) => makeRoomPopup.SetActive(set);
-
     }
 }
