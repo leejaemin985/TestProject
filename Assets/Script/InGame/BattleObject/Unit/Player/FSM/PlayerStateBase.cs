@@ -65,6 +65,8 @@ namespace Unit
 
         public abstract StateType GetStateType();
 
+        public int priority => (int)GetStateType();
+
         protected virtual void SetInfo(INetworkStruct info) { }
 
         protected virtual void EnterState(bool sync = true) { }

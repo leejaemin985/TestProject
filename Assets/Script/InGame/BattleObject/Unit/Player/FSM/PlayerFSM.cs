@@ -23,6 +23,13 @@ namespace Unit
         public InputInterpreter input;
 
 
+        public enum TransitionType
+        {
+            Request,
+            System
+        }
+
+
         public enum HitResultType
         {
             Hit,
@@ -130,6 +137,11 @@ namespace Unit
             isStateLockActive = false;
         }
 
+        public void SetState<T>(TransitionType transitionType, bool sync = true)where T : class, IState
+        {
+
+        }
+
         public void SetState<T>(bool sync = true) where T : class, IState
         {
             for (int index = 0, max = stateArray.Length; index < max; ++index)
@@ -149,7 +161,7 @@ namespace Unit
                 if (sync) RPC_SyncState();
             }
 
-
+            changeStateTypeListener?.Invoke(currentStateType);
         }
 
         public void SetState<TState, TInfo>(TInfo info, bool sync = true)

@@ -6,6 +6,8 @@ namespace Unit
     {
         PlayerStateBase.StateType GetStateType();
 
+        int priority { get; }
+
         void SetInfo(INetworkStruct info);
 
         void EnterState(bool syncMotion);
