@@ -78,6 +78,12 @@ namespace Unit
         {
             if (!HasStateAuthority) return;
 
+            if (fsm.input.WasPressed(x => x.skill))
+            {
+                fsm.SetState<PlayerRoarState>(PlayerFSM.TransitionType.Request);
+                return;
+            }
+
             if (Runner.Tick >= hitEndTick)
             {
                 fsm.SetState<PlayerMovementState>(PlayerFSM.TransitionType.System);

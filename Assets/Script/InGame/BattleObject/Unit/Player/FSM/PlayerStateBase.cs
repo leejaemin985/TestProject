@@ -17,6 +17,7 @@ namespace Unit
             Attack,
             Defense,
             Parring,
+            Roar,
             Hit,
             Died
         }

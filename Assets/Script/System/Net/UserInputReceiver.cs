@@ -17,6 +17,8 @@ public class UserInputReceiver : RunnerCallbacksBase
 
         if (Input.GetKey(KeyCode.Mouse1)) data.defense = true;
 
+        if (Input.GetKey(KeyCode.E)) data.skill = true;
+
         input.Set(data);
     }
 }

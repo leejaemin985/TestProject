@@ -55,6 +55,12 @@ namespace Unit
                 return;
             }
 
+            if (fsm.input.WasPressed(x => x.skill))
+            {
+                fsm.SetState<PlayerRoarState>(PlayerFSM.TransitionType.Request);
+                return;
+            }
+
             Vector3 inputDir = new Vector3(fsm.input.Current.moveDir.x, 0, fsm.input.Current.moveDir.y);
 
             moveAnimDir = Vector3.Lerp(moveAnimDir, inputDir, curveSpeed * Runner.DeltaTime);

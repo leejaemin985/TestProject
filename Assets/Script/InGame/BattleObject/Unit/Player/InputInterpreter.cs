@@ -9,6 +9,7 @@ public struct InputData : INetworkInput
     public bool jump;
     public bool attack;
     public bool defense;
+    public bool skill;
 
     public bool IsInputEmpty()
     {
