@@ -15,5 +15,4 @@ public struct HitInfo : INetworkStruct
     public float weight;
     public AttackType attackType;
     public Vector3 attackerPos;
-    public Vector3 hitPoint;
 };

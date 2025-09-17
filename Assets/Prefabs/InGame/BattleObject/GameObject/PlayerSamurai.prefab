@@ -124,6 +124,51 @@ MonoBehaviour:
         m_Calls: []
   m_LegacyBlendHint: 0
   m_ComponentOwner: {fileID: 2025725211001763133}
+--- !u!1 &1048876400653135188
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5785403064023136679}
+  - component: {fileID: 1071484588457817821}
+  m_Layer: 0
+  m_Name: RoarPhysicRange
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5785403064023136679
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1048876400653135188}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 4, y: 4, z: 4}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2205788263057599652}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1071484588457817821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1048876400653135188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87e6fec9225e9a9449c2bbc24ee61f64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  physicsShapeType: 1
 --- !u!1 &1144485216713449374
 GameObject:
   m_ObjectHideFlags: 0
@@ -1255,7 +1300,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 5785403064023136679}
   m_Father: {fileID: 4891781815831520554}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &9177407392923930419
@@ -1270,6 +1316,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d49fa899404eb024996ad340273a03da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  physicsRange: {fileID: 1071484588457817821}
+  damage: 10
+  weight: 1
+  attackType: 1
 --- !u!1 &6614317249968705175
 GameObject:
   m_ObjectHideFlags: 0

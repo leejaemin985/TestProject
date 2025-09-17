@@ -47,7 +47,7 @@ namespace Unit
 
         public bool canControll { get; private set; }
 
-        private HitBox playerHitBox;
+        public HitBox playerHitBox { get; private set; }
         
         public override void Spawned()
         {
