@@ -32,6 +32,8 @@ namespace Addressable
 
         public static readonly AddressableKey PK_Katana = new AddressableKey(KeyType.PrimaryKey, "Weapon_Katana", "Weapon Katana");
 
+        public static readonly AddressableKey PK_UserStateEffectGroup = new AddressableKey(KeyType.PrimaryKey, "UserStateEffect", "User StateEffect Group");
+
         #endregion
     }
 }

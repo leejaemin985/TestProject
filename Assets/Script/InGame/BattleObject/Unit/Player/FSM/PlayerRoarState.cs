@@ -1,9 +1,12 @@
+using Addressable;
 using CustomPhysics;
+using ExitGames.Client.Photon;
 using Fusion;
 using Fusion.Addons.SimpleKCC;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Utility.EffectObject;
 
 namespace Unit
 {
@@ -23,12 +26,23 @@ namespace Unit
         [Networked] private int roarStartTick { get; set; }
         [Networked] private int roarEndTick { get; set; }
 
+        private EffectObjectPool effectPool;
+
         public override void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, IWeapon weap)
         {
             base.Initialize(player, fsm, cc, modelAnim, latencyInterpolationAnim, weap);
 
+            EffectLoadTest();
+
             physicsRange.Initialize(OnHit);
             physicsRange.AddIgnoreUid(player.playerHitBox);
+        }
+
+        private async void EffectLoadTest()
+        {
+            var ob = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_UserStateEffectGroup);
+            var effectGroup = ob.GetComponent<AddressableAsset_UserStateEffect>();
+            effectPool = EffectObjectPool.CreatePoolInstance<RoarStateEffect>((RoarStateEffect)effectGroup.roarStateEffect, new() { count = 2, effectRoot = null });
         }
 
         protected override void EnterState(PlayerFSM.TransitionType transitionType, bool sync = true)
@@ -48,6 +62,11 @@ namespace Unit
         }
 
         //TestCode######################################################################################
+        protected override void OnEnterRender()
+        {
+            effectPool.OnPlayEffect(player.transform.position, Quaternion.identity);
+        }
+
         protected override void OnExitRender()
         {
             physicsRange.SetActive(false);
