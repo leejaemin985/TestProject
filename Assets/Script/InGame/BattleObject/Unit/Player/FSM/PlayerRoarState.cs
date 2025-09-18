@@ -62,11 +62,6 @@ namespace Unit
         }
 
         //TestCode######################################################################################
-        protected override void OnEnterRender()
-        {
-            effectPool.OnPlayEffect(player.transform.position, Quaternion.identity);
-        }
-
         protected override void OnExitRender()
         {
             physicsRange.SetActive(false);
@@ -99,6 +94,22 @@ namespace Unit
             {
                 info.hitObject.OnHitEvent(new PlayerCollisionInfo(info, hitInfo));
             }
+        }
+
+        protected override void OnAnimEvent(string param)
+        {
+            var parts = param.Split("//");
+            switch (parts[0])
+            {
+                case "RoarEffect":
+                    OnRoarEffect();
+                    break;
+            }
+        }
+
+        private void OnRoarEffect()
+        {
+            effectPool.OnPlayEffect(player.transform.position, Quaternion.identity);
         }
     }
 }
