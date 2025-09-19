@@ -183,8 +183,13 @@ namespace Unit
                     interactionEventHandler.RequestOnParringUser(Object.StateAuthority, hitInfo);
                     break;
 
-                default: // died
+                case PlayerFSM.HitResultType.Died:
                     interactionEventHandler.RequestOnDiedUser(Object.StateAuthority, hitInfo);
+                    break;
+
+
+                default: // None (Ex.Roar)
+                    OnDamaged(hitInfo.damaged);
                     break;
             }
         }

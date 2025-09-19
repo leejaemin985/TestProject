@@ -6,7 +6,6 @@ using UnityEngine;
 using Fusion;
 using Fusion.Addons.SimpleKCC;
 using System;
-using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace Unit
 {
@@ -33,6 +32,7 @@ namespace Unit
 
         public enum HitResultType
         {
+            None,
             Hit,
             Parry,
             Died
@@ -84,6 +84,10 @@ namespace Unit
 
         public HitResultType CheckHittable(HitInfo hitInfo)
         {
+            bool isSuperArmor = currentStateType == PlayerStateBase.StateType.Roar;
+            
+            if (isSuperArmor) return HitResultType.None;
+
             bool inDefense = 
                 currentStateType == PlayerStateBase.StateType.Defense || 
                 currentStateType == PlayerStateBase.StateType.Parring;
@@ -95,7 +99,6 @@ namespace Unit
 
 
             bool isDied = player.GetHp() - hitInfo.damaged <= 0;
-
             if (isDied)
                 return HitResultType.Died;
             else

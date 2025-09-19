@@ -32,13 +32,13 @@ namespace Unit
         {
             base.Initialize(player, fsm, cc, modelAnim, latencyInterpolationAnim, weap);
 
-            EffectLoadTest();
+            LoadEffect();
 
             physicsRange.Initialize(OnHit);
             physicsRange.AddIgnoreUid(player.playerHitBox);
         }
 
-        private async void EffectLoadTest()
+        private async void LoadEffect()
         {
             var ob = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_UserStateEffectGroup);
             var effectGroup = ob.GetComponent<AddressableAsset_UserStateEffect>();
@@ -47,6 +47,7 @@ namespace Unit
 
         protected override void EnterState(PlayerFSM.TransitionType transitionType, bool sync = true)
         {
+            Debug.Log($"Test - Called Roar");
             roarEndTick = Runner.Tick + Mathf.RoundToInt(roarMotionDuration * Runner.TickRate);
             PlayAnim(transitionType, Priority, "Roar", .1f, true);
         }
