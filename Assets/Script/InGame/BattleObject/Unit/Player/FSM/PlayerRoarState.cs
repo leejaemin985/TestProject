@@ -21,7 +21,7 @@ namespace Unit
         [SerializeField] private float weight;
         [SerializeField] private AttackType attackType;
 
-        private const float roarMotionDuration = .4f;
+        private const float roarMotionDuration = 1f;
 
         [Networked] private int roarStartTick { get; set; }
         [Networked] private int roarEndTick { get; set; }
@@ -101,7 +101,7 @@ namespace Unit
             var parts = param.Split("//");
             switch (parts[0])
             {
-                case "RoarEffect":
+                case "OnRoarEffect":
                     OnRoarEffect();
                     break;
             }

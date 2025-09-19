@@ -151,7 +151,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 4, y: 4, z: 4}
+  m_LocalScale: {x: 6, y: 6, z: 6}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2205788263057599652}
@@ -644,7 +644,7 @@ GameObject:
   - component: {fileID: 3435419628776310831}
   - component: {fileID: 978523184684886547}
   m_Layer: 0
-  m_Name: PlayerSamurai
+  m_Name: UserObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

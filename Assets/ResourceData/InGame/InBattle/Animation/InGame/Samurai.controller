@@ -170,6 +170,28 @@ BlendTree:
   m_UseAutomaticThresholds: 1
   m_NormalizedBlendValues: 0
   m_BlendType: 2
+--- !u!1107 &-6906836022899266311
+AnimatorStateMachine:
+  serializedVersion: 6
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Skill
+  m_ChildStates:
+  - serializedVersion: 1
+    m_State: {fileID: -1144247898120589890}
+    m_Position: {x: 330, y: 10, z: 0}
+  m_ChildStateMachines: []
+  m_AnyStateTransitions: []
+  m_EntryTransitions: []
+  m_StateMachineTransitions: {}
+  m_StateMachineBehaviours: []
+  m_AnyStatePosition: {x: 50, y: 20, z: 0}
+  m_EntryPosition: {x: 50, y: 120, z: 0}
+  m_ExitPosition: {x: 800, y: 120, z: 0}
+  m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
+  m_DefaultState: {fileID: -1144247898120589890}
 --- !u!206 &-5514117210881954957
 BlendTree:
   m_ObjectHideFlags: 1
@@ -486,7 +508,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Roar
-  m_Speed: 2
+  m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
   m_StateMachineBehaviours: []
@@ -498,7 +520,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 98cd127bcc370a64c970ea25dda2e314, type: 2}
+  m_Motion: {fileID: 7400000, guid: 671e603b922801e4a9a2d6099e5bd77c, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -732,9 +754,6 @@ AnimatorStateMachine:
   - serializedVersion: 1
     m_State: {fileID: 6899929435753414872}
     m_Position: {x: 600, y: 210, z: 0}
-  - serializedVersion: 1
-    m_State: {fileID: -1144247898120589890}
-    m_Position: {x: 600, y: 290, z: 0}
   m_ChildStateMachines:
   - serializedVersion: 1
     m_StateMachine: {fileID: -425037925942828055}
@@ -751,6 +770,9 @@ AnimatorStateMachine:
   - serializedVersion: 1
     m_StateMachine: {fileID: 1267970014032451816}
     m_Position: {x: 830, y: 530, z: 0}
+  - serializedVersion: 1
+    m_StateMachine: {fileID: -6906836022899266311}
+    m_Position: {x: 600, y: 370, z: 0}
   m_AnyStateTransitions: []
   m_EntryTransitions: []
   m_StateMachineTransitions: {}
