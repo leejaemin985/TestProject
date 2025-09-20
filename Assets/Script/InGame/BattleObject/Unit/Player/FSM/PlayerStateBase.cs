@@ -40,6 +40,10 @@ namespace Unit
         protected Animator modelAnim;
         protected IWeapon weap;
 
+        #region StatusDefinition
+        public virtual bool HasSuperArmor => false;
+        #endregion
+
         public virtual void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, IWeapon weap)
         {
             this.player = player;
@@ -72,6 +76,7 @@ namespace Unit
 
             modelAnim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, 0);
         }
+
 
         #region Base
 

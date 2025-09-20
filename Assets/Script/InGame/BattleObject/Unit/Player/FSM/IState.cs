@@ -8,6 +8,12 @@ namespace Unit
 
         PlayerStateBase.StatePriorityType priority { get; }
 
+        #region Status
+        
+        bool HasSuperArmor { get; }
+
+        #endregion
+
         void SetInfo(INetworkStruct info);
 
         void EnterState(PlayerFSM.TransitionType transitionType, bool syncMotion);

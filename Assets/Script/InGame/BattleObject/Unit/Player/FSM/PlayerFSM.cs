@@ -32,7 +32,6 @@ namespace Unit
 
         public enum HitResultType
         {
-            None,
             Hit,
             Parry,
             Died
@@ -42,10 +41,10 @@ namespace Unit
 
         private IState currentState;
 
-        private IState CurrentState
+        public IState CurrentState
         {
             get { return currentState; }
-            set
+            private set
             {
                 currentState?.OnExitRender();
                 currentState = value;
@@ -84,10 +83,6 @@ namespace Unit
 
         public HitResultType CheckHittable(HitInfo hitInfo)
         {
-            bool isSuperArmor = currentStateType == PlayerStateBase.StateType.Roar;
-            
-            if (isSuperArmor) return HitResultType.None;
-
             bool inDefense = 
                 currentStateType == PlayerStateBase.StateType.Defense || 
                 currentStateType == PlayerStateBase.StateType.Parring;
@@ -123,13 +118,20 @@ namespace Unit
 
         public bool CanSetState(TransitionType transitionType, PlayerStateBase.StatePriorityType priorityType)
         {
-            return transitionType == TransitionType.System || CurrentState.priority <= priorityType;
+            bool systemTransition = transitionType == TransitionType.System;
+            bool priorityRequest = CurrentState.priority <= priorityType;
+
+            return systemTransition || priorityRequest;
         }
 
         public bool CanSetState(TransitionType transitionType, IState state)
         {
             if (CurrentState == null) return true;
-            return transitionType == TransitionType.System || CurrentState.priority <= state.priority;
+
+            bool systemTransition = transitionType == TransitionType.System;
+            bool priorityRequest = CurrentState.priority <= state.priority;
+
+            return systemTransition || priorityRequest;
         }
 
         private bool TryGetIState<T>(out IState? ret) where T : IState
@@ -191,6 +193,11 @@ namespace Unit
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
         public void RPC_SyncState(TransitionType transitionType)
         {
+            if (transitionType == TransitionType.System && currentStateType == PlayerStateBase.StateType.Attack)
+            {
+                Debug.Log($"Test - Invalid Sync State");
+            }
+
             if (HasStateAuthority || CanSetState(transitionType, stateMap[currentStateType]) == false) return;
 
             CurrentState = stateMap[currentStateType];

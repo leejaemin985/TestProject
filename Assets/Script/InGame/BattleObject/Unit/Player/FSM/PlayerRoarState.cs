@@ -15,13 +15,16 @@ namespace Unit
         public override StateType GetStateType() => StateType.Roar;
         protected override StatePriorityType Priority => StatePriorityType.Override;
 
+        public override bool HasSuperArmor => true;
+
+
         [SerializeField] private AttackBox physicsRange;
 
         [SerializeField] private float damage;
         [SerializeField] private float weight;
         [SerializeField] private AttackType attackType;
 
-        private const float roarMotionDuration = 1f;
+        private const float roarMotionDuration = .8f;
 
         [Networked] private int roarStartTick { get; set; }
         [Networked] private int roarEndTick { get; set; }
@@ -33,7 +36,6 @@ namespace Unit
             base.Initialize(player, fsm, cc, modelAnim, latencyInterpolationAnim, weap);
 
             LoadEffect();
-
             physicsRange.Initialize(OnHit);
             physicsRange.AddIgnoreUid(player.playerHitBox);
         }
@@ -47,8 +49,8 @@ namespace Unit
 
         protected override void EnterState(PlayerFSM.TransitionType transitionType, bool sync = true)
         {
-            Debug.Log($"Test - Called Roar");
             roarEndTick = Runner.Tick + Mathf.RoundToInt(roarMotionDuration * Runner.TickRate);
+            player.UnitStat.OnSuperArmor(roarEndTick);
             PlayAnim(transitionType, Priority, "Roar", .1f, true);
         }
 
@@ -62,7 +64,6 @@ namespace Unit
             }
         }
 
-        //TestCode######################################################################################
         protected override void OnExitRender()
         {
             physicsRange.SetActive(false);

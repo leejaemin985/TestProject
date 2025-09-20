@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using Fusion;
+using System.Collections;
 
 namespace Unit
 {
@@ -19,11 +20,14 @@ namespace Unit
         hp,
         maxHp, 
         posture,
-        maxPosture
+        maxPosture,
+        superArmor
     }
 
     public abstract class UnitStat : NetworkBehaviour
     {
+        #region Static Spawned Listener
+
         private static Dictionary<PlayerRef, UnitStat> spawnedUnitStatMap = new();
 
         public static Dictionary<PlayerRef, Action<UnitStat>> spawnedCallbacks = new();
@@ -42,6 +46,8 @@ namespace Unit
             spawnedCallbacks[userRef] -= spawnedListener;
             spawnedCallbacks[userRef] += spawnedListener;
         }
+        
+        #endregion
 
         private PlayerRef presetUserRef;
         [Networked] public PlayerRef userRef { get; private set; }
@@ -54,8 +60,10 @@ namespace Unit
         [Networked, OnChangedRender(nameof(OnChangedMaxPosture))] public float maxPosture { get; private set; }
         [Networked, OnChangedRender(nameof(OnChangedPosture))] public float posture { get; protected set; }
 
+        [Networked, OnChangedRender(nameof(OnChangedSuperArmor))] public bool superArmor { get; protected set; }
 
         private Dictionary<StatId, Action> onStatEventListeners;
+        private Dictionary<StatId, IEnumerator> statCoroutineHandlers;
 
         private UnitStatScriptable initDataList;
 
@@ -102,9 +110,11 @@ namespace Unit
         private void SetEventListener()
         {
             onStatEventListeners = new();
+            statCoroutineHandlers = new();
             foreach (var enumType in Enum.GetValues(typeof(StatId)))
             {
                 onStatEventListeners.Add((StatId)enumType, null);
+                statCoroutineHandlers.Add((StatId)enumType, null);
             }
         }
 
@@ -112,7 +122,7 @@ namespace Unit
         private void OnChangedHp() => onStatEventListeners[StatId.hp]?.Invoke();
         private void OnChangedMaxPosture() => onStatEventListeners[StatId.maxPosture]?.Invoke();
         private void OnChangedPosture() => onStatEventListeners[StatId.posture]?.Invoke();
-
+        private void OnChangedSuperArmor() => onStatEventListeners[StatId.superArmor]?.Invoke();
 
         public void AddStatEventListener(StatId statId, Action eventListener)
         {
@@ -138,5 +148,41 @@ namespace Unit
             posture = Mathf.Clamp(value, 0, maxPosture);
         }
 
+        public void OnSuperArmor(int untilTick)
+        {
+            RPC_RequestOnSuperArmor(untilTick);
+        }
+
+        public void OffSuperArmor()
+        {
+            RPC_RequestOffSuperArmor();
+        }
+
+        [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+        private void RPC_RequestOnSuperArmor(int untilTick)
+        {
+            superArmor = true;
+
+            var handler = statCoroutineHandlers[StatId.superArmor];
+            if (handler != null) StopCoroutine(handler);
+            StartCoroutine(handler = StatControllerWithTick(untilTick, () => superArmor = false));
+
+            statCoroutineHandlers[StatId.superArmor] = handler;
+        }
+
+        [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+        private void RPC_RequestOffSuperArmor()
+        {
+            superArmor = false;
+
+            var handler = statCoroutineHandlers[StatId.superArmor];
+            if (handler != null) StopCoroutine(handler);
+        }
+
+        private IEnumerator StatControllerWithTick(int untilRunnerTick, Action completeListener)
+        {
+            yield return new WaitUntil(() => Runner.Tick > untilRunnerTick);
+            completeListener?.Invoke();
+        }
     }
 }

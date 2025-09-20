@@ -114,8 +114,6 @@ namespace Unit
         protected override void ExitState()
         {
             weap.SetCollisionActive(false);
-            if (!HasStateAuthority)
-                Debug.Log($"Test - Called SetCollision false");
 
             var motionInfo = currentMotionInfo;
             motionInfo.attackMotionType = AttackMotionType.None;

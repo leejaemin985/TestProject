@@ -9,10 +9,8 @@ namespace Unit
     {
         [Header("Unit")]
         [SerializeField] private UnitStat unitStat;
-
-        private Action<float, float> onChangedHpEvent;
-        private Action<float, float> onChangedPostureEvent;
-
+        public UnitStat UnitStat => unitStat;
+        
         public void BindUnitStat(UnitStat unitStat)
         {
             this.unitStat = unitStat;

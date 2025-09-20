@@ -152,21 +152,6 @@ namespace Unit
             return ret;
         }
 
-
-#if UNITY_EDITOR && false
-
-        private bool isTestTime = false;
-
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.T))
-            {
-                isTestTime = !isTestTime;
-                Time.timeScale = isTestTime ? 0 : 1;
-            }
-        }
-#endif
-
         #region Event
         private void HitEvent(CollisionInfoData collisionInfoData)
         {
@@ -186,18 +171,18 @@ namespace Unit
                 case PlayerFSM.HitResultType.Died:
                     interactionEventHandler.RequestOnDiedUser(Object.StateAuthority, hitInfo);
                     break;
-
-
-                default: // None (Ex.Roar)
-                    OnDamaged(hitInfo.damaged);
-                    break;
             }
         }
 
         public void RequestOnHitState(HitInfo hitInfo)
         {
-            fsm?.OnHitState(hitInfo);
             OnDamaged(hitInfo.damaged);
+
+            bool localSuperArmor = fsm.CurrentState.HasSuperArmor;
+            bool statSuperArmor = UnitStat.superArmor;
+
+            if (localSuperArmor == false && statSuperArmor == false)
+                fsm?.OnHitState(hitInfo);
         }
 
         public void RequestOnParringState(HitInfo hitInfo)
