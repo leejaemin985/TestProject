@@ -69,7 +69,6 @@ namespace Unit
 
             var animInfoList = hitMotionInfos.Where(directionPredicate).ToList();
             currentMotionInfo = animInfoList[UnityEngine.Random.Range(0, animInfoList.Count)];
-
             hitEndTick = Runner.Tick + Mathf.RoundToInt(hitMotionDuration * Runner.TickRate);
             PlayAnim(transitionType, Priority, currentMotionInfo.motionName, 0, sync);
         }

@@ -6,6 +6,7 @@ using UnityEngine;
 using Fusion;
 using Fusion.Addons.SimpleKCC;
 using System;
+using static Unit.PlayerStateBase;
 
 namespace Unit
 {
@@ -37,8 +38,6 @@ namespace Unit
             Died
         }
 
-        [Networked] public PlayerStateBase.StateType currentStateType { get; set; }
-
         private IState currentState;
 
         public IState CurrentState
@@ -69,7 +68,7 @@ namespace Unit
                 stateMap[state.GetStateType()] = state;
             }
 
-            CurrentState = stateMap[currentStateType];
+            CurrentState = stateMap[PlayerStateBase.StateType.Move];
 
             isInitialized = true;
 
@@ -84,8 +83,8 @@ namespace Unit
         public HitResultType CheckHittable(HitInfo hitInfo)
         {
             bool inDefense = 
-                currentStateType == PlayerStateBase.StateType.Defense || 
-                currentStateType == PlayerStateBase.StateType.Parring;
+                CurrentState.GetStateType() == PlayerStateBase.StateType.Defense || 
+                CurrentState.GetStateType() == PlayerStateBase.StateType.Parring;
 
             float dirDot = Vector3.Dot((hitInfo.attackerPos - player.transform.position).normalized, player.transform.forward);
             bool attackIsForward = dirDot > 0;
@@ -161,11 +160,10 @@ namespace Unit
 
             if (HasStateAuthority)
             {
-                currentStateType = CurrentState.GetStateType();
-                if (sync) RPC_SyncState(transitionType);
+                if (sync) RPC_SyncState(transitionType, CurrentState.GetStateType());
             }
 
-            changeStateTypeListener?.Invoke(currentStateType);
+            changeStateTypeListener?.Invoke(CurrentState.GetStateType());
         }
 
         public void SetState<TState, TInfo>(TransitionType transitionType, TInfo info, bool sync = true)
@@ -182,25 +180,19 @@ namespace Unit
 
             if (HasStateAuthority)
             {
-                currentStateType = CurrentState.GetStateType();
-                if (sync) RPC_SyncState(transitionType);
+                if (sync) RPC_SyncState(transitionType, CurrentState.GetStateType());
             }
 
-            changeStateTypeListener?.Invoke(currentStateType);
+            changeStateTypeListener?.Invoke(CurrentState.GetStateType());
         }
 
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-        public void RPC_SyncState(TransitionType transitionType)
+        public void RPC_SyncState(TransitionType transitionType, PlayerStateBase.StateType stateType)
         {
-            if (transitionType == TransitionType.System && currentStateType == PlayerStateBase.StateType.Attack)
-            {
-                Debug.Log($"Test - Invalid Sync State");
-            }
+            if (HasStateAuthority || CanSetState(transitionType, stateMap[stateType]) == false) return;
 
-            if (HasStateAuthority || CanSetState(transitionType, stateMap[currentStateType]) == false) return;
-
-            CurrentState = stateMap[currentStateType];
+            CurrentState = stateMap[stateType];
         }
 
         public override void Render()
