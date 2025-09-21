@@ -72,7 +72,7 @@ namespace Unit
 
             isInitialized = true;
 
-            StartCoroutine(TestCoroutine());
+            StartTestMode();
         }
 
         public void AddChangeStateListener(Action<PlayerStateBase.StateType> changeStateTypeListener)
@@ -97,6 +97,11 @@ namespace Unit
                 return HitResultType.Died;
             else
                 return HitResultType.Hit;
+        }
+
+        public void OnIdleState()
+        {
+            SetState<PlayerMovementState>(TransitionType.System, false);
         }
 
         public void OnHitState(HitInfo hitInfo)
@@ -205,13 +210,38 @@ namespace Unit
         }
 
         #region Test
-        private bool isTest = false;
-        private IEnumerator TestCoroutine()
+        private bool test_attackInput = false;
+        private bool test_hasRoar = true;
+
+        private const float test_attackTerm = 3f;
+        private const float test_roarTerm = 10;
+
+        private void StartTestMode()
+        {
+            StartCoroutine(AttackTest());
+            StartCoroutine(RoarTest());
+        }
+
+        private IEnumerator AttackTest()
         {
             while (true)
             {
-                yield return new WaitForSeconds(3);
-                isTest = !isTest;
+                yield return new WaitForSeconds(test_attackTerm);
+                test_attackInput = !test_attackInput;
+            }
+        }
+
+        private IEnumerator RoarTest()
+        {
+            while (true)
+            {
+                if (test_hasRoar == false)
+                {
+                    yield return new WaitForSeconds(test_roarTerm);
+                    test_hasRoar = true;
+                }
+
+                yield return null;
             }
         }
         #endregion
@@ -222,7 +252,19 @@ namespace Unit
 
             if (GetInput<InputData>(out var newInput) == false) return;
 
-            //newInput.attack = isTest;
+            if (false) // testMode
+            {
+                if (CurrentState.GetStateType() == StateType.Hit && test_hasRoar)
+                {
+                    newInput.skill = true;
+                    test_hasRoar = false;
+                }
+                else
+                {
+                    newInput.attack = test_attackInput;
+                }
+            }
+            
             input.Update(newInput);
 
             CurrentState?.OnState();

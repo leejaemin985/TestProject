@@ -37,12 +37,6 @@ namespace Unit
         {
             if (!HasInputAuthority) return;
 
-            if (Runner.Tick >= parringEndTick)
-            {
-                fsm.SetState<PlayerDefenseState>(PlayerFSM.TransitionType.System);
-                return;
-            }
-
             if (Runner.Tick < parringPushEndTick)
             {
                 Vector3 dir = (receivedHitInfo.attackerPos - player.transform.position).normalized;
@@ -50,6 +44,15 @@ namespace Unit
 
                 var targetDir = -dir * receivedHitInfo.weight;
                 cc.Move(targetDir * parringPushSpeed * Runner.DeltaTime);
+            }
+        }
+
+        protected override void OnMasterTick()
+        {
+            if (Runner.Tick >= parringEndTick)
+            {
+                player.InteractionEventHandler.RequestOnIdleUser(Object.StateAuthority);
+                return;
             }
         }
 
