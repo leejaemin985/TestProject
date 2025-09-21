@@ -38,8 +38,6 @@ namespace Unit
         [Header("InGame")]
         [SerializeField] private InGameCamManager camManager;
 
-        public PlayerInteractionEventHandler InteractionEventHandler => interactionEventHandler;
-
         private IWeapon weapon;
         private Animator modelAnim;
         private PlayerAnimEventer animEventer;
@@ -174,11 +172,6 @@ namespace Unit
                     interactionEventHandler.RequestOnDiedUser(Object.StateAuthority, hitInfo);
                     break;
             }
-        }
-
-        public void RequestOnIdleState()
-        {
-            fsm?.OnIdleState();
         }
 
         public void RequestOnHitState(HitInfo hitInfo)

@@ -1,24 +1,10 @@
 using Fusion;
-using UnityEngine.Rendering.UI;
 
 namespace Unit
 {
     public class PlayerInteractionEventHandler : NetworkBehaviour
     {
         private bool HasEventAuthority => Runner.IsSharedModeMasterClient;
-
-        public void RequestOnIdleUser(PlayerRef userRef)
-        {
-            if (HasEventAuthority == false) return;
-            RPC_RequestOnIdleUser(userRef);
-        }
-
-        [Rpc(RpcSources.All, RpcTargets.All)]
-        private void RPC_RequestOnIdleUser(PlayerRef userRef)
-        {
-            if (Player.RegistedUsers.TryGetValue(userRef, out Player user))
-                user.RequestOnIdleState();
-        }
 
         public void RequestOnHitUser(PlayerRef userRef, HitInfo hitInfo)
         {

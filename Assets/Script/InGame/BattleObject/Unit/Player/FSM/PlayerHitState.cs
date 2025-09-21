@@ -83,16 +83,13 @@ namespace Unit
                 return;
             }
 
-            cc.Move(currentHitMove * hitMoveSpeed * Runner.DeltaTime);
-        }
-
-        protected override void OnMasterTick()
-        {
             if (Runner.Tick >= hitEndTick)
             {
-                player.InteractionEventHandler.RequestOnIdleUser(Object.StateAuthority);
+                fsm.SetState<PlayerMovementState>(PlayerFSM.TransitionType.System);
                 return;
             }
+
+            cc.Move(currentHitMove * hitMoveSpeed * Runner.DeltaTime);
         }
 
         protected override void OnAnimEvent(string param)
