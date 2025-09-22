@@ -15,7 +15,7 @@ namespace Unit
         public override StateType GetStateType() => StateType.Roar;
         protected override StatePriorityType Priority => StatePriorityType.Override;
 
-        public override bool HasSuperArmor => true;
+        //public override bool HasSuperArmor => true;
 
 
         [SerializeField] private AttackBox physicsRange;

@@ -60,13 +60,13 @@ namespace Unit
             if (!HasStateAuthority || sync == false)
                 modelAnim.CrossFadeInFixedTime(stateName, fixedTransitionDuration);
             else
-                RPC_AnimCrossFadeInFixedTime(transitionType, statePriorityType, stateName, fixedTransitionDuration, Runner.Tick);
+                RPC_AnimCrossFadeInFixedTime(transitionType, statePriorityType, stateName, fixedTransitionDuration, Runner.Tick, fsm.systemSeq);
         }
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-        public void RPC_AnimCrossFadeInFixedTime(PlayerFSM.TransitionType transitionType, StatePriorityType statePriorityType, string stateName, float fixedTransitionDuration, int tick)
+        public void RPC_AnimCrossFadeInFixedTime(PlayerFSM.TransitionType transitionType, StatePriorityType statePriorityType, string stateName, float fixedTransitionDuration, int tick, int seq)
         {
-            if (fsm.CanSetState(transitionType, statePriorityType) == false) return;
+            if (fsm.CanSetState(transitionType, statePriorityType, seq) == false) return;
 
             if (Runner.IsSharedModeMasterClient)
             {
