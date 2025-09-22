@@ -23,6 +23,7 @@ namespace Unit
 
         public InputInterpreter input;
 
+        private int currentSeq = 0;
 
         public enum TransitionType
         {
@@ -72,7 +73,8 @@ namespace Unit
 
             isInitialized = true;
 
-            StartCoroutine(TestCoroutine());
+
+            StartTest();
         }
 
         public void AddChangeStateListener(Action<PlayerStateBase.StateType> changeStateTypeListener)
@@ -114,24 +116,40 @@ namespace Unit
             SetState<PlayerDiedState>(TransitionType.System, false);
         }
 
-
-        public bool CanSetState(TransitionType transitionType, PlayerStateBase.StatePriorityType priorityType)
+        private bool CheckSystemTransition(int requestSeq)
         {
-            bool systemTransition = transitionType == TransitionType.System;
+            // SystemTransition && !MasterClient => true
+            if (Runner.IsSharedModeMasterClient == false)
+            {
+                currentSeq = requestSeq;
+                return true;
+            }
+
+            // SystemTransition && MasterClient && MasterSeq < RequestSeq
+            //return currentSeq < requestSeq;
+            if (currentSeq < requestSeq)
+            {
+                currentSeq = requestSeq;
+                return true;
+            }
+            return false;
+        }
+
+
+        public bool CanSetState(TransitionType transitionType, IState state, int seq)
+        {
+            if (CurrentState == null) return true;
+            return CanSetState(transitionType, state.priority, seq);
+        }
+
+        public bool CanSetState(TransitionType transitionType, PlayerStateBase.StatePriorityType priorityType, int seq)
+        {
+            bool systemTransition = CheckSystemTransition(seq);//transitionType == TransitionType.System;
             bool priorityRequest = CurrentState.priority <= priorityType;
 
             return systemTransition || priorityRequest;
         }
 
-        public bool CanSetState(TransitionType transitionType, IState state)
-        {
-            if (CurrentState == null) return true;
-
-            bool systemTransition = transitionType == TransitionType.System;
-            bool priorityRequest = CurrentState.priority <= state.priority;
-
-            return systemTransition || priorityRequest;
-        }
 
         private bool TryGetIState<T>(out IState? ret) where T : IState
         {
@@ -152,7 +170,7 @@ namespace Unit
             where TState : class, IState 
         {
             if (TryGetIState<TState>(out var state) == false) return;
-            if (CanSetState(transitionType, state) == false) return;
+            if (CanSetState(transitionType, state, currentSeq) == false) return;
 
             CurrentState?.ExitState();
             CurrentState = state;
@@ -160,7 +178,7 @@ namespace Unit
 
             if (HasStateAuthority)
             {
-                if (sync) RPC_SyncState(transitionType, CurrentState.GetStateType());
+                if (sync) RPC_SyncState(transitionType, CurrentState.GetStateType(), currentSeq);
             }
 
             changeStateTypeListener?.Invoke(CurrentState.GetStateType());
@@ -171,7 +189,7 @@ namespace Unit
             where TInfo:struct, INetworkStruct
         {
             if (TryGetIState<TState>(out var state) == false) return;
-            if (CanSetState(transitionType, state) == false) return;
+            if (CanSetState(transitionType, state, currentSeq) == false) return;
 
             CurrentState?.ExitState();
             CurrentState = state;
@@ -180,7 +198,7 @@ namespace Unit
 
             if (HasStateAuthority)
             {
-                if (sync) RPC_SyncState(transitionType, CurrentState.GetStateType());
+                if (sync) RPC_SyncState(transitionType, CurrentState.GetStateType(), currentSeq);
             }
 
             changeStateTypeListener?.Invoke(CurrentState.GetStateType());
@@ -188,9 +206,9 @@ namespace Unit
 
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-        public void RPC_SyncState(TransitionType transitionType, PlayerStateBase.StateType stateType)
+        public void RPC_SyncState(TransitionType transitionType, PlayerStateBase.StateType stateType, int seq)
         {
-            if (HasStateAuthority || CanSetState(transitionType, stateMap[stateType]) == false) return;
+            if (HasStateAuthority || CanSetState(transitionType, stateMap[stateType], seq) == false) return;
 
             CurrentState = stateMap[stateType];
         }
@@ -205,15 +223,47 @@ namespace Unit
         }
 
         #region Test
+
         private bool isTest = false;
-        private IEnumerator TestCoroutine()
+        public void Update()
         {
+            if (Input.GetKeyDown(KeyCode.M)) isTest = !isTest;
+        }
+
+        private bool test_attackInput = false;
+        private bool test_hasRoar = true;
+
+        private void StartTest()
+        {
+            StartCoroutine(Test_AttackRoutine());
+            StartCoroutine(Test_RoarSetting());
+        }
+
+        private IEnumerator Test_AttackRoutine()
+        {
+            WaitForSeconds term = new WaitForSeconds(3);
             while (true)
             {
-                yield return new WaitForSeconds(3);
-                isTest = !isTest;
+                yield return term;
+                test_attackInput = !test_attackInput;
             }
         }
+
+        private IEnumerator Test_RoarSetting()
+        {
+            WaitForSeconds term = new WaitForSeconds(10);
+            while (true)
+            {
+                if (test_hasRoar == false)
+                {
+                    yield return term;
+                    test_hasRoar = true;
+                }
+
+                yield return null;
+            }
+        }
+
         #endregion
 
         public override void FixedUpdateNetwork()
@@ -222,7 +272,21 @@ namespace Unit
 
             if (GetInput<InputData>(out var newInput) == false) return;
 
-            //newInput.attack = isTest;
+            #region Test
+            if (isTest)
+            {
+                if (CurrentState.GetStateType() == StateType.Hit && test_hasRoar)
+                {
+                    newInput.skill = true;
+                    test_hasRoar = false;
+                }
+                else
+                {
+                    newInput.attack = test_attackInput;
+                }
+            }
+            #endregion
+
             input.Update(newInput);
 
             CurrentState?.OnState();
