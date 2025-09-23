@@ -176,12 +176,9 @@ namespace Unit
 
         public void RequestOnHitState(HitInfo hitInfo)
         {
-            //TestCode########################################################################################################################################################################
-            fsm?.OnHitState(hitInfo);
             OnDamaged(hitInfo.damaged);
 
-            return;
-            bool localSuperArmor = fsm.CurrentState.HasSuperArmor;
+            bool localSuperArmor = UnitStat.Object.StateAuthority != Runner.LocalPlayer && fsm.CurrentState.HasSuperArmor;
             bool statSuperArmor = UnitStat.superArmor;
 
             if (localSuperArmor == false && statSuperArmor == false)
