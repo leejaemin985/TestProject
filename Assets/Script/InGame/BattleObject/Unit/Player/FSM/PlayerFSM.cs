@@ -118,9 +118,6 @@ namespace Unit
         private bool IsValidSystemTransition(TransitionType transitionType, int seq)
         {
             if (transitionType != TransitionType.System) return false;
-            if (Runner.IsSharedModeMasterClient == false)
-                return true;
-
             return systemSeq < seq;
         }
 
@@ -156,11 +153,12 @@ namespace Unit
         public void SetState<TState>(TransitionType transitionType, bool sync = true)
             where TState : class, IState 
         {
-            int requestSeq = systemSeq + (Runner.IsSharedModeMasterClient ? 1 : 0);
+            int requestSeq = systemSeq + 1;
             if (TryGetIState<TState>(out var state) == false) return;
             if (CanSetState(transitionType, state, requestSeq) == false) return;
 
-            systemSeq = requestSeq;
+            if (transitionType==TransitionType.System)
+                systemSeq = requestSeq;
 
             CurrentState?.ExitState();
             CurrentState = state;
@@ -182,16 +180,8 @@ namespace Unit
             if (TryGetIState<TState>(out var state) == false) return;
             if (CanSetState(transitionType, state, requestSeq) == false) return;
 
-            systemSeq = requestSeq;
-
-            if (HasStateAuthority == false && transitionType == TransitionType.System)
-            {
-                if (state.GetStateType() == StateType.Hit)
-                {
-                    Debug.Log($"Test - hit (tick: {Runner.Tick} // seq: {systemSeq})");
-                }
-            }
-
+            if (transitionType == TransitionType.System)
+                systemSeq = requestSeq;
 
             CurrentState?.ExitState();
             CurrentState = state;
@@ -210,18 +200,9 @@ namespace Unit
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
         public void RPC_SyncState(TransitionType transitionType, PlayerStateBase.StateType stateType, int seq)
         {
-            if (HasStateAuthority == false && transitionType == TransitionType.System)
-            {
-                if (stateType == StateType.Move)
-                {
-                    Debug.Log($"Test - move (tick: {Runner.Tick} // seq: {seq})");
-                }
-
-            }
-
-
-
             if (HasStateAuthority || CanSetState(transitionType, stateMap[stateType], seq) == false) return;
+
+            if (transitionType == TransitionType.System) systemSeq = seq;
 
             CurrentState = stateMap[stateType];
         }
