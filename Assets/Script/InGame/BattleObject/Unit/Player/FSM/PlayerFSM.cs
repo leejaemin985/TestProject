@@ -126,7 +126,7 @@ namespace Unit
         }
 
 
-        public void SetState<TState>(StateInfo stateInfo = default, TransitionType transitionType = TransitionType.Request, bool sync = true)
+        public void SetState<TState>(StateInfo stateInfo = default, TransitionType transitionType = TransitionType.Request, bool requestSync = true)
             where TState : class, IState
         {
             if (TryGetIState<TState>(out var state) == false) return;
@@ -139,32 +139,23 @@ namespace Unit
                 stateInfo = stateInfo,
                 tick = Runner.Tick
             };
-            if (sync)
-                RPC_SetState(transitionData, stateInfo);
+
+            if (requestSync)
+                RPC_RequestSetState(transitionData, stateInfo);
             else
-                Test_NonSyncSetState(transitionData, stateInfo);
-        }
-
-        private void Test_NonSyncSetState(StateTransitionData transitionData, StateInfo stateInfo)
-        {
-            if (CanSetState(transitionData) == false) return;
-
-            if (transitionData.transitionType == TransitionType.System)
-                systemSeq = transitionData.systemSeq;
-
-            CurrentState?.ExitState();
-            CurrentState = stateMap[transitionData.stateType];
-            CurrentState?.SetInfo(stateInfo);
-            CurrentState?.EnterState(transitionData.tick);
-
-            changeStateTypeListener?.Invoke(transitionData.stateType);
+                SetState(transitionData, stateInfo);
         }
 
         [Rpc(RpcSources.All, RpcTargets.All)]
-        private void RPC_SetState(StateTransitionData transitionData, StateInfo stateInfo)
+        private void RPC_RequestSetState(StateTransitionData transitionData, StateInfo stateInfo)
+        {
+            SetState(transitionData, stateInfo);
+        }
+
+        private void SetState(StateTransitionData transitionData, StateInfo stateInfo)
         {
             if (CanSetState(transitionData) == false) return;
-            
+
             if (transitionData.transitionType == TransitionType.System)
                 systemSeq = transitionData.systemSeq;
 
