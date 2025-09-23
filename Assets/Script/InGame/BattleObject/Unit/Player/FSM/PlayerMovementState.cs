@@ -20,9 +20,14 @@ namespace Unit
 
         private const float walkRunWeight = 1;
 
-        protected override void SetInfo(INetworkStruct info) => currentMoveInfo = (MoveInfo)info;
+        protected override void SetInfo(INetworkStruct info) => currentMoveInfo = ((StateInfo)info).moveInfo;
 
-        protected override void EnterState(PlayerFSM.TransitionType transitionType, bool sync = true)
+        protected override void EnterState(int enterTick)
+        {
+            PlayAnim("_Movement", .2f, enterTick);
+        }
+
+        protected override void EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool sync = true)
         {
             PlayAnim(transitionType, Priority, "_Movement", .2f, sync);
         }
@@ -33,31 +38,32 @@ namespace Unit
 
             if (fsm.input.Current.moveDir.sqrMagnitude > .01f && fsm.input.IsSet(x => x.dash))
             {
-                fsm.SetState<PlayerSprintState, MoveInfo>(PlayerFSM.TransitionType.Request, currentMoveInfo, true);
+                //fsm.SetState<PlayerSprintState, MoveInfo>(PlayerFSM.TransitionTypeInFSM.Request, currentMoveInfo, true);
+                fsm.SetState<PlayerSprintState>(new StateInfo() { moveInfo = currentMoveInfo }, TransitionType.Request);
                 return;
             }
 
             if (fsm.input.WasPressed(x => x.jump))
             {
-                fsm.SetState<PlayerJumpState, MoveInfo>(PlayerFSM.TransitionType.Request, currentMoveInfo, true);
+                fsm.SetState<PlayerJumpState, MoveInfo>(PlayerFSM.TransitionTypeInFSM.Request, currentMoveInfo, true);
                 return;
             }
 
             if (fsm.input.IsSet(x => x.attack))
             {
-                fsm.SetState<PlayerAttackState, AttackInfo>(PlayerFSM.TransitionType.Request, new() { attackMotionType = AttackMotionType.None });
+                fsm.SetState<PlayerAttackState, AttackInfo>(PlayerFSM.TransitionTypeInFSM.Request, new() { attackMotionType = AttackMotionType.None });
                 return;
             }
 
             if (fsm.input.IsSet(x => x.defense))
             {
-                fsm.SetState<PlayerDefenseState>(PlayerFSM.TransitionType.Request);
+                fsm.SetState<PlayerDefenseState>(PlayerFSM.TransitionTypeInFSM.Request);
                 return;
             }
 
             if (fsm.input.WasPressed(x => x.skill))
             {
-                fsm.SetState<PlayerRoarState>(PlayerFSM.TransitionType.Request);
+                fsm.SetState<PlayerRoarState>(PlayerFSM.TransitionTypeInFSM.Request);
                 return;
             }
 

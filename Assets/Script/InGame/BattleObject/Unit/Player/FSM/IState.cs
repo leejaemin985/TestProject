@@ -14,9 +14,11 @@ namespace Unit
 
         #endregion
 
-        void SetInfo(INetworkStruct info);
+        void SetInfo(StateInfo info);
 
-        void EnterState(PlayerFSM.TransitionType transitionType, bool syncMotion);
+        void EnterState(int enterTick);
+
+        void EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool syncMotion);
 
         void OnState();
 

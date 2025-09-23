@@ -54,7 +54,7 @@ namespace Unit
             bloodEffect.Play();
         }
 
-        protected override void EnterState(PlayerFSM.TransitionType transitionType, bool sync = true)
+        protected override void EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool sync = true)
         {
             HitMotionInfo currentMotionInfo = null;
 
@@ -79,13 +79,13 @@ namespace Unit
 
             if (fsm.input.WasPressed(x => x.skill))
             {
-                fsm.SetState<PlayerRoarState>(PlayerFSM.TransitionType.Request);
+                fsm.SetState<PlayerRoarState>(PlayerFSM.TransitionTypeInFSM.Request);
                 return;
             }
 
             if (Runner.Tick >= hitEndTick)
             {
-                fsm.SetState<PlayerMovementState>(PlayerFSM.TransitionType.System);
+                fsm.SetState<PlayerMovementState>(PlayerFSM.TransitionTypeInFSM.System);
                 return;
             }
 

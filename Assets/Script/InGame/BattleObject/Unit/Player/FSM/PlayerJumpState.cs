@@ -18,7 +18,7 @@ namespace Unit
 
         protected override void SetInfo(INetworkStruct info) => currentMoveInfo = (MoveInfo)info;
 
-        protected override void EnterState(PlayerFSM.TransitionType transitionType, bool sync = true)
+        protected override void EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool sync = true)
         {
             currentVelocity = 0;
             PlayAnim(transitionType, Priority, "_Jump", .1f, true);
@@ -32,7 +32,7 @@ namespace Unit
 
             if (cc.IsGrounded)
             {
-                fsm.SetState<PlayerLandState>(PlayerFSM.TransitionType.Request);
+                fsm.SetState<PlayerLandState>(PlayerFSM.TransitionTypeInFSM.Request);
                 return;
             }
 

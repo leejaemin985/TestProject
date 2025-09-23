@@ -54,8 +54,18 @@ namespace Unit
             this.weap = weap;
         }
 
+        protected void PlayAnim(string stateName, float fixedTransitionDuration, int enterTick)
+        {
+            if (Runner.IsSharedModeMasterClient)
+            {
+                float latency = (Runner.Tick - enterTick) * Runner.DeltaTime;
+                latencyInterpolationAnim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, latency);
+            }
+            modelAnim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, 0);
+        }
 
-        protected void PlayAnim(PlayerFSM.TransitionType transitionType, StatePriorityType statePriorityType, string stateName, float fixedTransitionDuration, bool sync)
+
+        protected void PlayAnim(PlayerFSM.TransitionTypeInFSM transitionType, StatePriorityType statePriorityType, string stateName, float fixedTransitionDuration, bool sync)
         {
             if (!HasStateAuthority || sync == false)
                 modelAnim.CrossFadeInFixedTime(stateName, fixedTransitionDuration);
@@ -64,7 +74,7 @@ namespace Unit
         }
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-        public void RPC_AnimCrossFadeInFixedTime(PlayerFSM.TransitionType transitionType, StatePriorityType statePriorityType, string stateName, float fixedTransitionDuration, int tick, int seq)
+        public void RPC_AnimCrossFadeInFixedTime(PlayerFSM.TransitionTypeInFSM transitionType, StatePriorityType statePriorityType, string stateName, float fixedTransitionDuration, int tick, int seq)
         {
             if (fsm.CanSetState(transitionType, statePriorityType, seq) == false) return;
 
@@ -86,7 +96,9 @@ namespace Unit
 
         protected virtual void SetInfo(INetworkStruct info) { }
 
-        protected virtual void EnterState(PlayerFSM.TransitionType transitionType, bool sync = true) { }
+        protected virtual void EnterState(int enterTick) { }
+
+        protected virtual void EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool sync = true) { }
 
         protected virtual void OnState() { }
 
@@ -109,9 +121,11 @@ namespace Unit
 
         StatePriorityType IState.priority => Priority;
 
-        void IState.SetInfo(INetworkStruct info) => SetInfo(info);
+        void IState.SetInfo(StateInfo info) => SetInfo(info);
 
-        void IState.EnterState(PlayerFSM.TransitionType transitionType, bool sync) => EnterState(transitionType, sync);
+        void IState.EnterState(int enterTick) => EnterState(enterTick);
+
+        void IState.EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool sync) => EnterState(transitionType, sync);
 
         void IState.OnState() => OnState();
 

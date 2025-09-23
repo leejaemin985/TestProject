@@ -24,7 +24,7 @@ namespace Unit
 
         protected override void SetInfo(INetworkStruct info) => receivedHitInfo = (HitInfo)info;
 
-        protected override void EnterState(PlayerFSM.TransitionType transitionType, bool sync = true)
+        protected override void EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool sync = true)
         {
             parringEndTick = Runner.Tick + Mathf.RoundToInt(parringMotionDuration * Runner.TickRate);
             PlayAnim(transitionType, Priority, $"_Parring_{Random.Range(1, 5)}", 0.1f, sync);
@@ -39,7 +39,7 @@ namespace Unit
 
             if (Runner.Tick >= parringEndTick)
             {
-                fsm.SetState<PlayerDefenseState>(PlayerFSM.TransitionType.System);
+                fsm.SetState<PlayerDefenseState>(PlayerFSM.TransitionTypeInFSM.System);
                 return;
             }
 

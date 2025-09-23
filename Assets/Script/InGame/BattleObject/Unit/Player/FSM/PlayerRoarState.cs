@@ -15,7 +15,7 @@ namespace Unit
         public override StateType GetStateType() => StateType.Roar;
         protected override StatePriorityType Priority => StatePriorityType.Override;
 
-        //public override bool HasSuperArmor => true;
+        public override bool HasSuperArmor => true;
 
 
         [SerializeField] private AttackBox physicsRange;
@@ -47,7 +47,7 @@ namespace Unit
             effectPool = EffectObjectPool.CreatePoolInstance<RoarStateEffect>((RoarStateEffect)effectGroup.roarStateEffect, new() { count = 2, effectRoot = null });
         }
 
-        protected override void EnterState(PlayerFSM.TransitionType transitionType, bool sync = true)
+        protected override void EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool sync = true)
         {
             roarEndTick = Runner.Tick + Mathf.RoundToInt(roarMotionDuration * Runner.TickRate);
             player.UnitStat.OnSuperArmor(roarEndTick);
@@ -60,7 +60,7 @@ namespace Unit
 
             if (Runner.Tick > roarEndTick)
             {
-                fsm.SetState<PlayerMovementState>(PlayerFSM.TransitionType.System);
+                fsm.SetState<PlayerMovementState>(PlayerFSM.TransitionTypeInFSM.System);
             }
         }
 

@@ -13,7 +13,7 @@ namespace Unit
             "Died_3"
         };
 
-        protected override void EnterState(PlayerFSM.TransitionType transitionType, bool sync = true)
+        protected override void EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool sync = true)
         {
             PlayAnim(transitionType, Priority, dieMotionNames[UnityEngine.Random.Range(0, dieMotionNames.Length)], .1f, false);
         }

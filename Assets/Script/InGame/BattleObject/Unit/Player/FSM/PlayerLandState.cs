@@ -20,7 +20,7 @@ namespace Unit
 
         protected override void SetInfo(INetworkStruct info) => currentMoveInfo = (MoveInfo)info;
 
-        protected override void EnterState(PlayerFSM.TransitionType transitionType, bool sync = true)
+        protected override void EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool sync = true)
         {
             minLandingMotionEndTick = Runner.Tick + Mathf.RoundToInt(landingMotionMinDuration * Runner.TickRate);
             landingMotionEndTick = Runner.Tick + Mathf.RoundToInt(landingMotionDuration * Runner.TickRate);
@@ -35,7 +35,7 @@ namespace Unit
             if ((!fsm.input.Current.IsInputEmpty() && Runner.Tick > minLandingMotionEndTick) 
                 || Runner.Tick > landingMotionEndTick)
             {
-                fsm.SetState<PlayerMovementState>(PlayerFSM.TransitionType.Request);
+                fsm.SetState<PlayerMovementState>(PlayerFSM.TransitionTypeInFSM.Request);
             }
         }
     }

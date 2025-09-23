@@ -57,7 +57,7 @@ namespace Unit
 
         protected override void SetInfo(INetworkStruct info) => currentMotionInfo = (AttackInfo)info;
 
-        protected override void EnterState(PlayerFSM.TransitionType transitionType, bool sync = true)
+        protected override void EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool sync = true)
         {
             currentMotionIndex = currentCombo++ % attackMotionInfos[currentMotionInfo.attackMotionType].Count;
             var currentMotion = ResolveAttackMotion();
@@ -99,13 +99,13 @@ namespace Unit
             if (!HasStateAuthority) return;
             if (attackRetryTick <= Runner.Tick && fsm.input.IsSet(x => x.attack))
             {
-                fsm.SetState<PlayerAttackState>(PlayerFSM.TransitionType.Request);
+                fsm.SetState<PlayerAttackState>(PlayerFSM.TransitionTypeInFSM.Request);
                 return;
             }
 
             if (attackEndTick <= Runner.Tick)
             {
-                fsm.SetState<PlayerMovementState>(PlayerFSM.TransitionType.Request);
+                fsm.SetState<PlayerMovementState>(PlayerFSM.TransitionTypeInFSM.Request);
             }
 
             cc.Move(currentAttackMove * attackMoveSpeed * Runner.DeltaTime);
