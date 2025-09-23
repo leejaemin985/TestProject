@@ -26,12 +26,6 @@ namespace Unit
 
         public int systemSeq { get; private set; }
 
-        public enum TransitionTypeInFSM
-        {
-            Request,
-            System
-        }
-
 
         public enum HitResultType
         {
@@ -116,28 +110,14 @@ namespace Unit
             SetState<PlayerDiedState>(default, TransitionType.System);
         }
 
-        private bool IsValidSystemTransition(TransitionTypeInFSM transitionType, int seq)
-        {
-            if (transitionType != TransitionTypeInFSM.System) return false;
-            return systemSeq < seq;
-        }
-
-        public bool CanSetState(TransitionTypeInFSM transitionType, IState state, int seq)
-        {
-            if (CurrentState == null) return true;
-            return CanSetState(transitionType, state.priority, seq);
-        }
-
-        public bool CanSetState(TransitionTypeInFSM transitionType, PlayerStateBase.StatePriorityType priorityType, int seq)
-        {
-            bool systemTransition = IsValidSystemTransition(transitionType, seq);
-            bool priorityRequest = CurrentState.priority <= priorityType;
-
-            return systemTransition || priorityRequest;
-        }
 
         public bool CanSetState(StateTransitionData transitionData)
         {
+            if (transitionData.stateType == StateType.Parring)
+            {
+                Debug.Log($"Test - data: {transitionData.systemSeq} // cached: {systemSeq}");
+            }
+
             if (transitionData.transitionType == TransitionType.System) return systemSeq < transitionData.systemSeq;
             
             IState state = stateMap[transitionData.stateType];
@@ -150,7 +130,6 @@ namespace Unit
             return ret != null;
         }
 
-        //#############################################################################################################################################################################################
         
         public void SetState<TState>(StateInfo stateInfo = default, TransitionType transitionType = TransitionType.Request)
             where TState : class, IState
@@ -185,42 +164,7 @@ namespace Unit
             changeStateTypeListener?.Invoke(transitionData.stateType);
         }
 
-        //#############################################################################################################################################################################################
-        /*
-        public void SetState<TState, TInfo>(TransitionTypeInFSM transitionType, TInfo info, bool sync = true)
-            where TState : PlayerStateBase, IState
-            where TInfo : struct, INetworkStruct
-        {
-            int requestSeq = systemSeq + 1;
-            if (TryGetIState<TState>(out var state) == false) return;
-            if (CanSetState(transitionType, state, requestSeq) == false) return;
 
-            if (transitionType == TransitionTypeInFSM.System)
-                systemSeq = requestSeq;
-
-            CurrentState?.ExitState();
-            CurrentState = state;
-            CurrentState?.EnterState(transitionType, sync);
-
-            if (HasStateAuthority)
-            {
-                if (sync) RPC_SyncState(transitionType, CurrentState.GetStateType(), systemSeq);
-            }
-
-            changeStateTypeListener?.Invoke(CurrentState.GetStateType());
-        }
-
-
-        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-        public void RPC_SyncState(TransitionTypeInFSM transitionType, PlayerStateBase.StateType stateType, int seq)
-        {
-            if (HasStateAuthority || CanSetState(transitionType, stateMap[stateType], seq) == false) return;
-
-            if (transitionType == TransitionTypeInFSM.System) systemSeq = seq;
-
-            CurrentState = stateMap[stateType];
-        }
-        */
         public override void Render()
         {
             if (isInitialized == false) return;

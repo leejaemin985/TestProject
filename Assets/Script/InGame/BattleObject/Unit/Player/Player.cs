@@ -161,23 +161,29 @@ namespace Unit
             switch (result)
             {
                 case PlayerFSM.HitResultType.Hit:
-                    interactionEventHandler.RequestOnHitUser(Object.StateAuthority, hitInfo);
+                    //interactionEventHandler.RequestOnHitUser(Object.StateAuthority, hitInfo);
+                    RequestOnHitState(hitInfo);
                     break;
 
                 case PlayerFSM.HitResultType.Parry:
-                    interactionEventHandler.RequestOnParringUser(Object.StateAuthority, hitInfo);
+                    //interactionEventHandler.RequestOnParringUser(Object.StateAuthority, hitInfo);
+                    RequestOnParringState(hitInfo);
                     break;
 
                 case PlayerFSM.HitResultType.Died:
-                    interactionEventHandler.RequestOnDiedUser(Object.StateAuthority, hitInfo);
+                    //interactionEventHandler.RequestOnDiedUser(Object.StateAuthority, hitInfo);
+                    RequestOnDiedState(hitInfo);
                     break;
             }
         }
 
         public void RequestOnHitState(HitInfo hitInfo)
         {
+            //TestCode########################################################################################################################################################################
+            fsm?.OnHitState(hitInfo);
             OnDamaged(hitInfo.damaged);
 
+            return;
             bool localSuperArmor = fsm.CurrentState.HasSuperArmor;
             bool statSuperArmor = UnitStat.superArmor;
 
