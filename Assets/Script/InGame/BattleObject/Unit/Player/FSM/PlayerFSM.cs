@@ -97,27 +97,22 @@ namespace Unit
 
         public void OnHitState(HitInfo hitInfo)
         {
-            SetState<PlayerHitState>(new StateInfo() { hitInfo = hitInfo }, TransitionType.System);
+            SetState<PlayerHitState>(new StateInfo() { hitInfo = hitInfo }, TransitionType.System, false);
         }
 
         public void OnParringState(HitInfo hitInfo)
         {
-            SetState<PlayerParringState>(new StateInfo() { hitInfo = hitInfo }, TransitionType.System);
+            SetState<PlayerParringState>(new StateInfo() { hitInfo = hitInfo }, TransitionType.System, false);
         }
 
         public void OnDiedState(HitInfo hitInfo)
         {
-            SetState<PlayerDiedState>(default, TransitionType.System);
+            SetState<PlayerDiedState>(default, TransitionType.System, false);
         }
 
 
         public bool CanSetState(StateTransitionData transitionData)
         {
-            if (transitionData.stateType == StateType.Parring)
-            {
-                Debug.Log($"Test - data: {transitionData.systemSeq} // cached: {systemSeq}");
-            }
-
             if (transitionData.transitionType == TransitionType.System) return systemSeq < transitionData.systemSeq;
             
             IState state = stateMap[transitionData.stateType];
@@ -130,12 +125,12 @@ namespace Unit
             return ret != null;
         }
 
-        
-        public void SetState<TState>(StateInfo stateInfo = default, TransitionType transitionType = TransitionType.Request)
+
+        public void SetState<TState>(StateInfo stateInfo = default, TransitionType transitionType = TransitionType.Request, bool sync = true)
             where TState : class, IState
         {
             if (TryGetIState<TState>(out var state) == false) return;
-            
+
             StateTransitionData transitionData = new()
             {
                 transitionType = transitionType,
@@ -144,9 +139,26 @@ namespace Unit
                 stateInfo = stateInfo,
                 tick = Runner.Tick
             };
-            RPC_SetState(transitionData, stateInfo);
+            if (sync)
+                RPC_SetState(transitionData, stateInfo);
+            else
+                Test_NonSyncSetState(transitionData, stateInfo);
         }
 
+        private void Test_NonSyncSetState(StateTransitionData transitionData, StateInfo stateInfo)
+        {
+            if (CanSetState(transitionData) == false) return;
+
+            if (transitionData.transitionType == TransitionType.System)
+                systemSeq = transitionData.systemSeq;
+
+            CurrentState?.ExitState();
+            CurrentState = stateMap[transitionData.stateType];
+            CurrentState?.SetInfo(stateInfo);
+            CurrentState?.EnterState(transitionData.tick);
+
+            changeStateTypeListener?.Invoke(transitionData.stateType);
+        }
 
         [Rpc(RpcSources.All, RpcTargets.All)]
         private void RPC_SetState(StateTransitionData transitionData, StateInfo stateInfo)

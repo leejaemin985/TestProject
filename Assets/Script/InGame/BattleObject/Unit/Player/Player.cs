@@ -161,18 +161,15 @@ namespace Unit
             switch (result)
             {
                 case PlayerFSM.HitResultType.Hit:
-                    //interactionEventHandler.RequestOnHitUser(Object.StateAuthority, hitInfo);
-                    RequestOnHitState(hitInfo);
+                    interactionEventHandler.RequestOnHitUser(Object.StateAuthority, hitInfo);
                     break;
 
                 case PlayerFSM.HitResultType.Parry:
-                    //interactionEventHandler.RequestOnParringUser(Object.StateAuthority, hitInfo);
-                    RequestOnParringState(hitInfo);
+                    interactionEventHandler.RequestOnParringUser(Object.StateAuthority, hitInfo);
                     break;
 
                 case PlayerFSM.HitResultType.Died:
-                    //interactionEventHandler.RequestOnDiedUser(Object.StateAuthority, hitInfo);
-                    RequestOnDiedState(hitInfo);
+                    interactionEventHandler.RequestOnDiedUser(Object.StateAuthority, hitInfo);
                     break;
             }
         }

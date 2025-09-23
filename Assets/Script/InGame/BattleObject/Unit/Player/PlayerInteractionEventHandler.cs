@@ -10,7 +10,7 @@ namespace Unit
         {
             if (HasEventAuthority == false) return;
 
-            //RPC_RequestOnHitUser(userRef, hitInfo);
+            RPC_RequestOnHitUser(userRef, hitInfo);
         }
 
         [Rpc(RpcSources.All, RpcTargets.All)]
@@ -25,7 +25,7 @@ namespace Unit
         {
             if (HasEventAuthority == false) return;
 
-            //RPC_RequestOnParringUser(userRef, hitInfo);
+            RPC_RequestOnParringUser(userRef, hitInfo);
         }
 
         [Rpc(RpcSources.All, RpcTargets.All)]
@@ -40,7 +40,7 @@ namespace Unit
         {
             if (HasEventAuthority == false) return;
 
-            //RPC_RequestOnDiedUser(userRef, hitInfo);
+            RPC_RequestOnDiedUser(userRef, hitInfo);
         }
 
         [Rpc(RpcSources.All, RpcTargets.All)]
