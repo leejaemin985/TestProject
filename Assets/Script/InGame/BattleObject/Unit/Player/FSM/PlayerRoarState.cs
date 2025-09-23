@@ -47,11 +47,11 @@ namespace Unit
             effectPool = EffectObjectPool.CreatePoolInstance<RoarStateEffect>((RoarStateEffect)effectGroup.roarStateEffect, new() { count = 2, effectRoot = null });
         }
 
-        protected override void EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool sync = true)
+        protected override void EnterState(int enterTick)
         {
             roarEndTick = Runner.Tick + Mathf.RoundToInt(roarMotionDuration * Runner.TickRate);
             player.UnitStat.OnSuperArmor(roarEndTick);
-            PlayAnim(transitionType, Priority, "Roar", .1f, true);
+            PlayAnim("Roar", .1f, enterTick);
         }
 
         protected override void OnState()
@@ -60,7 +60,7 @@ namespace Unit
 
             if (Runner.Tick > roarEndTick)
             {
-                fsm.SetState<PlayerMovementState>(PlayerFSM.TransitionTypeInFSM.System);
+                fsm.SetState<PlayerMovementState>(default, TransitionType.System);
             }
         }
 

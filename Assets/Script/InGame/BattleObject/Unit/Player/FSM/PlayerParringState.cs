@@ -20,14 +20,14 @@ namespace Unit
 
         private const float parringPushTime = .15f;
         private float parringPushSpeed = 200f;
-        
 
-        protected override void SetInfo(INetworkStruct info) => receivedHitInfo = (HitInfo)info;
 
-        protected override void EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool sync = true)
+        protected override void SetInfo(INetworkStruct info) => receivedHitInfo = ((StateInfo)info).hitInfo;
+
+        protected override void EnterState(int enterTick)
         {
             parringEndTick = Runner.Tick + Mathf.RoundToInt(parringMotionDuration * Runner.TickRate);
-            PlayAnim(transitionType, Priority, $"_Parring_{Random.Range(1, 5)}", 0.1f, sync);
+            PlayAnim($"_Parring_{Random.Range(1, 5)}", 0.1f, enterTick);
 
             parringPushEndTick = Runner.Tick + Mathf.RoundToInt(parringPushTime * Runner.TickRate);
         }
@@ -39,17 +39,17 @@ namespace Unit
 
             if (Runner.Tick >= parringEndTick)
             {
-                fsm.SetState<PlayerDefenseState>(PlayerFSM.TransitionTypeInFSM.System);
+                fsm.SetState<PlayerDefenseState>(default, TransitionType.System);
                 return;
             }
 
             if (Runner.Tick < parringPushEndTick)
             {
                 Vector3 dir = (receivedHitInfo.attackerPos - player.transform.position).normalized;
-                cc.SetLookRotation(Quaternion.Slerp(cc.transform.rotation, Quaternion.LookRotation(dir), curvSpeed * Runner.DeltaTime));
+                SetLookRotation(Quaternion.Slerp(player.transform.rotation, Quaternion.LookRotation(dir), curvSpeed * Runner.DeltaTime));
 
                 var targetDir = -dir * receivedHitInfo.weight;
-                cc.Move(targetDir * parringPushSpeed * Runner.DeltaTime);
+                Move(targetDir * parringPushSpeed * Runner.DeltaTime);
             }
         }
 

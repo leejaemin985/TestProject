@@ -55,11 +55,15 @@ namespace Unit
             }
         }
 
-        protected override void SetInfo(INetworkStruct info) => currentMotionInfo = (AttackInfo)info;
+        protected override void SetInfo(INetworkStruct info) => currentMotionInfo = ((StateInfo)info).attackInfo;
 
-        protected override void EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool sync = true)
+        protected override void EnterState(int enterTick)
         {
-            currentMotionIndex = currentCombo++ % attackMotionInfos[currentMotionInfo.attackMotionType].Count;
+            if (HasStateAuthority)
+            {
+                currentMotionIndex = currentCombo++ % attackMotionInfos[currentMotionInfo.attackMotionType].Count;
+            }
+
             var currentMotion = ResolveAttackMotion();
 
             if (comboDelayHandle != null) StopCoroutine(comboDelayHandle);
@@ -70,7 +74,7 @@ namespace Unit
             attackRetryTick = attackEndTick - Mathf.RoundToInt(attackTryWindowTime * tickRate);
 
             currentMotionStartTick = Runner.Tick;
-            PlayAnim(transitionType, Priority, currentMotion.motionName, .1f, sync);
+            PlayAnim(currentMotion.motionName, .1f, enterTick);
 
             currentAttackMove = Vector3.zero;
 
@@ -78,7 +82,7 @@ namespace Unit
             if (enemy != null)
             {
                 var dir = (enemy.transform.position - player.transform.position).normalized;
-                cc.SetLookRotation(Quaternion.LookRotation(dir));
+                SetLookRotation(Quaternion.LookRotation(dir));
             }
         }
 
@@ -97,18 +101,19 @@ namespace Unit
         protected override void OnState()
         {
             if (!HasStateAuthority) return;
+
             if (attackRetryTick <= Runner.Tick && fsm.input.IsSet(x => x.attack))
             {
-                fsm.SetState<PlayerAttackState>(PlayerFSM.TransitionTypeInFSM.Request);
+                fsm.SetState<PlayerAttackState>();
                 return;
             }
 
             if (attackEndTick <= Runner.Tick)
             {
-                fsm.SetState<PlayerMovementState>(PlayerFSM.TransitionTypeInFSM.Request);
+                fsm.SetState<PlayerMovementState>();
             }
 
-            cc.Move(currentAttackMove * attackMoveSpeed * Runner.DeltaTime);
+            Move(currentAttackMove * attackMoveSpeed * Runner.DeltaTime);
         }
 
         protected override void ExitState()
@@ -149,7 +154,7 @@ namespace Unit
                             damaged = currentMotion.damage,
                             weight = currentMotion.weight,
                             attackType = currentMotion.attackType,
-                            attackerPos = cc.transform.position
+                            attackerPos = player.transform.position
                         });
                     }
                     else

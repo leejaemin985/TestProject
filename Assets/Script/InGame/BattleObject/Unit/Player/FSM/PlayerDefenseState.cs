@@ -19,17 +19,18 @@ namespace Unit
 
         [Networked] private Vector3 moveAnimDir { get; set; }
 
-        protected override void EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool sync = true)
+        protected override void EnterState(int enterTick)
         {
-            PlayAnim(transitionType, Priority, "_DefenseMove", .15f, true);
+            PlayAnim("_DefenseMove", .15f, enterTick);
         }
 
         protected override void OnState()
         {
             if (!HasStateAuthority) return;
+
             if (fsm.input.IsSet(x => x.defense == false))
             {
-                fsm.SetState<PlayerMovementState>(PlayerFSM.TransitionTypeInFSM.Request);
+                fsm.SetState<PlayerMovementState>();
                 return;
             }
 
@@ -44,9 +45,9 @@ namespace Unit
 
             if (inputDir.sqrMagnitude > .01f)
             {
-                cc.SetLookRotation(Quaternion.Slerp(cc.transform.rotation, Camera.main.transform.rotation, curvSpeed * Runner.DeltaTime));
+                SetLookRotation(Quaternion.Slerp(player.transform.rotation, Camera.main.transform.rotation, curvSpeed * Runner.DeltaTime));
             }
-            cc.Move(currentMoveDir * defenseMoveSpeed * Runner.DeltaTime);
+            Move(currentMoveDir * defenseMoveSpeed * Runner.DeltaTime);
         }
 
         protected override void OnRender()

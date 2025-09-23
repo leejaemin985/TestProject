@@ -16,27 +16,27 @@ namespace Unit
 
         private MoveInfo currentMoveInfo;
 
-        protected override void SetInfo(INetworkStruct info) => currentMoveInfo = (MoveInfo)info;
+        protected override void SetInfo(INetworkStruct info) => currentMoveInfo = ((StateInfo)info).moveInfo;
 
-        protected override void EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool sync = true)
+        protected override void EnterState(int enterTick)
         {
-            currentVelocity = 0;
-            PlayAnim(transitionType, Priority, "_Jump", .1f, true);
+            PlayAnim("_Jump", .1f, enterTick);
 
-            cc.Move(default, jumpVelocity);
+            currentVelocity = 0;
+            Move(default, jumpVelocity);
         }
 
         protected override void OnState()
         {
             if (!HasInputAuthority) return;
 
-            if (cc.IsGrounded)
+            if (IsGrounded())
             {
-                fsm.SetState<PlayerLandState>(PlayerFSM.TransitionTypeInFSM.Request);
+                fsm.SetState<PlayerLandState>();
                 return;
             }
 
-            cc.Move(currentMoveInfo.moveDir * currentMoveInfo.velocity * Runner.DeltaTime);
+            Move(currentMoveInfo.moveDir * currentMoveInfo.velocity * Runner.DeltaTime);
         }
 
         protected override void OnRender()

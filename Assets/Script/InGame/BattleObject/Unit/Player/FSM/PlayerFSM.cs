@@ -103,17 +103,17 @@ namespace Unit
 
         public void OnHitState(HitInfo hitInfo)
         {
-            SetState<PlayerHitState, HitInfo>(TransitionTypeInFSM.System, hitInfo, false);
+            SetState<PlayerHitState>(new StateInfo() { hitInfo = hitInfo }, TransitionType.System);
         }
 
         public void OnParringState(HitInfo hitInfo)
         {
-            SetState<PlayerParringState, HitInfo>(TransitionTypeInFSM.System, hitInfo, false);
+            SetState<PlayerParringState>(new StateInfo() { hitInfo = hitInfo }, TransitionType.System);
         }
 
         public void OnDiedState(HitInfo hitInfo)
         {
-            SetState<PlayerDiedState>(TransitionTypeInFSM.System, false);
+            SetState<PlayerDiedState>(default, TransitionType.System);
         }
 
         private bool IsValidSystemTransition(TransitionTypeInFSM transitionType, int seq)
@@ -151,27 +151,12 @@ namespace Unit
         }
 
         //#############################################################################################################################################################################################
-        //public void SetState<TState>(TransitionType transitionType = TransitionType.Request) 
-        //    where TState : class, IState
-        //{
-        //    if (TryGetIState<TState>(out var state) == false) return;
-
-        //    StateTransitionData transitionData = new()
-        //    {
-        //        transitionType = transitionType,
-        //        systemSeq = systemSeq + 1,
-        //        stateType = state.GetStateType(),
-        //        stateInfo = default,
-        //        tick = Runner.Tick
-        //    };
-        //    RPC_SetState(transitionData, default);
-        //}
-
+        
         public void SetState<TState>(StateInfo stateInfo = default, TransitionType transitionType = TransitionType.Request)
             where TState : class, IState
         {
             if (TryGetIState<TState>(out var state) == false) return;
-
+            
             StateTransitionData transitionData = new()
             {
                 transitionType = transitionType,
@@ -188,7 +173,7 @@ namespace Unit
         private void RPC_SetState(StateTransitionData transitionData, StateInfo stateInfo)
         {
             if (CanSetState(transitionData) == false) return;
-
+            
             if (transitionData.transitionType == TransitionType.System)
                 systemSeq = transitionData.systemSeq;
 
@@ -201,29 +186,7 @@ namespace Unit
         }
 
         //#############################################################################################################################################################################################
-
-        public void SetState<TState>(TransitionTypeInFSM transitionType, bool sync = true)
-            where TState : class, IState 
-        {
-            int requestSeq = systemSeq + 1;
-            if (TryGetIState<TState>(out var state) == false) return;
-            if (CanSetState(transitionType, state, requestSeq) == false) return;
-
-            if (transitionType==TransitionTypeInFSM.System)
-                systemSeq = requestSeq;
-
-            CurrentState?.ExitState();
-            CurrentState = state;
-            CurrentState?.EnterState(transitionType, sync);
-
-            if (HasStateAuthority)
-            {
-                if (sync) RPC_SyncState(transitionType, CurrentState.GetStateType(), systemSeq);
-            }
-
-            changeStateTypeListener?.Invoke(CurrentState.GetStateType());
-        }
-
+        /*
         public void SetState<TState, TInfo>(TransitionTypeInFSM transitionType, TInfo info, bool sync = true)
             where TState : PlayerStateBase, IState
             where TInfo : struct, INetworkStruct
@@ -237,7 +200,6 @@ namespace Unit
 
             CurrentState?.ExitState();
             CurrentState = state;
-            //CurrentState.SetInfo(info);
             CurrentState?.EnterState(transitionType, sync);
 
             if (HasStateAuthority)
@@ -258,7 +220,7 @@ namespace Unit
 
             CurrentState = stateMap[stateType];
         }
-
+        */
         public override void Render()
         {
             if (isInitialized == false) return;

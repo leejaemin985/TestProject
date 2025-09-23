@@ -42,11 +42,7 @@ namespace Unit
         private Vector3 currentHitMove;
         private float hitMoveSpeed = 120f;
 
-        protected override void SetInfo(INetworkStruct info)
-        {
-            HitInfo hitInfo = (HitInfo)info;
-            currentHitInfo = hitInfo;
-        }
+        protected override void SetInfo(INetworkStruct info) => currentHitInfo = ((StateInfo)info).hitInfo;
 
         protected override void OnEnterRender()
         {
@@ -54,7 +50,7 @@ namespace Unit
             bloodEffect.Play();
         }
 
-        protected override void EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool sync = true)
+        protected override void EnterState(int enterTick)
         {
             HitMotionInfo currentMotionInfo = null;
 
@@ -70,7 +66,8 @@ namespace Unit
             var animInfoList = hitMotionInfos.Where(directionPredicate).ToList();
             currentMotionInfo = animInfoList[UnityEngine.Random.Range(0, animInfoList.Count)];
             hitEndTick = Runner.Tick + Mathf.RoundToInt(hitMotionDuration * Runner.TickRate);
-            PlayAnim(transitionType, Priority, currentMotionInfo.motionName, 0, sync);
+            
+            PlayAnim(currentMotionInfo.motionName, 0, enterTick);
         }
 
         protected override void OnState()
@@ -79,17 +76,17 @@ namespace Unit
 
             if (fsm.input.WasPressed(x => x.skill))
             {
-                fsm.SetState<PlayerRoarState>(PlayerFSM.TransitionTypeInFSM.Request);
+                fsm.SetState<PlayerRoarState>(default, TransitionType.Request);
                 return;
             }
 
             if (Runner.Tick >= hitEndTick)
             {
-                fsm.SetState<PlayerMovementState>(PlayerFSM.TransitionTypeInFSM.System);
+                fsm.SetState<PlayerMovementState>(default, TransitionType.System);
                 return;
             }
 
-            cc.Move(currentHitMove * hitMoveSpeed * Runner.DeltaTime);
+            Move(currentHitMove * hitMoveSpeed * Runner.DeltaTime);
         }
 
         protected override void OnAnimEvent(string param)

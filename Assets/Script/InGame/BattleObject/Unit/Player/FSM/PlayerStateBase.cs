@@ -33,9 +33,10 @@ namespace Unit
             Terminal = 40
         }
 
+        private SimpleKCC cc;
+
         protected Player player;
         protected PlayerFSM fsm;
-        protected SimpleKCC cc;
         protected Animator latencyInterpolationAnim;
         protected Animator modelAnim;
         protected IWeapon weap;
@@ -64,27 +65,18 @@ namespace Unit
             modelAnim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, 0);
         }
 
+        public bool IsGrounded() => cc.IsGrounded;
 
-        protected void PlayAnim(PlayerFSM.TransitionTypeInFSM transitionType, StatePriorityType statePriorityType, string stateName, float fixedTransitionDuration, bool sync)
+        public void Move(Vector3 moveDir, float jumpImpulse = 0)
         {
-            if (!HasStateAuthority || sync == false)
-                modelAnim.CrossFadeInFixedTime(stateName, fixedTransitionDuration);
-            else
-                RPC_AnimCrossFadeInFixedTime(transitionType, statePriorityType, stateName, fixedTransitionDuration, Runner.Tick, fsm.systemSeq);
+            if (HasStateAuthority == false) return;
+            cc.Move(moveDir, jumpImpulse);
         }
 
-        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-        public void RPC_AnimCrossFadeInFixedTime(PlayerFSM.TransitionTypeInFSM transitionType, StatePriorityType statePriorityType, string stateName, float fixedTransitionDuration, int tick, int seq)
+        public void SetLookRotation(Quaternion lookRotation)
         {
-            if (fsm.CanSetState(transitionType, statePriorityType, seq) == false) return;
-
-            if (Runner.IsSharedModeMasterClient)
-            {
-                float latency = (Runner.Tick - tick) * Runner.DeltaTime;
-                latencyInterpolationAnim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, latency);
-            }
-
-            modelAnim.CrossFadeInFixedTime(stateName, fixedTransitionDuration, 0, 0);
+            if (HasStateAuthority == false) return;
+            cc.SetLookRotation(lookRotation);
         }
 
 
@@ -97,8 +89,6 @@ namespace Unit
         protected virtual void SetInfo(INetworkStruct info) { }
 
         protected virtual void EnterState(int enterTick) { }
-
-        protected virtual void EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool sync = true) { }
 
         protected virtual void OnState() { }
 
@@ -124,8 +114,6 @@ namespace Unit
         void IState.SetInfo(StateInfo info) => SetInfo(info);
 
         void IState.EnterState(int enterTick) => EnterState(enterTick);
-
-        void IState.EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool sync) => EnterState(transitionType, sync);
 
         void IState.OnState() => OnState();
 

@@ -18,8 +18,6 @@ namespace Unit
 
         void EnterState(int enterTick);
 
-        void EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool syncMotion);
-
         void OnState();
 
         void ExitState();

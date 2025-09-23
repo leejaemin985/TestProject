@@ -27,43 +27,43 @@ namespace Unit
             PlayAnim("_Movement", .2f, enterTick);
         }
 
-        protected override void EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool sync = true)
-        {
-            PlayAnim(transitionType, Priority, "_Movement", .2f, sync);
-        }
-
         protected override void OnState()
         {
             if (!HasStateAuthority) return;
 
             if (fsm.input.Current.moveDir.sqrMagnitude > .01f && fsm.input.IsSet(x => x.dash))
             {
-                //fsm.SetState<PlayerSprintState, MoveInfo>(PlayerFSM.TransitionTypeInFSM.Request, currentMoveInfo, true);
                 fsm.SetState<PlayerSprintState>(new StateInfo() { moveInfo = currentMoveInfo }, TransitionType.Request);
                 return;
             }
 
             if (fsm.input.WasPressed(x => x.jump))
             {
-                fsm.SetState<PlayerJumpState, MoveInfo>(PlayerFSM.TransitionTypeInFSM.Request, currentMoveInfo, true);
+                fsm.SetState<PlayerJumpState>(new StateInfo()
+                {
+                    moveInfo = currentMoveInfo
+                });
                 return;
             }
 
             if (fsm.input.IsSet(x => x.attack))
             {
-                fsm.SetState<PlayerAttackState, AttackInfo>(PlayerFSM.TransitionTypeInFSM.Request, new() { attackMotionType = AttackMotionType.None });
+                fsm.SetState<PlayerAttackState>(new StateInfo()
+                {
+                    attackInfo = new() { attackMotionType = AttackMotionType.None }
+                });
                 return;
             }
 
             if (fsm.input.IsSet(x => x.defense))
             {
-                fsm.SetState<PlayerDefenseState>(PlayerFSM.TransitionTypeInFSM.Request);
+                fsm.SetState<PlayerDefenseState>(default, TransitionType.Request);
                 return;
             }
 
             if (fsm.input.WasPressed(x => x.skill))
             {
-                fsm.SetState<PlayerRoarState>(PlayerFSM.TransitionTypeInFSM.Request);
+                fsm.SetState<PlayerRoarState>(default, TransitionType.Request);
                 return;
             }
 
@@ -85,10 +85,10 @@ namespace Unit
 
             if (inputDir.sqrMagnitude > 0.01f)
             {
-                cc.SetLookRotation(Quaternion.Slerp(cc.transform.rotation, Camera.main.transform.rotation, curveSpeed * Runner.DeltaTime));
+                SetLookRotation(Quaternion.Slerp(player.transform.rotation, Camera.main.transform.rotation, curveSpeed * Runner.DeltaTime));
             }
 
-            cc.Move(inputDir * currentMoveInfo.velocity * Runner.DeltaTime);
+            Move(inputDir * currentMoveInfo.velocity * Runner.DeltaTime);
         }
 
         protected override void OnRender()

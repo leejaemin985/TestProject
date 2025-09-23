@@ -9,7 +9,10 @@ namespace Unit
         public void RequestOnHitUser(PlayerRef userRef, HitInfo hitInfo)
         {
             if (HasEventAuthority == false) return;
-            RPC_RequestOnHitUser(userRef, hitInfo);
+
+            //RPC_RequestOnHitUser(userRef, hitInfo);
+            if (Player.RegistedUsers.TryGetValue(userRef, out Player user))
+                user.RequestOnHitState(hitInfo);
         }
 
         [Rpc(RpcSources.All, RpcTargets.All)]
@@ -23,7 +26,10 @@ namespace Unit
         public void RequestOnParringUser(PlayerRef userRef, HitInfo hitInfo)
         {
             if (HasEventAuthority == false) return;
-            RPC_RequestOnParringUser(userRef, hitInfo);
+
+            //RPC_RequestOnParringUser(userRef, hitInfo);
+            if (Player.RegistedUsers.TryGetValue(userRef, out Player user))
+                user.RequestOnParringState(hitInfo);
         }
 
         [Rpc(RpcSources.All, RpcTargets.All)]
@@ -37,7 +43,10 @@ namespace Unit
         public void RequestOnDiedUser(PlayerRef userRef, HitInfo hitInfo)
         {
             if (HasEventAuthority == false) return;
-            RPC_RequestOnDiedUser(userRef, hitInfo);
+
+            //RPC_RequestOnDiedUser(userRef, hitInfo);
+            if (Player.RegistedUsers.TryGetValue(userRef, out Player user))
+                user.RequestOnDiedState(hitInfo);
         }
 
         [Rpc(RpcSources.All, RpcTargets.All)]

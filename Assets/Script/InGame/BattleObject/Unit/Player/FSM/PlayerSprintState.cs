@@ -27,31 +27,32 @@ namespace Unit
             PlayAnim("_Movement", .2f, enterTick);
         }
 
-        protected override void EnterState(PlayerFSM.TransitionTypeInFSM transitionType, bool sync = true)
-        {
-            PlayAnim(transitionType, Priority, "_Movement", .2f, sync);
-        }
-
         protected override void OnState()
         {
             if (!HasStateAuthority) return;
 
             if (fsm.input.WasPressed(x => x.jump))
             {
-                fsm.SetState<PlayerJumpState, MoveInfo>(PlayerFSM.TransitionTypeInFSM.Request, currentMoveInfo, true);
+                fsm.SetState<PlayerJumpState>(new StateInfo()
+                {
+                    moveInfo = currentMoveInfo
+                });
                 return;
             }
 
             if (fsm.input.Current.moveDir.sqrMagnitude < .01f || fsm.input.IsSet(x => x.dash) == false)
             {
-                //fsm.SetState<PlayerMovementState>(PlayerFSM.TransitionTypeInFSM.Request);
                 fsm.SetState<PlayerMovementState>();
                 return;
             }
 
             if (fsm.input.IsSet(x => x.attack))
             {
-                fsm.SetState<PlayerAttackState, AttackInfo>(PlayerFSM.TransitionTypeInFSM.Request, new() { attackMotionType = AttackMotionType.Dash });
+                fsm.SetState<PlayerAttackState>(
+                    new StateInfo()
+                    {
+                        attackInfo = new() { attackMotionType = AttackMotionType.Dash }
+                    });
                 return;
             }
 
@@ -67,8 +68,8 @@ namespace Unit
             float speedRatio = currentMoveInfo.velocity / sprintSpeed;
             runWeight = speedRatio * sprintRunWeight;
 
-            cc.SetLookRotation(Quaternion.Slerp(cc.transform.rotation, Quaternion.LookRotation(inputDir), curvSpeed * Runner.DeltaTime));
-            cc.Move(currentMoveInfo.moveDir * currentMoveInfo.velocity * Runner.DeltaTime);
+            SetLookRotation(Quaternion.Slerp(player.transform.rotation, Quaternion.LookRotation(inputDir), curvSpeed * Runner.DeltaTime));
+            Move(currentMoveInfo.moveDir * currentMoveInfo.velocity * Runner.DeltaTime);
         }
 
         protected override void OnRender()
