@@ -35,11 +35,11 @@ namespace Unit
 
         private SimpleKCC cc;
 
-        protected Player player;
-        protected PlayerFSM fsm;
-        protected Animator latencyInterpolationAnim;
-        protected Animator modelAnim;
-        protected IWeapon weap;
+        protected Player player { get; private set; }
+        protected PlayerFSM fsm { get; private set; }
+        protected Animator latencyInterpolationAnim { get; private set; }
+        protected Animator modelAnim { get; private set; }
+        protected IWeapon weap { get; private set; }
 
         #region StatusDefinition
         public virtual bool HasSuperArmor => false;
@@ -88,6 +88,12 @@ namespace Unit
 
         protected virtual void SetInfo(INetworkStruct info) { }
 
+
+        protected virtual void EnterStateAuthority(int enterTick) { }
+
+        protected virtual void EnterStateShared(int enterTick) { }
+
+
         protected virtual void EnterState(int enterTick) { }
 
         protected virtual void OnState() { }
@@ -107,6 +113,7 @@ namespace Unit
         #endregion
 
 
+
         #region IState
 
         StatePriorityType IState.priority => Priority;
@@ -119,11 +126,11 @@ namespace Unit
 
         void IState.ExitState() => ExitState();
 
-        void IState.OnEnterRender() => OnEnterRender();
+        void IState.OnEnterRender() => OnRender();
 
         void IState.OnRender() => OnRender();
 
-        void IState.OnExitRender() => OnExitRender();
+        void IState.OnExitRender() => OnRender();
 
         void IState.OnAnimEvent(string param) => OnAnimEvent(param);
 

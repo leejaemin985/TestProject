@@ -19,7 +19,7 @@ namespace Unit
 
         [Networked] private Vector3 moveAnimDir { get; set; }
 
-        protected override void EnterState(int enterTick)
+        protected override void EnterStateShared(int enterTick)
         {
             PlayAnim("_DefenseMove", .15f, enterTick);
         }

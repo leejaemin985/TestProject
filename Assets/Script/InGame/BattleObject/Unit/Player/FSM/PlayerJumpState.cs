@@ -18,12 +18,15 @@ namespace Unit
 
         protected override void SetInfo(INetworkStruct info) => currentMoveInfo = ((StateInfo)info).moveInfo;
 
-        protected override void EnterState(int enterTick)
+        protected override void EnterStateAuthority(int enterTick)
         {
-            PlayAnim("_Jump", .1f, enterTick);
-
             currentVelocity = 0;
             Move(default, jumpVelocity);
+        }
+
+        protected override void EnterStateShared(int enterTick)
+        {
+            PlayAnim("_Jump", .1f, enterTick);
         }
 
         protected override void OnState()

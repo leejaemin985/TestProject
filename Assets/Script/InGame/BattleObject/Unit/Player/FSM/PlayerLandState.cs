@@ -20,11 +20,14 @@ namespace Unit
 
         protected override void SetInfo(INetworkStruct info) => currentMoveInfo = ((StateInfo)info).moveInfo;
 
-        protected override void EnterState(int enterTick)
+        protected override void EnterStateAuthority(int enterTick)
         {
             minLandingMotionEndTick = Runner.Tick + Mathf.RoundToInt(landingMotionMinDuration * Runner.TickRate);
             landingMotionEndTick = Runner.Tick + Mathf.RoundToInt(landingMotionDuration * Runner.TickRate);
+        }
 
+        protected override void EnterStateShared(int enterTick)
+        {
             PlayAnim(true ? "_LandingWait" : "_LandingMove", .1f, enterTick);
         }
 

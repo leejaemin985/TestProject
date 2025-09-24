@@ -22,7 +22,7 @@ namespace Unit
 
         protected override void SetInfo(INetworkStruct info) => currentMoveInfo = ((StateInfo)info).moveInfo;
 
-        protected override void EnterState(int enterTick)
+        protected override void EnterStateShared(int enterTick)
         {
             PlayAnim("_Movement", .2f, enterTick);
         }

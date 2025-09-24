@@ -44,13 +44,7 @@ namespace Unit
 
         protected override void SetInfo(INetworkStruct info) => currentHitInfo = ((StateInfo)info).hitInfo;
 
-        protected override void OnEnterRender()
-        {
-            if (bloodEffect == null) bloodEffect = bloodEffectObject.GetComponent<ParticleSystem>();
-            bloodEffect.Play();
-        }
-
-        protected override void EnterState(int enterTick)
+        protected override void EnterStateShared(int enterTick)
         {
             HitMotionInfo currentMotionInfo = null;
 
@@ -68,6 +62,9 @@ namespace Unit
             hitEndTick = Runner.Tick + Mathf.RoundToInt(hitMotionDuration * Runner.TickRate);
             
             PlayAnim(currentMotionInfo.motionName, 0, enterTick);
+
+            if (bloodEffect == null) bloodEffect = bloodEffectObject.GetComponent<ParticleSystem>();
+            bloodEffect.Play();
         }
 
         protected override void OnState()

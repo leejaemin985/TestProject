@@ -25,6 +25,7 @@ namespace Unit
         [Networked] private int currentMotionIndex { get; set; }
         [Networked] private AttackInfo currentMotionInfo { get; set; }
 
+        private AttackMotionInfo currentMotion;
 
         private int attackEndTick;
         private int attackRetryTick;
@@ -57,14 +58,10 @@ namespace Unit
 
         protected override void SetInfo(INetworkStruct info) => currentMotionInfo = ((StateInfo)info).attackInfo;
 
-        protected override void EnterState(int enterTick)
+        protected override void EnterStateAuthority(int enterTick)
         {
-            if (HasStateAuthority)
-            {
-                currentMotionIndex = currentCombo++ % attackMotionInfos[currentMotionInfo.attackMotionType].Count;
-            }
-
-            var currentMotion = ResolveAttackMotion();
+            currentMotionIndex = currentCombo++ % attackMotionInfos[currentMotionInfo.attackMotionType].Count;
+            currentMotion = ResolveAttackMotion();
 
             if (comboDelayHandle != null) StopCoroutine(comboDelayHandle);
             StartCoroutine(comboDelayHandle = ComboDelay(currentMotion.motionDuration + COMBO_DELAY_TIME));
@@ -74,8 +71,6 @@ namespace Unit
             attackRetryTick = attackEndTick - Mathf.RoundToInt(attackTryWindowTime * tickRate);
 
             currentMotionStartTick = Runner.Tick;
-            PlayAnim(currentMotion.motionName, .1f, enterTick);
-
             currentAttackMove = Vector3.zero;
 
             var enemy = FindEnemy();
@@ -84,6 +79,12 @@ namespace Unit
                 var dir = (enemy.transform.position - player.transform.position).normalized;
                 SetLookRotation(Quaternion.LookRotation(dir));
             }
+        }
+
+        protected override void EnterStateShared(int enterTick)
+        {
+            currentMotion = currentMotion == null ? ResolveAttackMotion() : currentMotion;
+            PlayAnim(currentMotion.motionName, .1f, enterTick);
         }
 
         private IEnumerator ComboDelay(float sec)
@@ -133,6 +134,7 @@ namespace Unit
         protected override void OnExitRender()
         {
             weap.SetTrailEffectActive(false);
+            currentMotion = null;
         }
 
         protected override void OnMasterTick()

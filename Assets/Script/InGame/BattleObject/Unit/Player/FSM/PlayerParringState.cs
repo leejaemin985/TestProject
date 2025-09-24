@@ -24,12 +24,12 @@ namespace Unit
 
         protected override void SetInfo(INetworkStruct info) => receivedHitInfo = ((StateInfo)info).hitInfo;
 
-        protected override void EnterState(int enterTick)
+        protected override void EnterStateShared(int enterTick)
         {
             parringEndTick = Runner.Tick + Mathf.RoundToInt(parringMotionDuration * Runner.TickRate);
-            PlayAnim($"_Parring_{Random.Range(1, 5)}", 0.1f, enterTick);
-
             parringPushEndTick = Runner.Tick + Mathf.RoundToInt(parringPushTime * Runner.TickRate);
+
+            PlayAnim($"_Parring_{Random.Range(1, 5)}", 0.1f, enterTick);
         }
 
 
