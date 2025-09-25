@@ -94,7 +94,12 @@ namespace Unit
         protected virtual void EnterStateShared(int enterTick) { }
 
 
-        protected virtual void EnterState(int enterTick) { }
+        protected virtual void EnterState(int enterTick)
+        {
+            if (HasStateAuthority) EnterStateAuthority(enterTick);
+
+            EnterStateShared(enterTick);
+        }
 
         protected virtual void OnState() { }
 

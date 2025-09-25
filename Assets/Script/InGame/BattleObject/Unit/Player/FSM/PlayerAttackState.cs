@@ -83,7 +83,7 @@ namespace Unit
 
         protected override void EnterStateShared(int enterTick)
         {
-            currentMotion = currentMotion == null ? ResolveAttackMotion() : currentMotion;
+            currentMotion = HasStateAuthority == false ? ResolveAttackMotion() : currentMotion;
             PlayAnim(currentMotion.motionName, .1f, enterTick);
         }
 

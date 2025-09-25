@@ -47,7 +47,7 @@ namespace Unit
             effectPool = EffectObjectPool.CreatePoolInstance<RoarStateEffect>((RoarStateEffect)effectGroup.roarStateEffect, new() { count = 2, effectRoot = null });
         }
 
-        protected override void EnterState(int enterTick)
+        protected override void EnterStateShared(int enterTick)
         {
             roarEndTick = Runner.Tick + Mathf.RoundToInt(roarMotionDuration * Runner.TickRate);
             player.UnitStat.OnSuperArmor(roarEndTick);
