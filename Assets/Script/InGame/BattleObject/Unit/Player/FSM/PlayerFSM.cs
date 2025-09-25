@@ -154,7 +154,7 @@ namespace Unit
         {
             if (HasStateAuthority == false)
             {
-                if (CurrentState.GetStateType() == StateType.Roar && transitionData.stateType == StateType.Attack)
+                if (CurrentState.GetStateType() == StateType.Roar)
                 {
                     Debug.Log($"Test - Invalid Request (current: {CurrentState.GetStateType()} // request: {transitionData.stateType})");
                 }
@@ -173,9 +173,19 @@ namespace Unit
             changeStateTypeListener?.Invoke(transitionData.stateType);
         }
 
+        PlayerStateBase.StateType? lastState;
 
         public override void Render()
         {
+            if (HasStateAuthority == false && CurrentState != null) 
+            {
+                if (lastState == null || lastState != CurrentState.GetStateType())
+                {
+                    lastState = CurrentState.GetStateType();
+                    Debug.Log($"Test - State: {lastState}");
+                }
+            }
+
             if (isInitialized == false) return;
 
             CurrentState?.OnRender();
