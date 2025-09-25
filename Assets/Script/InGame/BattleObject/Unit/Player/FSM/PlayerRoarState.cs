@@ -64,7 +64,7 @@ namespace Unit
             }
         }
 
-        protected override void OnExitRender()
+        protected override void ExitStateShared()
         {
             physicsRange.SetActive(false);
         }

@@ -117,13 +117,16 @@ namespace Unit
             Move(currentAttackMove * attackMoveSpeed * Runner.DeltaTime);
         }
 
-        protected override void ExitState()
+        protected override void ExitStateShared()
         {
             weap.SetCollisionActive(false);
 
             var motionInfo = currentMotionInfo;
             motionInfo.attackMotionType = AttackMotionType.None;
             currentMotionInfo = motionInfo;
+
+            weap.SetTrailEffectActive(false);
+            currentMotion = null;
         }
 
         private Player FindEnemy()
@@ -131,11 +134,6 @@ namespace Unit
             return Player.RegistedUsers.FirstOrDefault(x => x.Key.Equals(Object.InputAuthority) == false).Value;
         }
 
-        protected override void OnExitRender()
-        {
-            weap.SetTrailEffectActive(false);
-            currentMotion = null;
-        }
 
         protected override void OnMasterTick()
         {

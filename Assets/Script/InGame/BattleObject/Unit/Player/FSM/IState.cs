@@ -22,11 +22,7 @@ namespace Unit
 
         void ExitState();
 
-        void OnEnterRender();
-
         void OnRender();
-
-        void OnExitRender();
 
         void OnMasterTick();
 

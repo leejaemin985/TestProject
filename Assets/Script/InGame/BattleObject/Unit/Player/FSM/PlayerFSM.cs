@@ -41,9 +41,7 @@ namespace Unit
             get { return currentState; }
             private set
             {
-                currentState?.OnEnterRender();
                 currentState = value;
-                currentState?.OnExitRender();
             }
         }
 

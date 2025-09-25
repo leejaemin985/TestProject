@@ -101,17 +101,24 @@ namespace Unit
             EnterStateShared(enterTick);
         }
 
+
+        protected virtual void ExitStateAuthority() { }
+
+        protected virtual void ExitStateShared() { }
+
+        protected void ExitState()
+        {
+            if (HasStateAuthority) ExitStateAuthority();
+            ExitStateShared();
+        }
+
+
         protected virtual void OnState() { }
-
-        protected virtual void ExitState() { }
-
-        protected virtual void OnEnterRender() { }
 
         protected virtual void OnRender() { }
 
-        protected virtual void OnExitRender() { }
-
         protected virtual void OnMasterTick() { }
+
 
         protected virtual void OnAnimEvent(string param) { }
 
@@ -131,11 +138,7 @@ namespace Unit
 
         void IState.ExitState() => ExitState();
 
-        void IState.OnEnterRender() => OnRender();
-
         void IState.OnRender() => OnRender();
-
-        void IState.OnExitRender() => OnRender();
 
         void IState.OnAnimEvent(string param) => OnAnimEvent(param);
 

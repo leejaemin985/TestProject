@@ -30,6 +30,8 @@ namespace Unit
             parringPushEndTick = Runner.Tick + Mathf.RoundToInt(parringPushTime * Runner.TickRate);
 
             PlayAnim($"_Parring_{Random.Range(1, 5)}", 0.1f, enterTick);
+
+            this.weap.SetParringEffectActive(player.transform.position + Vector3.up, Quaternion.identity);
         }
 
 
@@ -51,11 +53,6 @@ namespace Unit
                 var targetDir = -dir * receivedHitInfo.weight;
                 Move(targetDir * parringPushSpeed * Runner.DeltaTime);
             }
-        }
-
-        protected override void OnEnterRender()
-        {
-            this.weap.SetParringEffectActive(player.transform.position + Vector3.up, Quaternion.identity);
         }
     }
 }
