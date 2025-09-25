@@ -152,6 +152,14 @@ namespace Unit
 
         private void SetState(StateTransitionData transitionData, StateInfo stateInfo)
         {
+            if (HasStateAuthority == false)
+            {
+                if (CurrentState.GetStateType() == StateType.Roar && transitionData.stateType == StateType.Attack)
+                {
+                    Debug.Log($"Test - Invalid Request (current: {CurrentState.GetStateType()} // request: {transitionData.stateType})");
+                }
+            }
+
             if (CanSetState(transitionData) == false) return;
 
             if (transitionData.transitionType == TransitionType.System)
