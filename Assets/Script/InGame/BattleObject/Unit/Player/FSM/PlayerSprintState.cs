@@ -12,21 +12,23 @@ namespace Unit
 
         [SerializeField] private float sprintSpeed;
 
-        private float curvSpeed = 10;
-        private float animCurvSpeed = .1f;
+        private const float CURV_SPEED = 10;
 
         [Networked] public float runWeight { get; set; }
-        private const float sprintRunWeight = 4;
+        private const float SPRINT_RUNWEIGHT = 4;
 
         private MoveInfo currentMoveInfo;
 
         protected override void SetInfo(INetworkStruct info) => currentMoveInfo = ((StateInfo)info).moveInfo;
 
+        #region FSM State
+        //EnterState
         protected override void EnterStateShared(int enterTick)
         {
             PlayAnim("_Movement", .2f, enterTick);
         }
 
+        //OnState
         protected override void OnState()
         {
             if (!HasStateAuthority) return;
@@ -62,13 +64,13 @@ namespace Unit
             inputDir.y = 0;
             inputDir.Normalize();
 
-            currentMoveInfo.moveDir = Vector3.Lerp(currentMoveInfo.moveDir, inputDir, curvSpeed * Runner.DeltaTime);
-            currentMoveInfo.velocity = Mathf.Lerp(currentMoveInfo.velocity, sprintSpeed, curvSpeed * Runner.DeltaTime);
+            currentMoveInfo.moveDir = Vector3.Lerp(currentMoveInfo.moveDir, inputDir, CURV_SPEED * Runner.DeltaTime);
+            currentMoveInfo.velocity = Mathf.Lerp(currentMoveInfo.velocity, sprintSpeed, CURV_SPEED * Runner.DeltaTime);
 
             float speedRatio = currentMoveInfo.velocity / sprintSpeed;
-            runWeight = speedRatio * sprintRunWeight;
+            runWeight = speedRatio * SPRINT_RUNWEIGHT;
 
-            SetLookRotation(Quaternion.Slerp(player.transform.rotation, Quaternion.LookRotation(inputDir), curvSpeed * Runner.DeltaTime));
+            SetLookRotation(Quaternion.Slerp(player.transform.rotation, Quaternion.LookRotation(inputDir), CURV_SPEED * Runner.DeltaTime));
             Move(currentMoveInfo.moveDir * currentMoveInfo.velocity * Runner.DeltaTime);
         }
 
@@ -77,14 +79,16 @@ namespace Unit
             const string HORIZONTAL = "_Horizontal";
             const string VERTICAL = "_Vertical";
             const string RUNWEIGHT = "_RunWeight";
+            const float ANIM_CURV_SPEED = .1f;
             
             float currentHorizontal = modelAnim.GetFloat(HORIZONTAL);
             float currentVertical = modelAnim.GetFloat(VERTICAL);
             float currentRunWeight = modelAnim.GetFloat(RUNWEIGHT);
 
-            modelAnim.SetFloat(HORIZONTAL, Mathf.Lerp(currentHorizontal, 0, animCurvSpeed));
-            modelAnim.SetFloat(VERTICAL, Mathf.Lerp(currentVertical, 1, animCurvSpeed));
-            modelAnim.SetFloat(RUNWEIGHT, Mathf.Lerp(currentRunWeight, runWeight, animCurvSpeed));
+            modelAnim.SetFloat(HORIZONTAL, Mathf.Lerp(currentHorizontal, 0, ANIM_CURV_SPEED));
+            modelAnim.SetFloat(VERTICAL, Mathf.Lerp(currentVertical, 1, ANIM_CURV_SPEED));
+            modelAnim.SetFloat(RUNWEIGHT, Mathf.Lerp(currentRunWeight, runWeight, ANIM_CURV_SPEED));
         }
+        #endregion
     }
 }

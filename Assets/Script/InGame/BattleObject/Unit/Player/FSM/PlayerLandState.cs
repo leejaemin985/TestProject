@@ -10,20 +10,18 @@ namespace Unit
 
         protected override StatePriorityType Priority => StatePriorityType.Free;
 
-        [SerializeField] private float landingMotionMinDuration;
-        [SerializeField] private float landingMotionDuration;
+        private const float MIN_DURATION = .1f;
+        private const float DEFAULT_DURATION = .3f;
         
         private int minLandingMotionEndTick;
         private int landingMotionEndTick;
 
-        private MoveInfo currentMoveInfo;
-
-        protected override void SetInfo(INetworkStruct info) => currentMoveInfo = ((StateInfo)info).moveInfo;
-
+        #region FSM State
+        //EnterState
         protected override void EnterStateAuthority(int enterTick)
         {
-            minLandingMotionEndTick = Runner.Tick + Mathf.RoundToInt(landingMotionMinDuration * Runner.TickRate);
-            landingMotionEndTick = Runner.Tick + Mathf.RoundToInt(landingMotionDuration * Runner.TickRate);
+            minLandingMotionEndTick = Runner.Tick + Mathf.RoundToInt(MIN_DURATION * Runner.TickRate);
+            landingMotionEndTick = Runner.Tick + Mathf.RoundToInt(DEFAULT_DURATION * Runner.TickRate);
         }
 
         protected override void EnterStateShared(int enterTick)
@@ -31,15 +29,19 @@ namespace Unit
             PlayAnim(true ? "_LandingWait" : "_LandingMove", .1f, enterTick);
         }
 
+        //OnState
         protected override void OnState()
         {
             if (!HasInputAuthority) return;
 
-            if ((!fsm.input.Current.IsInputEmpty() && Runner.Tick > minLandingMotionEndTick) 
-                || Runner.Tick > landingMotionEndTick)
+            bool canExitState = !fsm.input.Current.IsInputEmpty() && Runner.Tick > minLandingMotionEndTick;
+            bool doneState = Runner.Tick > landingMotionEndTick;
+
+            if (canExitState || doneState)
             {
                 fsm.SetState<PlayerMovementState>();
             }
         }
+        #endregion
     }
 }

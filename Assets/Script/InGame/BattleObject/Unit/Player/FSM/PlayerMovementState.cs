@@ -11,22 +11,25 @@ namespace Unit
         protected override StatePriorityType Priority => StatePriorityType.Free;
 
         [SerializeField] private float walkSpeed;
-        [SerializeField] private float curveSpeed = 10;
+        private const float CURV_SPEED = 10;
 
         private MoveInfo currentMoveInfo;
 
         [Networked] private Vector3 moveAnimDir { get; set; }
         [Networked] private float runWeight { get; set; }
 
-        private const float walkRunWeight = 1;
+        private const float WALK_RUNWEIGHT = 1;
 
         protected override void SetInfo(INetworkStruct info) => currentMoveInfo = ((StateInfo)info).moveInfo;
 
+        #region FSM State
+        //EnterState
         protected override void EnterStateShared(int enterTick)
         {
             PlayAnim("_Movement", .2f, enterTick);
         }
 
+        //OnState
         protected override void OnState()
         {
             if (!HasStateAuthority) return;
@@ -69,23 +72,23 @@ namespace Unit
 
             Vector3 inputDir = new Vector3(fsm.input.Current.moveDir.x, 0, fsm.input.Current.moveDir.y);
 
-            moveAnimDir = Vector3.Lerp(moveAnimDir, inputDir, curveSpeed * Runner.DeltaTime);
+            moveAnimDir = Vector3.Lerp(moveAnimDir, inputDir, CURV_SPEED * Runner.DeltaTime);
 
             inputDir = Camera.main.transform.TransformDirection(inputDir);
             inputDir.y = 0;
             inputDir.Normalize();
 
-            currentMoveInfo.moveDir = Vector3.Lerp(currentMoveInfo.moveDir, inputDir, curveSpeed * Runner.DeltaTime);
+            currentMoveInfo.moveDir = Vector3.Lerp(currentMoveInfo.moveDir, inputDir, CURV_SPEED * Runner.DeltaTime);
 
             float targetMoveSpeed = walkSpeed;
-            currentMoveInfo.velocity = Mathf.Lerp(currentMoveInfo.velocity, targetMoveSpeed, curveSpeed * Runner.DeltaTime);
+            currentMoveInfo.velocity = Mathf.Lerp(currentMoveInfo.velocity, targetMoveSpeed, CURV_SPEED * Runner.DeltaTime);
 
             float speedRatio = currentMoveInfo.velocity / walkSpeed;
-            runWeight = speedRatio * walkRunWeight;
+            runWeight = speedRatio * WALK_RUNWEIGHT;
 
             if (inputDir.sqrMagnitude > 0.01f)
             {
-                SetLookRotation(Quaternion.Slerp(player.transform.rotation, Camera.main.transform.rotation, curveSpeed * Runner.DeltaTime));
+                SetLookRotation(Quaternion.Slerp(player.transform.rotation, Camera.main.transform.rotation, CURV_SPEED * Runner.DeltaTime));
             }
 
             Move(inputDir * currentMoveInfo.velocity * Runner.DeltaTime);
@@ -107,5 +110,6 @@ namespace Unit
             modelAnim.SetFloat(VERTICAL, Mathf.Lerp(currentVertical, moveAnimDir.z, curvSpeed));
             modelAnim.SetFloat(RUNWEIGHT, Mathf.Lerp(currentRunWeight, runWeight, curvSpeed));
         }
+        #endregion
     }
 }

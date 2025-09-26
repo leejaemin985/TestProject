@@ -17,7 +17,6 @@ namespace Unit
 
         public override bool HasSuperArmor => true;
 
-
         [SerializeField] private AttackBox physicsRange;
 
         [SerializeField] private float damage;
@@ -47,13 +46,26 @@ namespace Unit
             effectPool = EffectObjectPool.CreatePoolInstance<RoarStateEffect>((RoarStateEffect)effectGroup.roarStateEffect, new() { count = 2, effectRoot = null });
         }
 
-        protected override void EnterStateShared(int enterTick)
+        #region FSM State
+        //EnterState
+        protected override void EnterStateAuthority(int enterTick)
         {
             roarEndTick = Runner.Tick + Mathf.RoundToInt(roarMotionDuration * Runner.TickRate);
+        }
+
+        protected override void EnterStateShared(int enterTick)
+        {
             player.UnitStat.OnSuperArmor(roarEndTick);
             PlayAnim("Roar", .1f, enterTick);
         }
 
+        //ExitState
+        protected override void ExitStateShared()
+        {
+            physicsRange.SetActive(false);
+        }
+        
+        //OnState
         protected override void OnState()
         {
             if (!HasStateAuthority) return;
@@ -62,11 +74,6 @@ namespace Unit
             {
                 fsm.SetState<PlayerMovementState>(default, TransitionType.System);
             }
-        }
-
-        protected override void ExitStateShared()
-        {
-            physicsRange.SetActive(false);
         }
 
         protected override void OnMasterTick()
@@ -82,6 +89,19 @@ namespace Unit
             }
         }
 
+        //AnimEvent
+        protected override void OnAnimEvent(string param)
+        {
+            var parts = param.Split("//");
+            switch (parts[0])
+            {
+                case "OnRoarEffect":
+                    OnRoarEffect();
+                    break;
+            }
+        }
+        #endregion
+
         private void OnHit(CollisionInfos collisionInfos)
         {
             var hitInfo = new HitInfo()
@@ -95,17 +115,6 @@ namespace Unit
             foreach (var info in collisionInfos.collisionInfos)
             {
                 info.hitObject.OnHitEvent(new PlayerCollisionInfo(info, hitInfo));
-            }
-        }
-
-        protected override void OnAnimEvent(string param)
-        {
-            var parts = param.Split("//");
-            switch (parts[0])
-            {
-                case "OnRoarEffect":
-                    OnRoarEffect();
-                    break;
             }
         }
 

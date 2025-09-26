@@ -9,32 +9,32 @@ namespace Unit
 
         protected override StatePriorityType Priority => StatePriorityType.Event;
 
-        private const float parringMotionDuration = .4f;
-
-        private int parringEndTick;
+        private const float MOTION_DURATION = .4f;
+        private const float PARRING_PUSH_TIME = .15f;
 
         private HitInfo receivedHitInfo;
-        private float curvSpeed = 10;
+        private const float CURV_SPEED = 10;
 
+        private int parringEndTick;
         private int parringPushEndTick;
 
-        private const float parringPushTime = .15f;
         private float parringPushSpeed = 200f;
-
 
         protected override void SetInfo(INetworkStruct info) => receivedHitInfo = ((StateInfo)info).hitInfo;
 
+        #region FSM State
+        //EnterState
         protected override void EnterStateShared(int enterTick)
         {
-            parringEndTick = Runner.Tick + Mathf.RoundToInt(parringMotionDuration * Runner.TickRate);
-            parringPushEndTick = Runner.Tick + Mathf.RoundToInt(parringPushTime * Runner.TickRate);
+            parringEndTick = Runner.Tick + Mathf.RoundToInt(MOTION_DURATION * Runner.TickRate);
+            parringPushEndTick = Runner.Tick + Mathf.RoundToInt(PARRING_PUSH_TIME * Runner.TickRate);
 
             PlayAnim($"_Parring_{Random.Range(1, 5)}", 0.1f, enterTick);
 
-            this.weap.SetParringEffectActive(player.transform.position + Vector3.up, Quaternion.identity);
+            weap.SetParringEffectActive(player.transform.position + Vector3.up, Quaternion.identity);
         }
 
-
+        //OnState
         protected override void OnState()
         {
             if (!HasInputAuthority) return;
@@ -48,11 +48,12 @@ namespace Unit
             if (Runner.Tick < parringPushEndTick)
             {
                 Vector3 dir = (receivedHitInfo.attackerPos - player.transform.position).normalized;
-                SetLookRotation(Quaternion.Slerp(player.transform.rotation, Quaternion.LookRotation(dir), curvSpeed * Runner.DeltaTime));
+                SetLookRotation(Quaternion.Slerp(player.transform.rotation, Quaternion.LookRotation(dir), CURV_SPEED * Runner.DeltaTime));
 
                 var targetDir = -dir * receivedHitInfo.weight;
                 Move(targetDir * parringPushSpeed * Runner.DeltaTime);
             }
         }
+        #endregion
     }
 }

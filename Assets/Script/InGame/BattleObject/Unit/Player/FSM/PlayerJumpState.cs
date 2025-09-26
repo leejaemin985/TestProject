@@ -18,6 +18,8 @@ namespace Unit
 
         protected override void SetInfo(INetworkStruct info) => currentMoveInfo = ((StateInfo)info).moveInfo;
 
+        #region FSM State
+        //EnterState
         protected override void EnterStateAuthority(int enterTick)
         {
             currentVelocity = 0;
@@ -29,6 +31,7 @@ namespace Unit
             PlayAnim("_Jump", .1f, enterTick);
         }
 
+        //OnState
         protected override void OnState()
         {
             if (!HasInputAuthority) return;
@@ -39,14 +42,14 @@ namespace Unit
                 return;
             }
 
+            currentVelocity = Mathf.Clamp01(currentVelocity - Runner.DeltaTime);
             Move(currentMoveInfo.moveDir * currentMoveInfo.velocity * Runner.DeltaTime);
         }
 
         protected override void OnRender()
         {
-            currentVelocity = Mathf.Clamp01(currentVelocity - Runner.DeltaTime);
-
             modelAnim.SetFloat("_JumpVelocity", currentVelocity);
         }
+        #endregion
     }
 }

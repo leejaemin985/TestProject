@@ -102,6 +102,7 @@ namespace Unit
                 SetState<PlayerHitState>(new StateInfo() { hitInfo = hitInfo }, TransitionType.System, false);
             else
             {
+                // 히트 상태를 무시하더라도 시퀀스는 증가해야함.
                 systemSeq++;
             }
         }
@@ -176,15 +177,6 @@ namespace Unit
 
         public override void Render()
         {
-            if (HasStateAuthority == false && CurrentState != null) 
-            {
-                if (lastState == null || lastState != CurrentState.GetStateType())
-                {
-                    lastState = CurrentState.GetStateType();
-                    Debug.Log($"Test - State: {lastState}");
-                }
-            }
-
             if (isInitialized == false) return;
 
             CurrentState?.OnRender();

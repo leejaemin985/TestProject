@@ -27,9 +27,6 @@ namespace Unit
     {
         public HitMotionInfo[] hitMotionInfos;
 
-        [SerializeField] private GameObject bloodEffectObject;
-        private ParticleSystem bloodEffect;
-
         public override StateType GetStateType() => StateType.Hit;
 
         protected override StatePriorityType Priority => StatePriorityType.Event;
@@ -44,6 +41,8 @@ namespace Unit
 
         protected override void SetInfo(INetworkStruct info) => currentHitInfo = ((StateInfo)info).hitInfo;
 
+        #region FSM State
+        //EnterState
         protected override void EnterStateShared(int enterTick)
         {
             HitMotionInfo currentMotionInfo = null;
@@ -62,11 +61,9 @@ namespace Unit
             hitEndTick = Runner.Tick + Mathf.RoundToInt(hitMotionDuration * Runner.TickRate);
             
             PlayAnim(currentMotionInfo.motionName, 0, enterTick);
-
-            if (bloodEffect == null) bloodEffect = bloodEffectObject.GetComponent<ParticleSystem>();
-            bloodEffect.Play();
         }
 
+        //OnState
         protected override void OnState()
         {
             if (!HasStateAuthority) return;
@@ -86,6 +83,7 @@ namespace Unit
             Move(currentHitMove * hitMoveSpeed * Runner.DeltaTime);
         }
 
+        //AnimEvent
         protected override void OnAnimEvent(string param)
         {
             var parts = param.Split("//");
@@ -96,6 +94,7 @@ namespace Unit
                     break;
             }
         }
+        #endregion
 
         private void OnHitMove(string param)
         {

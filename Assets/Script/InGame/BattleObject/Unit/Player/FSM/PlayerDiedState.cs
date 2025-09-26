@@ -13,9 +13,12 @@ namespace Unit
             "Died_3"
         };
 
+        #region FSM State
+        //EnterState
         protected override void EnterStateShared(int enterTick)
         {
             PlayAnim(dieMotionNames[UnityEngine.Random.Range(0, dieMotionNames.Length)], .1f, enterTick);
         }
+        #endregion
     }
 }

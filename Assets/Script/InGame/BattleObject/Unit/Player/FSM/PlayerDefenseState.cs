@@ -9,21 +9,21 @@ namespace Unit
 
         protected override StatePriorityType Priority => StatePriorityType.Free;
 
-        public const float defenseStartupTime = 0.1f;
-
         [SerializeField] private float defenseMoveSpeed;
         [SerializeField] private float curvSpeed = 10;
 
         private Vector3 currentMoveDir;
 
-
         [Networked] private Vector3 moveAnimDir { get; set; }
 
+        #region FSM State
+        //EnterState
         protected override void EnterStateShared(int enterTick)
         {
             PlayAnim("_DefenseMove", .15f, enterTick);
         }
 
+        //OnState
         protected override void OnState()
         {
             if (!HasStateAuthority) return;
@@ -63,5 +63,6 @@ namespace Unit
             modelAnim.SetFloat(HORIZONTAL, Mathf.Lerp(currentHorizontal, moveAnimDir.x, curvSpeed));
             modelAnim.SetFloat(VERTICAL, Mathf.Lerp(currentVertical, moveAnimDir.z, curvSpeed));
         }
+        #endregion
     }
 }

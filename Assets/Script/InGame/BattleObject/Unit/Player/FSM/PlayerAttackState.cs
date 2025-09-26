@@ -17,31 +17,28 @@ namespace Unit
 
         protected override StatePriorityType Priority => StatePriorityType.Free;
 
-        [SerializeField] private float attackTryWindowTime = .1f;
 
         private Dictionary<AttackMotionType, List<AttackMotionInfo>> attackMotionInfos;
 
         [Networked] private int currentMotionStartTick { get; set; }
         [Networked] private int currentMotionIndex { get; set; }
-        [Networked] private AttackInfo currentMotionInfo { get; set; }
-
+        private AttackInfo currentMotionInfo { get; set; }
         private AttackMotionInfo currentMotion;
 
+        private const float ATTACK_RETRY_WINDOW_TIME = .1f;
         private int attackEndTick;
         private int attackRetryTick;
         private int currentCombo;
 
-
         private const float ATTACK_MOVE_DISTANCE_OFFSET = .5f;
         private const float ATTACK_MOVE_RATIO_CLAMP_MAX = 2f;
-
         private Vector3 currentAttackMove;
         private float attackMoveSpeed = 100f;
-
 
         private const float COMBO_DELAY_TIME = 1f;
         private IEnumerator comboDelayHandle = null;
 
+        private Player Enemy => Player.RegistedUsers.FirstOrDefault(x => x.Key.Equals(Object.InputAuthority) == false).Value;
 
         public override void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, IWeapon weap)
         {
@@ -58,22 +55,24 @@ namespace Unit
 
         protected override void SetInfo(INetworkStruct info) => currentMotionInfo = ((StateInfo)info).attackInfo;
 
+        #region FSM State
+        //EnterState
         protected override void EnterStateAuthority(int enterTick)
         {
+            //모션 인포 설정
             currentMotionIndex = currentCombo++ % attackMotionInfos[currentMotionInfo.attackMotionType].Count;
-            currentMotion = ResolveAttackMotion();
-
             if (comboDelayHandle != null) StopCoroutine(comboDelayHandle);
             StartCoroutine(comboDelayHandle = ComboDelay(currentMotion.motionDuration + COMBO_DELAY_TIME));
 
+            //상태 유지시간 설정
             float tickRate = 1 / Runner.DeltaTime;
             attackEndTick = Runner.Tick + Mathf.RoundToInt(currentMotion.motionDuration * tickRate);
-            attackRetryTick = attackEndTick - Mathf.RoundToInt(attackTryWindowTime * tickRate);
+            attackRetryTick = attackEndTick - Mathf.RoundToInt(ATTACK_RETRY_WINDOW_TIME * tickRate);
 
             currentMotionStartTick = Runner.Tick;
             currentAttackMove = Vector3.zero;
 
-            var enemy = FindEnemy();
+            var enemy = Enemy;
             if (enemy != null)
             {
                 var dir = (enemy.transform.position - player.transform.position).normalized;
@@ -83,22 +82,26 @@ namespace Unit
 
         protected override void EnterStateShared(int enterTick)
         {
-            currentMotion = HasStateAuthority == false ? ResolveAttackMotion() : currentMotion;
+            currentMotion = ResolveAttackMotion();
             PlayAnim(currentMotion.motionName, .1f, enterTick);
         }
+        
 
-        private IEnumerator ComboDelay(float sec)
+        //ExitState
+        protected override void ExitStateShared()
         {
-            yield return new WaitForSeconds(sec);
-            currentCombo = 0;
+            weap.SetCollisionActive(false);
+
+            var motionInfo = currentMotionInfo;
+            motionInfo.attackMotionType = AttackMotionType.None;
+            currentMotionInfo = motionInfo;
+
+            weap.SetTrailEffectActive(false);
+            currentMotion = null;
         }
 
-        private AttackMotionInfo ResolveAttackMotion()
-        {
-            var targetList = attackMotionInfos[currentMotionInfo.attackMotionType];
-            return targetList[currentMotionIndex];
-        }
 
+        //OnState
         protected override void OnState()
         {
             if (!HasStateAuthority) return;
@@ -116,24 +119,6 @@ namespace Unit
 
             Move(currentAttackMove * attackMoveSpeed * Runner.DeltaTime);
         }
-
-        protected override void ExitStateShared()
-        {
-            weap.SetCollisionActive(false);
-
-            var motionInfo = currentMotionInfo;
-            motionInfo.attackMotionType = AttackMotionType.None;
-            currentMotionInfo = motionInfo;
-
-            weap.SetTrailEffectActive(false);
-            currentMotion = null;
-        }
-
-        private Player FindEnemy()
-        {
-            return Player.RegistedUsers.FirstOrDefault(x => x.Key.Equals(Object.InputAuthority) == false).Value;
-        }
-
 
         protected override void OnMasterTick()
         {
@@ -165,13 +150,7 @@ namespace Unit
             }
         }
 
-        private int ConvertFrameToTick(int frame, AnimationClip clip, float tickRate)
-        {
-            float sec = frame / clip.frameRate;
-            return Mathf.RoundToInt(sec * tickRate);
-        }
-
-
+        //AnimEvent
         protected override void OnAnimEvent(string param)
         {
             var parts = param.Split("//");
@@ -187,6 +166,27 @@ namespace Unit
                     OnSlashEffect(parts[1]);
                     break;
             }
+        }
+        #endregion
+
+
+        private IEnumerator ComboDelay(float sec)
+        {
+            yield return new WaitForSeconds(sec);
+            currentCombo = 0;
+        }
+
+        private AttackMotionInfo ResolveAttackMotion()
+        {
+            var targetList = attackMotionInfos[currentMotionInfo.attackMotionType];
+            return targetList[currentMotionIndex];
+        }
+
+
+        private int ConvertFrameToTick(int frame, AnimationClip clip, float tickRate)
+        {
+            float sec = frame / clip.frameRate;
+            return Mathf.RoundToInt(sec * tickRate);
         }
 
         private Vector3 ConvertToVector3(string param)
@@ -219,7 +219,7 @@ namespace Unit
             Vector3 forward = player.transform.forward;
             float moveRatio = 1f;
 
-            var enemy = FindEnemy();
+            var enemy = Enemy;
             if (enemy != null)
             {
                 Vector3 toEnemy = (enemy.transform.position - player.transform.position);
