@@ -69286,9 +69286,9 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0
-    functionName: OnEvent
-    data: AttackMove//0,0,5.5
-    objectReferenceParameter: {fileID: 0}
+    functionName: OnAnimEvent
+    data: 
+    objectReferenceParameter: {fileID: 11400000, guid: ed70d332a8b5b3f4ab7b060ea26e6d03, type: 2}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
@@ -69335,9 +69335,9 @@ AnimationClip:
     intParameter: 0
     messageOptions: 0
   - time: 0.56666666
-    functionName: OnEvent
-    data: AttackMove//0
-    objectReferenceParameter: {fileID: 0}
+    functionName: OnAnimEvent
+    data: 
+    objectReferenceParameter: {fileID: 11400000, guid: a0b5d212c7c5e7d4ebb0a5023fb75f88, type: 2}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0

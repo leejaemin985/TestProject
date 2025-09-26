@@ -1,4 +1,5 @@
 using Fusion;
+using InGame.Event;
 
 namespace Unit
 {
@@ -27,5 +28,7 @@ namespace Unit
         void OnMasterTick();
 
         void OnAnimEvent(string param);
+
+        void OnAnimEvent(AnimationEventData eventData);
     }
 }

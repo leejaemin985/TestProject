@@ -8,6 +8,7 @@ using Fusion.Addons.SimpleKCC;
 using System;
 using static Unit.PlayerStateBase;
 using System.Linq;
+using InGame.Event;
 
 namespace Unit
 {
@@ -256,6 +257,11 @@ namespace Unit
         public void AnimEvent(string param)
         {
             CurrentState?.OnAnimEvent(param);
+        }
+
+        public void AnimEvent(AnimationEventData eventData)
+        {
+            CurrentState?.OnAnimEvent(eventData);
         }
     }
 }

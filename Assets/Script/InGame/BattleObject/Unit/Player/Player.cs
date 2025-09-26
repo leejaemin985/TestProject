@@ -73,7 +73,7 @@ namespace Unit
             
             
             fsm.Initialized(this, cc, modelAnim, latencyInterpolationAnim, weapon);
-            animEventer.Initialize(fsm.AnimEvent);
+            animEventer.Initialize(fsm.AnimEvent, fsm.AnimEvent);
 
             if (HasStateAuthority)
             {

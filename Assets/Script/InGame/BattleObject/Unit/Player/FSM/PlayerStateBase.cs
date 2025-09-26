@@ -3,6 +3,7 @@ using UnityEngine;
 using Fusion;
 using Fusion.Addons.SimpleKCC;
 using InGame.Weapon;
+using InGame.Event;
 
 namespace Unit
 {
@@ -122,6 +123,8 @@ namespace Unit
 
         protected virtual void OnAnimEvent(string param) { }
 
+        protected virtual void OnAnimEvent(AnimationEventData data) { }
+
         #endregion
 
 
@@ -141,6 +144,8 @@ namespace Unit
         void IState.OnRender() => OnRender();
 
         void IState.OnAnimEvent(string param) => OnAnimEvent(param);
+
+        void IState.OnAnimEvent(AnimationEventData eventData)=> OnAnimEvent(eventData);
 
         void IState.OnMasterTick() => OnMasterTick();
 

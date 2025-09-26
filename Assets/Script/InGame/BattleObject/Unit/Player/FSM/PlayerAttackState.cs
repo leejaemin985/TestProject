@@ -8,6 +8,7 @@ using UnityEngine;
 using Fusion;
 using Fusion.Addons.SimpleKCC;
 using UnityEngine.Networking;
+using InGame.Event;
 
 namespace Unit
 {
@@ -61,6 +62,7 @@ namespace Unit
         {
             //모션 인포 설정
             currentMotionIndex = currentCombo++ % attackMotionInfos[currentMotionInfo.attackMotionType].Count;
+            currentMotion = ResolveAttackMotion();
             if (comboDelayHandle != null) StopCoroutine(comboDelayHandle);
             StartCoroutine(comboDelayHandle = ComboDelay(currentMotion.motionDuration + COMBO_DELAY_TIME));
 
@@ -82,7 +84,7 @@ namespace Unit
 
         protected override void EnterStateShared(int enterTick)
         {
-            currentMotion = ResolveAttackMotion();
+            currentMotion = HasStateAuthority == false ? ResolveAttackMotion() : currentMotion;
             PlayAnim(currentMotion.motionName, .1f, enterTick);
         }
         
@@ -157,7 +159,7 @@ namespace Unit
             switch (parts[0])
             {
                 case "AttackMove":
-                    OnAttackMove(parts[1]);
+                    //OnAttackMove(parts[1]);
                     break;
                 case "SetTrailEffect":
                     SetTrailEffectAcitve(parts[1]);
@@ -165,6 +167,15 @@ namespace Unit
                 case "OnSlashEffect":
                     OnSlashEffect(parts[1]);
                     break;
+            }
+        }
+
+        protected override void OnAnimEvent(AnimationEventData data)
+        {
+            var param = (PlayerMoveAnimEventData)data;
+            if (param != null)
+            {
+                OnAttackMove(param);
             }
         }
         #endregion
@@ -236,6 +247,39 @@ namespace Unit
 
             currentAttackMove = worldMoveDir * moveRatio;
         }
+
+        private void OnAttackMove(PlayerMoveAnimEventData data)
+        {
+            if (HasStateAuthority == false) return;
+
+            if (data.MoveDir == Vector3.zero)
+            {
+                currentAttackMove = Vector3.zero;
+                return;
+            }
+
+            Vector3 forward = player.transform.forward;
+            float moveRatio = 1f;
+
+            var enemy = Enemy;
+            if (enemy != null)
+            {
+                Vector3 toEnemy = (enemy.transform.position - player.transform.position);
+                toEnemy.y = 0;
+                toEnemy.Normalize();
+
+                forward = toEnemy.normalized;
+                moveRatio = Mathf.Clamp((toEnemy.magnitude - ATTACK_MOVE_DISTANCE_OFFSET) / 1f, 0, ATTACK_MOVE_RATIO_CLAMP_MAX);
+            }
+            Vector3 right = Vector3.Cross(Vector3.up, forward);
+
+            Vector3 rawMove = (forward * data.MoveDir.z + right * data.MoveDir.x).normalized;
+            Vector3 worldMoveDir = rawMove * data.MoveDir.magnitude;
+
+            currentAttackMove = worldMoveDir * moveRatio;
+            attackMoveSpeed = data.MoveSpeed;
+        }
+
 
         private void SetTrailEffectAcitve(string param)
         {
