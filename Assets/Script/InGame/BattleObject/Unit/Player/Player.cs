@@ -176,13 +176,8 @@ namespace Unit
 
         public void RequestOnHitState(HitInfo hitInfo)
         {
+            fsm?.OnHitState(hitInfo);
             OnDamaged(hitInfo.damaged);
-
-            bool localSuperArmor = UnitStat.Object.StateAuthority != Runner.LocalPlayer && fsm.CurrentState.HasSuperArmor;
-            bool statSuperArmor = UnitStat.superArmor;
-
-            if (localSuperArmor == false && statSuperArmor == false)
-                fsm?.OnHitState(hitInfo);
         }
 
         public void RequestOnParringState(HitInfo hitInfo)

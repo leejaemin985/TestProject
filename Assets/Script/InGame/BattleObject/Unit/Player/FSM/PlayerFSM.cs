@@ -95,7 +95,15 @@ namespace Unit
 
         public void OnHitState(HitInfo hitInfo)
         {
-            SetState<PlayerHitState>(new StateInfo() { hitInfo = hitInfo }, TransitionType.System, false);
+            bool localSuperArmor = player.UnitStat.Object.StateAuthority != Runner.LocalPlayer && CurrentState.HasSuperArmor;
+            bool statSuperArmor = player.UnitStat.superArmor;
+
+            if (localSuperArmor == false && statSuperArmor == false)
+                SetState<PlayerHitState>(new StateInfo() { hitInfo = hitInfo }, TransitionType.System, false);
+            else
+            {
+                systemSeq++;
+            }
         }
 
         public void OnParringState(HitInfo hitInfo)
@@ -122,7 +130,6 @@ namespace Unit
             ret = stateArray.FirstOrDefault(x => x is T State);
             return ret != null;
         }
-
 
         public void SetState<TState>(StateInfo stateInfo = default, TransitionType transitionType = TransitionType.Request, bool requestSync = true)
             where TState : class, IState
@@ -152,14 +159,6 @@ namespace Unit
 
         private void SetState(StateTransitionData transitionData, StateInfo stateInfo)
         {
-            if (HasStateAuthority == false)
-            {
-                if (CurrentState.GetStateType() == StateType.Roar)
-                {
-                    Debug.Log($"Test - Invalid Request (current: {CurrentState.GetStateType()} // request: {transitionData.stateType})");
-                }
-            }
-
             if (CanSetState(transitionData) == false) return;
 
             if (transitionData.transitionType == TransitionType.System)
