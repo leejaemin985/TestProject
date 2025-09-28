@@ -6,7 +6,7 @@ namespace Utility.Sound
         BGM
     }
 
-    public abstract class GameSoundObject : SoundObject<SoundType>
+    public abstract class GameSoundObject : CommonSoundObject<SoundType>
     {
 
     }

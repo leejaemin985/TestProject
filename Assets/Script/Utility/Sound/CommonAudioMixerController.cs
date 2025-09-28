@@ -54,7 +54,7 @@ namespace Utility.Sound
 			mixer.SetFloat(string.Format(VOLUME_BASE, val), ConvertVolumeToDecibel(volume));
 		}
 
-		public void InitSoundObject(SoundObject<TEnum> soundObject)
+		public void InitSoundObject(CommonSoundObject<TEnum> soundObject)
 		{
 			if (soundObject == null) return;
 			soundObject.Initialize(GetAudioMixerGroup(soundObject.SoundType));
