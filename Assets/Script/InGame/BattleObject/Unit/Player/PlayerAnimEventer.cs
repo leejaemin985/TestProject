@@ -6,21 +6,14 @@ namespace Unit
 {
     public class PlayerAnimEventer : MonoBehaviour
     {
-        private Action<bool> weapCollisionController;
-        private Action<Vector3> onAttackMoveAction;
-
-        private Action<string> onAnimEvent;
-        private Action<AnimationEventData> onAnimEvent2;
+        private Action<AnimationEventData> onAnimEvent;
 
 
-        public void Initialize(Action<string> onAnimEvent, Action<AnimationEventData> test)
+        public void Initialize(Action<AnimationEventData> test)
         {
-            this.onAnimEvent = onAnimEvent;
-            this.onAnimEvent2 = test;
+            this.onAnimEvent = test;
         }
 
-        public void OnEvent(string param) => onAnimEvent?.Invoke(param);
-
-        public void OnAnimEvent(AnimationEventData param) => onAnimEvent2?.Invoke(param);
+        public void OnAnimEvent(AnimationEventData param) => onAnimEvent?.Invoke(param);
     }
 }

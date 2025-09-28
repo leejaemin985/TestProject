@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 
 using Fusion;
+using InGame.Event;
 
 namespace Unit
 {
@@ -84,48 +85,35 @@ namespace Unit
         }
 
         //AnimEvent
-        protected override void OnAnimEvent(string param)
+        protected override void OnAnimEvent(AnimationEventData data)
         {
-            var parts = param.Split("//");
-            switch (parts[0])
+            switch (data)
             {
-                case "HitMove":
-                    OnHitMove(parts[1]);
+                case PlayerMoveAnimEventData moveData:
+                    OnHitMove(moveData);
                     break;
             }
         }
         #endregion
 
-        private void OnHitMove(string param)
+        private void OnHitMove(PlayerMoveAnimEventData moveData)
         {
             if (HasStateAuthority == false) return;
 
-            if (string.IsNullOrEmpty(param) || param.Equals("0"))
+            if (moveData.MoveDir == Vector3.zero)
             {
                 currentHitMove = Vector3.zero;
                 return;
             }
 
-            string[] moveVector = param
-                .Split(',')
-                .Select(p => p.Trim())
-                .ToArray();
+            Vector3 forward = player.transform.forward;
+            Vector3 right = Vector3.Cross(Vector3.up, forward);
 
-            if (moveVector.Length == 3 &&
-                float.TryParse(moveVector[0], out float x) &&
-                float.TryParse(moveVector[1], out float y) &&
-                float.TryParse(moveVector[2], out float z))
-            {
-                Vector3 input = new Vector3(x, y, z);
+            Vector3 rawMove = (forward * moveData.MoveDir.z + right * moveData.MoveDir.x).normalized;
+            Vector3 worldMoveDir = rawMove * moveData.MoveDir.magnitude;
 
-                Vector3 forward = player.transform.forward;
-                Vector3 right = Vector3.Cross(Vector3.up, forward);
-
-                Vector3 rawMove = (forward * input.z + right * input.x).normalized;
-                Vector3 worldMoveDir = rawMove * input.magnitude;
-
-                currentHitMove = worldMoveDir;
-            }
+            hitMoveSpeed = moveData.MoveSpeed;
+            currentHitMove = worldMoveDir;
         }
     }
 }

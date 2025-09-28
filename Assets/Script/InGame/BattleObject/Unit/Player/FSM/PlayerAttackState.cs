@@ -153,29 +153,24 @@ namespace Unit
         }
 
         //AnimEvent
-        protected override void OnAnimEvent(string param)
-        {
-            var parts = param.Split("//");
-            switch (parts[0])
-            {
-                case "AttackMove":
-                    //OnAttackMove(parts[1]);
-                    break;
-                case "SetTrailEffect":
-                    SetTrailEffectAcitve(parts[1]);
-                    break;
-                case "OnSlashEffect":
-                    OnSlashEffect(parts[1]);
-                    break;
-            }
-        }
-
         protected override void OnAnimEvent(AnimationEventData data)
         {
-            var param = (PlayerMoveAnimEventData)data;
-            if (param != null)
+            switch (data)
             {
-                OnAttackMove(param);
+                case PlayerMoveAnimEventData moveData:
+                    OnAttackMove(moveData);
+                    break;
+
+                case WeapTrailAnimEventData trailData:
+                    SetTrailEffectAcitve(trailData);
+                    break;
+
+                case WeapCollisionAnimEvent collisionData:
+                    break;
+
+                case WeapSlashEffectEventData slashEffectData:
+                    OnSlashEffect(slashEffectData);
+                    break;
             }
         }
         #endregion
@@ -198,54 +193,6 @@ namespace Unit
         {
             float sec = frame / clip.frameRate;
             return Mathf.RoundToInt(sec * tickRate);
-        }
-
-        private Vector3 ConvertToVector3(string param)
-        {
-            string[] moveVector = param
-                .Split(',')
-                .Select(p => p.Trim())
-                .ToArray();
-
-            if (moveVector.Length == 3 &&
-                float.TryParse(moveVector[0], out float x) &&
-                float.TryParse(moveVector[1], out float y) &&
-                float.TryParse(moveVector[2], out float z))
-                return new Vector3(x, y, z);
-
-            return Vector3.zero;
-        }
-
-        private void OnAttackMove(string param)
-        {
-            if (HasStateAuthority == false) return;
-
-            if (string.IsNullOrEmpty(param) || param.Equals("0"))
-            {
-                currentAttackMove = Vector3.zero;
-                return;
-            }
-
-            var input = ConvertToVector3(param);
-            Vector3 forward = player.transform.forward;
-            float moveRatio = 1f;
-
-            var enemy = Enemy;
-            if (enemy != null)
-            {
-                Vector3 toEnemy = (enemy.transform.position - player.transform.position);
-                toEnemy.y = 0;
-                toEnemy.Normalize();
-
-                forward = toEnemy.normalized;
-                moveRatio = Mathf.Clamp((toEnemy.magnitude - ATTACK_MOVE_DISTANCE_OFFSET) / 1f, 0, ATTACK_MOVE_RATIO_CLAMP_MAX);
-            }
-            Vector3 right = Vector3.Cross(Vector3.up, forward);
-
-            Vector3 rawMove = (forward * input.z + right * input.x).normalized;
-            Vector3 worldMoveDir = rawMove * input.magnitude;
-
-            currentAttackMove = worldMoveDir * moveRatio;
         }
 
         private void OnAttackMove(PlayerMoveAnimEventData data)
@@ -280,20 +227,14 @@ namespace Unit
             attackMoveSpeed = data.MoveSpeed;
         }
 
-
-        private void SetTrailEffectAcitve(string param)
+        private void SetTrailEffectAcitve(WeapTrailAnimEventData trailData)
         {
-            weap.SetTrailEffectActive(param.Equals("0") == false);
+            weap.SetTrailEffectActive(trailData.SetTrail);
         }
 
-        private void OnSlashEffect(string param)
+        private void OnSlashEffect(WeapSlashEffectEventData slashEffectData)
         {
-            var parts = param.Split("/");
-
-            Vector3 pos = ConvertToVector3(parts[0]);
-            Vector3 rot = ConvertToVector3(parts[1]);
-
-            weap.SetSlashEffectActive(pos, Quaternion.Euler(rot));
+            weap.SetSlashEffectActive(slashEffectData.LocalPos, slashEffectData.LocalRot);
         }
     }
 }

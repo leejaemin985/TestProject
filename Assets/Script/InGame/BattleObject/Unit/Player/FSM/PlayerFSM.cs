@@ -254,11 +254,6 @@ namespace Unit
             CurrentState?.OnState();
         }
 
-        public void AnimEvent(string param)
-        {
-            CurrentState?.OnAnimEvent(param);
-        }
-
         public void AnimEvent(AnimationEventData eventData)
         {
             CurrentState?.OnAnimEvent(eventData);

@@ -117508,9 +117508,9 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0.13333334
-    functionName: OnEvent
-    data: OnRoarEffect//0
-    objectReferenceParameter: {fileID: 0}
+    functionName: OnAnimEvent
+    data: 
+    objectReferenceParameter: {fileID: 11400000, guid: b75ae86c388f8c048b218c0a6c575b3a, type: 2}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0

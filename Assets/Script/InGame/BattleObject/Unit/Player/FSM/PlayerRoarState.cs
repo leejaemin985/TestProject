@@ -3,6 +3,7 @@ using CustomPhysics;
 using ExitGames.Client.Photon;
 using Fusion;
 using Fusion.Addons.SimpleKCC;
+using InGame.Event;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -90,12 +91,11 @@ namespace Unit
         }
 
         //AnimEvent
-        protected override void OnAnimEvent(string param)
+        protected override void OnAnimEvent(AnimationEventData data)
         {
-            var parts = param.Split("//");
-            switch (parts[0])
+            switch (data)
             {
-                case "OnRoarEffect":
+                case RoarEffectAnimEventData roarEffectData:
                     OnRoarEffect();
                     break;
             }

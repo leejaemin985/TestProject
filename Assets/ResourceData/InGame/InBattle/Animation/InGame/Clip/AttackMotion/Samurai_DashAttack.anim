@@ -69293,44 +69293,44 @@ AnimationClip:
     intParameter: 0
     messageOptions: 0
   - time: 0.3
-    functionName: OnEvent
-    data: SetTrailEffect//1
-    objectReferenceParameter: {fileID: 0}
+    functionName: OnAnimEvent
+    data: 
+    objectReferenceParameter: {fileID: 11400000, guid: 5bd38bc734e45e44b9a996e6c6721b2c, type: 2}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.33333334
-    functionName: OnEvent
-    data: SetWeapCollision//1
-    objectReferenceParameter: {fileID: 0}
+    functionName: OnAnimEvent
+    data: 
+    objectReferenceParameter: {fileID: 11400000, guid: 95bfae55d98cb0041a21a7117f5e367c, type: 2}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.4
-    functionName: OnEvent
-    data: AttackMove//0,0,3
-    objectReferenceParameter: {fileID: 0}
+    functionName: OnAnimEvent
+    data: 
+    objectReferenceParameter: {fileID: 11400000, guid: 3fee282bb2f2da24fba59ad189327567, type: 2}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.46666667
-    functionName: OnEvent
-    data: OnSlashEffect//0,1,0/55,-125,-60
-    objectReferenceParameter: {fileID: 0}
+    functionName: OnAnimEvent
+    data: 
+    objectReferenceParameter: {fileID: 11400000, guid: 60268e5d3ec647a43b5c63b2d0ec5745, type: 2}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.46666667
-    functionName: OnEvent
-    data: SetTrailEffect//0
-    objectReferenceParameter: {fileID: 0}
+    functionName: OnAnimEvent
+    data: 
+    objectReferenceParameter: {fileID: 11400000, guid: ca2368eb32e004c46b3e4962625d450c, type: 2}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.53333336
-    functionName: OnEvent
-    data: SetWeapCollision//0
-    objectReferenceParameter: {fileID: 0}
+    functionName: OnAnimEvent
+    data: 
+    objectReferenceParameter: {fileID: 11400000, guid: ce648b3de7f7d2740a139542be5d2443, type: 2}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0

@@ -9,8 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39e0298031e53054c84433029af47d7f, type: 3}
-  m_Name: LightAttack_0_0
+  m_Script: {fileID: 11500000, guid: 17beff1d29c356e4abb928f3a99ee26b, type: 3}
+  m_Name: OffWeapTrailAnimEventData
   m_EditorClassIdentifier: 
-  moveSpeed: 100
-  moveDir: {x: 0, y: 0, z: 2.5}
+  setTrail: 0
