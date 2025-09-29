@@ -132,11 +132,13 @@ namespace Unit
             return CurrentState.priority <= state.priority;
         }
 
+#nullable enable
         private bool TryGetIState<T>(out IState? ret) where T : IState
         {
             ret = stateArray.FirstOrDefault(x => x is T State);
             return ret != null;
         }
+#nullable disable
 
         public void SetState<TState>(StateInfo stateInfo = default, TransitionType transitionType = TransitionType.Request, bool requestSync = true)
             where TState : class, IState

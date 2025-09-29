@@ -3,7 +3,6 @@ using InGame.Event;
 
 namespace Unit
 {
-#nullable enable
     public interface IState
     {
         PlayerStateBase.StateType GetStateType();
@@ -30,5 +29,4 @@ namespace Unit
 
         void OnAnimEvent(AnimationEventData eventData);
     }
-#nullable disable
 }
