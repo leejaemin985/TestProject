@@ -28,6 +28,9 @@ namespace InGame.Logic.Flow
         private InGameClientPhaseAgent localAgent;
 
 
+        [SerializeField] private FlowPhaseBase[] phaseArray;
+        private IFlowPhase currentFlowPhase;
+
         public override void Spawned()
         {
             if (HasStateAuthority)
@@ -38,8 +41,6 @@ namespace InGame.Logic.Flow
 
             localAgent = Instantiate(phaseAgentPrefab);
             localAgent.Initialize(RPC_ReportPhase, RPC_PhaseDone);
-
-            //InGamePauseObserver.AddPauseEventListener(TransferStateAuthority);
         }
 
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -47,12 +48,12 @@ namespace InGame.Logic.Flow
         {
             if (!HasStateAuthority || GameNetworkManager.Instance.connectedUsers.Contains(reportInfo.userRef) == false) return;
 
-            if (userPhases.ContainsKey(reportInfo.userRef) == false)  
+            if (userPhases.ContainsKey(reportInfo.userRef) == false)
                 userPhases.Add(reportInfo.userRef, new());
 
             var phaseState = userPhases[reportInfo.userRef];
             phaseState.userRef = reportInfo.userRef;
-            phaseState.phase = reportInfo.phase;
+            phaseState.phase = reportInfo.phase;              
             phaseState.isDone = false;
 
             Debug.Log($"PhaseSquencer - Report {reportInfo.userRef} - {reportInfo.phase}");
@@ -70,7 +71,7 @@ namespace InGame.Logic.Flow
             phaseState.isDone = true;
 
             Debug.Log($"PhaseSequencer - Done {userRef} - {phaseState.phase}");
-            CheckCanEnterNextPhase();
+            //CheckCanEnterNextPhase();
         }
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
@@ -103,20 +104,5 @@ namespace InGame.Logic.Flow
                 Runner.LoadScene(NetScene.WaitingRoom.sceneRef, UnityEngine.SceneManagement.LoadSceneMode.Single);
             }
         }
-
-        //private void TransferStateAuthority()
-        //{
-        //    if (HasStateAuthority == false) return;
-        //    RPC_TransferStateAuthority();
-        //}
-
-        //[Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-        //private void RPC_TransferStateAuthority()
-        //{
-        //    if (HasStateAuthority) 
-        //        Object.ReleaseStateAuthority();
-        //    else 
-        //        Object.RequestStateAuthority();
-        //}
     }
 }

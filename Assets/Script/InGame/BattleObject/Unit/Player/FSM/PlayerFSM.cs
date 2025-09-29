@@ -42,6 +42,11 @@ namespace Unit
             get { return currentState; }
             private set
             {
+                if (value == null)
+                {
+                    Debug.LogError("InGame - Attempted to set FSM state to null");
+                    return;
+                }
                 currentState = value;
             }
         }
@@ -173,8 +178,6 @@ namespace Unit
 
             changeStateTypeListener?.Invoke(transitionData.stateType);
         }
-
-        PlayerStateBase.StateType? lastState;
 
         public override void Render()
         {
