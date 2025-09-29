@@ -12,6 +12,7 @@ using Addressable;
 using InGame.Weapon;
 using Utility.EffectObject;
 using InGame;
+using System.Linq;
 
 namespace Unit
 {
@@ -48,7 +49,7 @@ namespace Unit
         public bool canControll { get; private set; }
 
         public HitBox playerHitBox { get; private set; }
-        
+
         public override void Spawned()
         {
             RegisterUser(Object.StateAuthority, this);
@@ -67,11 +68,11 @@ namespace Unit
             base.Initialize();
 
             await LoadAssets();
-            
+
             playerHitBox = InitPlayerHitBox();
             this.weapon.AddIgnorePhysics(playerHitBox);
-            
-            
+
+
             fsm.Initialized(this, cc, modelAnim, latencyInterpolationAnim, weapon);
             animEventer.Initialize(fsm.AnimEvent);
 
@@ -125,11 +126,15 @@ namespace Unit
                 weapon,
                 (AttackBox)weapSettingInfo.collisionBox,
                 weapSettingInfo.trailParticle,
-                slashEffectPool, parrignEffectPool);
+                slashEffectPool, parrignEffectPool,
+                new()
+                {
+                    { WeaponBase.WeapSEType.Whoosh, weapSettingInfo.whooshSoundClips.ToList() }
+                });
 
             var finalPos = weapSettingInfo.weaponLocalPos + weapSettingInfo.collisionBox.transform.localPosition;
             var finalRot = Quaternion.Euler(weapSettingInfo.weaponLocalRot) * Quaternion.Euler(weapSettingInfo.collisionBox.transform.localEulerAngles);
-            
+
             weapSettingInfo.collisionBox.transform.SetParent(latencyInterpolationWeapPos);
             weapSettingInfo.collisionBox.transform.SetLocalPositionAndRotation(finalPos, finalRot);
         }

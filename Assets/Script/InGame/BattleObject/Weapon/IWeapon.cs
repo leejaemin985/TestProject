@@ -1,4 +1,5 @@
 using CustomPhysics;
+using InGame.Weapon;
 using UnityEngine;
 
 public interface IWeapon
@@ -16,4 +17,6 @@ public interface IWeapon
     public void SetSlashEffectActive(Vector3 localPos, Quaternion localRot);
 
     public void SetParringEffectActive(Vector3 localPos, Quaternion localRot);
+
+    public void OnWhooshSE(WeaponBase.WeapSEType SEType, int presetOrder);
 }

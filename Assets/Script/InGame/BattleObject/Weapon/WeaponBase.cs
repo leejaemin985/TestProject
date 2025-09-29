@@ -1,13 +1,24 @@
-using UnityEngine;
-using CustomPhysics;
-using Unit;
 using System;
+using System.Collections.Generic;
+
+using UnityEngine;
+
+using Unit;
 using Utility.EffectObject;
+using CustomPhysics;
+using Utility.Sound;
 
 namespace InGame.Weapon
 {
     public abstract class WeaponBase : MonoBehaviour, IWeapon
     {
+        public enum WeapSEType
+        {
+            Whoosh,
+            Collision,
+            Custom
+        }
+
         private AttackBox collisionBox;
 
         private const float SLASH_PARTICLE_ACTIVE_VALUE = 200;
@@ -16,21 +27,28 @@ namespace InGame.Weapon
         private EffectObjectPool slashEffectPool;
         private EffectObjectPool parringEffectPool;
         private HitInfo hitInfo;
+        private Dictionary<WeapSEType, List<AudioClip>> weapSoundClipMap;
 
         public static T CreateInstance<T>(
             GameObject modelPrefab,
             AttackBox collisionBox,
             ParticleSystem slashParticleObject,
             EffectObjectPool slashEffectPool,
-            EffectObjectPool parringEffectPool) where T : WeaponBase
+            EffectObjectPool parringEffectPool,
+            Dictionary<WeapSEType, List<AudioClip>> weapSoundClipMap) where T : WeaponBase
         {
             var ret = modelPrefab.AddComponent<T>();
-            ret.Initialize(collisionBox, slashParticleObject, slashEffectPool, parringEffectPool);
+            ret.Initialize(collisionBox, slashParticleObject, slashEffectPool, parringEffectPool, weapSoundClipMap);
 
             return ret;
         }
 
-        protected virtual void Initialize(AttackBox attackBox, ParticleSystem slashParticle, EffectObjectPool slashEffectPool, EffectObjectPool parringEffectPool)
+        protected virtual void Initialize(
+            AttackBox attackBox,
+            ParticleSystem slashParticle,
+            EffectObjectPool slashEffectPool,
+            EffectObjectPool parringEffectPool,
+            Dictionary<WeapSEType, List<AudioClip>> weapSoundClipMap)
         {
             this.collisionBox = attackBox;
             this.trailParticle = slashParticle;
@@ -38,6 +56,7 @@ namespace InGame.Weapon
             this.slashEffectPool.transform.SetParent(transform);
             this.parringEffectPool = parringEffectPool;
             this.parringEffectPool.transform.SetParent(transform);
+            this.weapSoundClipMap = weapSoundClipMap;
 
             collisionBox.gameObject.SetActive(true);
             collisionBox.Initialize(OnHit);
@@ -85,6 +104,17 @@ namespace InGame.Weapon
             parringEffectPool?.OnPlayEffect(localPos, localRot);
         }
 
+        protected virtual void OnWhooshSE(WeapSEType SEType, int presetOrder)
+        {
+            if (weapSoundClipMap.ContainsKey(SEType) == false)
+            {
+                Debug.LogError($"In Game - Not Found WeaponSE Key Exception(key: {SEType})");
+                return;
+            }
+            var clipList = weapSoundClipMap[SEType];
+            soundObject.Play(clipList[presetOrder % clipList.Count]);
+        }
+
         #region IWeapon
         bool IWeapon.collisionActive => collisionBox.Active;
 
@@ -99,6 +129,8 @@ namespace InGame.Weapon
         void IWeapon.SetSlashEffectActive(Vector3 localPos, Quaternion localRot) => SetSlashEffectActive(localPos, localRot);
 
         void IWeapon.SetParringEffectActive(Vector3 localPos, Quaternion localRot) => SetParringEffectActive(localPos, localRot);
+
+        void IWeapon.OnWhooshSE(WeapSEType SEType, int presetOrder) => OnWhooshSE(SEType, presetOrder);
         #endregion
     }
 }

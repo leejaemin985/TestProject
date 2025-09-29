@@ -71,7 +71,7 @@ namespace InGame.Logic.Flow
             phaseState.isDone = true;
 
             Debug.Log($"PhaseSequencer - Done {userRef} - {phaseState.phase}");
-            //CheckCanEnterNextPhase();
+            CheckCanEnterNextPhase();
         }
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
