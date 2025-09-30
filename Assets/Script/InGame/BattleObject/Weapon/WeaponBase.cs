@@ -12,13 +12,6 @@ namespace InGame.Weapon
 {
     public abstract class WeaponBase : MonoBehaviour, IWeapon
     {
-        public enum WeapSEType
-        {
-            Whoosh,
-            Collision,
-            Custom
-        }
-
         private AttackBox collisionBox;
 
         private const float SLASH_PARTICLE_ACTIVE_VALUE = 200;
@@ -27,7 +20,7 @@ namespace InGame.Weapon
         private EffectObjectPool slashEffectPool;
         private EffectObjectPool parringEffectPool;
         private HitInfo hitInfo;
-        private Dictionary<WeapSEType, List<AudioClip>> weapSoundClipMap;
+        private WeapSoundObject weapSoundObject;
 
         public static T CreateInstance<T>(
             GameObject modelPrefab,
@@ -35,7 +28,7 @@ namespace InGame.Weapon
             ParticleSystem slashParticleObject,
             EffectObjectPool slashEffectPool,
             EffectObjectPool parringEffectPool,
-            Dictionary<WeapSEType, List<AudioClip>> weapSoundClipMap) where T : WeaponBase
+            Dictionary<WeapSoundObject.WeapSoundType, List<AudioClip>> weapSoundClipMap) where T : WeaponBase
         {
             var ret = modelPrefab.AddComponent<T>();
             ret.Initialize(collisionBox, slashParticleObject, slashEffectPool, parringEffectPool, weapSoundClipMap);
@@ -48,7 +41,7 @@ namespace InGame.Weapon
             ParticleSystem slashParticle,
             EffectObjectPool slashEffectPool,
             EffectObjectPool parringEffectPool,
-            Dictionary<WeapSEType, List<AudioClip>> weapSoundClipMap)
+            Dictionary<WeapSoundObject.WeapSoundType, List<AudioClip>> weapSoundClipMap)
         {
             this.collisionBox = attackBox;
             this.trailParticle = slashParticle;
@@ -56,13 +49,15 @@ namespace InGame.Weapon
             this.slashEffectPool.transform.SetParent(transform);
             this.parringEffectPool = parringEffectPool;
             this.parringEffectPool.transform.SetParent(transform);
-            this.weapSoundClipMap = weapSoundClipMap;
+            
 
             collisionBox.gameObject.SetActive(true);
             collisionBox.Initialize(OnHit);
             
             InitEffect();
+            InitSoundObject(weapSoundClipMap);
         }
+
 
         private void AddIgnorePhsics(PhysicsObject userPhysicsObject)
         {
@@ -81,6 +76,13 @@ namespace InGame.Weapon
         {
             trailParticle.Play();
             SetTrailEffectActive(false);
+        }
+
+        private void InitSoundObject(Dictionary<WeapSoundObject.WeapSoundType, List<AudioClip>> weapSoundClipMap)
+        {
+            if (weapSoundObject == null) weapSoundObject = gameObject.AddComponent<WeapSoundObject>();
+            GameAudioMixerController.Instance.InitSoundObject(weapSoundObject);
+            weapSoundObject.SetClipListMap(weapSoundClipMap);
         }
 
         protected virtual void SetCollisionActive(bool set) => collisionBox.SetActive(set);
@@ -104,15 +106,9 @@ namespace InGame.Weapon
             parringEffectPool?.OnPlayEffect(localPos, localRot);
         }
 
-        protected virtual void OnWhooshSE(WeapSEType SEType, int presetOrder)
+        protected virtual void PlayWeapSE(WeapSoundObject.WeapSoundType SEType, int presetOrder = -1)
         {
-            if (weapSoundClipMap.ContainsKey(SEType) == false)
-            {
-                Debug.LogError($"In Game - Not Found WeaponSE Key Exception(key: {SEType})");
-                return;
-            }
-            var clipList = weapSoundClipMap[SEType];
-            soundObject.Play(clipList[presetOrder % clipList.Count]);
+            weapSoundObject.PlayOneShotWeapSE(SEType, presetOrder);
         }
 
         #region IWeapon
@@ -130,7 +126,7 @@ namespace InGame.Weapon
 
         void IWeapon.SetParringEffectActive(Vector3 localPos, Quaternion localRot) => SetParringEffectActive(localPos, localRot);
 
-        void IWeapon.OnWhooshSE(WeapSEType SEType, int presetOrder) => OnWhooshSE(SEType, presetOrder);
+        void IWeapon.PlayWeapSE(WeapSoundObject.WeapSoundType SEType, int presetOrder) => PlayWeapSE(SEType, presetOrder);
         #endregion
     }
 }

@@ -18,5 +18,5 @@ public interface IWeapon
 
     public void SetParringEffectActive(Vector3 localPos, Quaternion localRot);
 
-    public void OnWhooshSE(WeaponBase.WeapSEType SEType, int presetOrder);
+    public void PlayWeapSE(WeapSoundObject.WeapSoundType SEType, int presetOrder);
 }

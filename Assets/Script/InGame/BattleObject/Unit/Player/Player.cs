@@ -129,7 +129,7 @@ namespace Unit
                 slashEffectPool, parrignEffectPool,
                 new()
                 {
-                    { WeaponBase.WeapSEType.Whoosh, weapSettingInfo.whooshSoundClips.ToList() }
+                    { WeapSoundObject.WeapSoundType.Whoosh, weapSettingInfo.whooshSoundClips.ToList() }
                 });
 
             var finalPos = weapSettingInfo.weaponLocalPos + weapSettingInfo.collisionBox.transform.localPosition;
