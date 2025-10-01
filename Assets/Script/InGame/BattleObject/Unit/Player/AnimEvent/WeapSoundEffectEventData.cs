@@ -1,18 +1,17 @@
+using InGame.Weapon;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WeapSoundEffectEventData : MonoBehaviour
+namespace InGame.Event
 {
-    // Start is called before the first frame update
-    void Start()
+    [CreateAssetMenu(fileName = "WeapSoundEffectEventData", menuName = "Scriptable/AnimationEventData/WeapSoundEffectEventData")]
+    public class WeapSoundEffectEventData : AnimationEventData
     {
-        
-    }
+        [SerializeField] private WeapSoundObject.WeapSoundType weapSoundType;
+        [SerializeField] private int presetOrder = -1;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        public WeapSoundObject.WeapSoundType WeapSoundType => weapSoundType;
+        public int PresetOrder => presetOrder;
     }
 }

@@ -360,7 +360,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   walkSpeed: 60
-  curveSpeed: 10
 --- !u!1 &2892715685843742959
 GameObject:
   m_ObjectHideFlags: 0
@@ -1361,8 +1360,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2f05fd1c353f654bbcc4665f8c77327, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  landingMotionMinDuration: 0.1
-  landingMotionDuration: 0.3
 --- !u!1 &7238041486482526272
 GameObject:
   m_ObjectHideFlags: 0

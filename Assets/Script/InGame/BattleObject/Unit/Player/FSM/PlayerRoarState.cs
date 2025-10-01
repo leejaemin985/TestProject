@@ -43,7 +43,7 @@ namespace Unit
         private async void LoadEffect()
         {
             var ob = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_UserStateEffectGroup);
-            var effectGroup = ob.GetComponent<AddressableAsset_UserStateEffect>();
+            var effectGroup = ob.GetComponent<AddressableObject_UserStateEffect>();
             effectPool = EffectObjectPool.CreatePoolInstance<RoarStateEffect>((RoarStateEffect)effectGroup.roarStateEffect, new() { count = 2, effectRoot = null });
         }
 

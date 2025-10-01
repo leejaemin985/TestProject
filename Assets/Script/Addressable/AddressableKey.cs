@@ -34,6 +34,8 @@ namespace Addressable
 
         public static readonly AddressableKey PK_UserStateEffectGroup = new AddressableKey(KeyType.PrimaryKey, "UserStateEffect", "User StateEffect Group");
 
+        public static readonly AddressableKey PK_UserSoundPack = new AddressableKey(KeyType.PrimaryKey, "UserSoundPack", "User Sound Pack In Game");
+
         #endregion
     }
 }

@@ -43,8 +43,8 @@ namespace Unit
         private Animator modelAnim;
         private PlayerAnimEventer animEventer;
 
-        private AddressableAsset_UserModelSettingInfo modelSettingInfo;
-        private AddressableAsset_WeaponSettingInfo weapSettingInfo;
+        private AddressableObject_UserModelSettingInfo userModelSettingInfo;
+        private AddressableObject_WeaponSettingInfo weaponSettingInfo;
 
         public bool canControll { get; private set; }
 
@@ -61,6 +61,8 @@ namespace Unit
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
             UnregisterUser(Object.StateAuthority);
+
+            if (RegistedUsers == null || RegistedUsers.Count == 0) InGamePlayerResourcesLoader.Dispose();
         }
 
         protected async override void Initialize()
@@ -78,65 +80,66 @@ namespace Unit
 
             if (HasStateAuthority)
             {
-                camManager.Initialize(Camera.main, transform, modelSettingInfo.defaultCamPos, modelSettingInfo.actionCamPos);
+                camManager.Initialize(Camera.main, transform, userModelSettingInfo.defaultCamPos, userModelSettingInfo.actionCamPos);
                 fsm.AddChangeStateListener(camManager.ChangeUserStateListener);
             }
         }
 
         private async Task LoadAssets()
         {
-            await ModelAssetSetting();
-            await WeaponAssetSetting();
+            await InGamePlayerResourcesLoader.LoadAssets();
+
         }
 
         private async Task ModelAssetSetting()
         {
-            var modelAsset = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_SamuraiModel);
-            var model = Instantiate(modelAsset);
-            modelSettingInfo = model.GetComponent<AddressableAsset_UserModelSettingInfo>();
-
-            model.transform.SetParent(transform);
-            model.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-            modelAnim = model.GetComponent<Animator>();
+            var modelObject = Instantiate(InGamePlayerResourcesLoader.modelObjectAsset);
+            modelObject.transform.SetParent(transform);
+            modelObject.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+            modelAnim = modelObject.GetComponent<Animator>();
             modelAnim.runtimeAnimatorController = latencyInterpolationAnim.runtimeAnimatorController;
-            animEventer = model.AddComponent<PlayerAnimEventer>();
+            animEventer = modelObject.AddComponent<PlayerAnimEventer>();
+
+            userModelSettingInfo = modelObject.GetComponent<AddressableObject_UserModelSettingInfo>();
         }
 
         private async Task WeaponAssetSetting()
         {
-            var weaponAsset = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_Katana);
-            var weapon = Instantiate(weaponAsset);
-            weapSettingInfo = weapon.GetComponent<AddressableAsset_WeaponSettingInfo>();
 
 
-            weapon.transform.SetParent(modelSettingInfo.weaponParentTransform);
-            weapon.transform.SetLocalPositionAndRotation(weapSettingInfo.weaponLocalPos, Quaternion.Euler(weapSettingInfo.weaponLocalRot));
-
-            var slashEffectPool =
-            EffectObjectPool.CreatePoolInstance(
-                weapSettingInfo.slashEffect,
-                new() { count = 10, effectRoot = transform });
-
-            var parrignEffectPool =
-                EffectObjectPool.CreatePoolInstance(
-                    weapSettingInfo.parringEffect,
-                    new() { count = 10, effectRoot = null });
-
-            this.weapon = WeaponBase.CreateInstance<Katana>(
-                weapon,
-                (AttackBox)weapSettingInfo.collisionBox,
-                weapSettingInfo.trailParticle,
-                slashEffectPool, parrignEffectPool,
-                new()
-                {
-                    { WeapSoundObject.WeapSoundType.Whoosh, weapSettingInfo.whooshSoundClips.ToList() }
-                });
-
-            var finalPos = weapSettingInfo.weaponLocalPos + weapSettingInfo.collisionBox.transform.localPosition;
-            var finalRot = Quaternion.Euler(weapSettingInfo.weaponLocalRot) * Quaternion.Euler(weapSettingInfo.collisionBox.transform.localEulerAngles);
-
-            weapSettingInfo.collisionBox.transform.SetParent(latencyInterpolationWeapPos);
-            weapSettingInfo.collisionBox.transform.SetLocalPositionAndRotation(finalPos, finalRot);
+            //var weaponAsset = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_Katana);
+            //var weapon = Instantiate(weaponAsset);
+            //weapSettingInfo = weapon.GetComponent<AddressableObject_WeaponSettingInfo>();
+            //
+            //
+            //resourcesHandler.weapon.transform.SetParent(resourcesHandler.userModelSettingInfo.weaponParentTransform);
+            //resourcesHandler.weapon.transform.SetLocalPositionAndRotation(resourcesHandler.weapSettingInfo.weaponLocalPos, Quaternion.Euler(resourcesHandler.weapSettingInfo.weaponLocalRot));
+            //
+            //var slashEffectPool =
+            //EffectObjectPool.CreatePoolInstance(
+            //    resourcesHandler.weapSettingInfo.slashEffect,
+            //    new() { count = 10, effectRoot = transform });
+            //
+            //var parrignEffectPool =
+            //    EffectObjectPool.CreatePoolInstance(
+            //        resourcesHandler.weapSettingInfo.parringEffect,
+            //        new() { count = 10, effectRoot = null });
+            //
+            //this.weapon = WeaponBase.CreateInstance<Katana>(
+            //    weapon,
+            //    (AttackBox)resourcesHandler.weapSettingInfo.collisionBox,
+            //    resourcesHandler.weapSettingInfo.trailParticle,
+            //    slashEffectPool, parrignEffectPool,
+            //    new()
+            //    {
+            //        { WeapSoundObject.WeapSoundType.Whoosh, weapSettingInfo.whooshSoundClips.ToList() }
+            //    });
+            //
+            //var finalPos = weapSettingInfo.weaponLocalPos + weapSettingInfo.collisionBox.transform.localPosition;
+            //var finalRot = Quaternion.Euler(weapSettingInfo.weaponLocalRot) * Quaternion.Euler(weapSettingInfo.collisionBox.transform.localEulerAngles);
+            //
+            //weapSettingInfo.collisionBox.transform.SetParent(latencyInterpolationWeapPos);
+            //weapSettingInfo.collisionBox.transform.SetLocalPositionAndRotation(finalPos, finalRot);
         }
 
 

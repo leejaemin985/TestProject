@@ -171,6 +171,10 @@ namespace Unit
                 case WeapSlashEffectEventData slashEffectData:
                     OnSlashEffect(slashEffectData);
                     break;
+
+                case WeapSoundEffectEventData weapSoundEffectData:
+                    PlayWeapSoundEffect(weapSoundEffectData);
+                    break;
             }
         }
         #endregion
@@ -235,6 +239,11 @@ namespace Unit
         private void OnSlashEffect(WeapSlashEffectEventData slashEffectData)
         {
             weap.SetSlashEffectActive(slashEffectData.LocalPos, slashEffectData.LocalRot);
+        }
+
+        private void PlayWeapSoundEffect(WeapSoundEffectEventData soundEffectData)
+        {
+            weap.PlayWeapSE(soundEffectData.WeapSoundType, soundEffectData.PresetOrder);
         }
     }
 }
