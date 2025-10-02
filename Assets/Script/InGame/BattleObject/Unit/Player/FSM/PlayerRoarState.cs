@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Utility.EffectObject;
+using Utility.Sound;
 
 namespace Unit
 {
@@ -30,10 +31,11 @@ namespace Unit
         [Networked] private int roarEndTick { get; set; }
 
         private EffectObjectPool effectPool;
+        private AudioClip roarSoundClip;
 
-        public override void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, IWeapon weap)
+        public override void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, ISoundObject soundObject, IWeapon weap)
         {
-            base.Initialize(player, fsm, cc, modelAnim, latencyInterpolationAnim, weap);
+            base.Initialize(player, fsm, cc, modelAnim, latencyInterpolationAnim, soundObject, weap);
 
             LoadEffect();
             physicsRange.Initialize(OnHit);
@@ -45,6 +47,7 @@ namespace Unit
             var ob = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_UserStateEffectGroup);
             var effectGroup = ob.GetComponent<AddressableObject_UserStateEffect>();
             effectPool = EffectObjectPool.CreatePoolInstance<RoarStateEffect>((RoarStateEffect)effectGroup.roarStateEffect, new() { count = 2, effectRoot = null });
+            roarSoundClip = InGamePlayerResourcesLoader.soundPack.roarStateSE;
         }
 
         #region FSM State
@@ -121,6 +124,7 @@ namespace Unit
         private void OnRoarEffect()
         {
             effectPool.OnPlayEffect(player.transform.position, Quaternion.identity);
+            soundObject.PlayOneShot(roarSoundClip);
         }
     }
 }

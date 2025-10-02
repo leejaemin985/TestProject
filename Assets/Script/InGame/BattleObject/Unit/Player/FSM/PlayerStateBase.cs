@@ -4,6 +4,7 @@ using Fusion;
 using Fusion.Addons.SimpleKCC;
 using InGame.Weapon;
 using InGame.Event;
+using Utility.Sound;
 
 namespace Unit
 {
@@ -40,19 +41,21 @@ namespace Unit
         protected PlayerFSM fsm { get; private set; }
         protected Animator latencyInterpolationAnim { get; private set; }
         protected Animator modelAnim { get; private set; }
+        protected ISoundObject soundObject { get; private set; }
         protected IWeapon weap { get; private set; }
 
         #region StatusDefinition
         public virtual bool HasSuperArmor => false;
         #endregion
 
-        public virtual void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, IWeapon weap)
+        public virtual void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, ISoundObject soundObject, IWeapon weap)
         {
             this.player = player;
             this.fsm = fsm;
             this.cc = cc;
             this.modelAnim = modelAnim;
             this.latencyInterpolationAnim = latencyInterpolationAnim;
+            this.soundObject = soundObject;
             this.weap = weap;
         }
 

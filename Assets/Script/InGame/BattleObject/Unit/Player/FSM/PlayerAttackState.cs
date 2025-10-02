@@ -9,6 +9,7 @@ using Fusion;
 using Fusion.Addons.SimpleKCC;
 using UnityEngine.Networking;
 using InGame.Event;
+using Utility.Sound;
 
 namespace Unit
 {
@@ -41,9 +42,9 @@ namespace Unit
 
         private Player Enemy => Player.RegistedUsers.FirstOrDefault(x => x.Key.Equals(Object.InputAuthority) == false).Value;
 
-        public override void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, IWeapon weap)
+        public override void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, ISoundObject soundObject, IWeapon weap)
         {
-            base.Initialize(player, fsm, cc, modelAnim, latencyInterpolationAnim, weap);
+            base.Initialize(player, fsm, cc, modelAnim, latencyInterpolationAnim, soundObject, weap);
 
             attackMotionInfos = new();
             foreach (var type in Enum.GetValues(typeof(AttackMotionType)))

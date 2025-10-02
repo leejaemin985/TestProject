@@ -13,6 +13,7 @@ using Utility.EffectObject;
 using InGame;
 using InGame.Weapon;
 using Addressable;
+using Utility.Sound;
 
 namespace Unit
 {
@@ -38,6 +39,8 @@ namespace Unit
 
         [Header("InGame")]
         [SerializeField] private InGameCamManager camManager;
+
+        private ISoundObject playerSoundObejct;
 
         private AddressableObject_UserModelSettingInfo userModelSettingInfo;
         private AddressableObject_WeaponSettingInfo weapSettingInfo;
@@ -74,8 +77,14 @@ namespace Unit
             playerHitBox = InitPlayerHitBox();
             this.weapon.AddIgnorePhysics(playerHitBox);
 
+            var effectSoundObject = new GameObject("PlayerSoundObject").AddComponent<GameEffectSoundObject>();
+            GameAudioMixerController.Instance.InitSoundObject(effectSoundObject);
+            effectSoundObject.transform.SetParent(transform);
+            effectSoundObject.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
 
-            fsm.Initialized(this, cc, modelAnim, latencyInterpolationAnim, weapon);
+            playerSoundObejct = effectSoundObject;
+
+            fsm.Initialized(this, cc, modelAnim, latencyInterpolationAnim, playerSoundObejct, weapon);
             animEventer.Initialize(fsm.AnimEvent);
 
             if (HasStateAuthority)

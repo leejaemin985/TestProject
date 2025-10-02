@@ -9,6 +9,7 @@ using System;
 using static Unit.PlayerStateBase;
 using System.Linq;
 using InGame.Event;
+using Utility.Sound;
 
 namespace Unit
 {
@@ -56,6 +57,7 @@ namespace Unit
             SimpleKCC cc,
             Animator modelAnim,
             Animator latencyInterpolationAnim,
+            ISoundObject playerSoundObject,
             IWeapon playerWeapon)
         {
             this.player = player;
@@ -64,7 +66,7 @@ namespace Unit
             stateMap = new();
             foreach (var state in stateArray)
             {
-                state.Initialize(player, this, cc, modelAnim, latencyInterpolationAnim, playerWeapon);
+                state.Initialize(player, this, cc, modelAnim, latencyInterpolationAnim, playerSoundObject, playerWeapon);
                 stateMap[state.GetStateType()] = state;
             }
 
