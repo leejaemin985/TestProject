@@ -1,13 +1,13 @@
-using Addressable;
 using System.Threading.Tasks;
 using UnityEngine;
+using Addressable;
 
 namespace Unit
 {
     public static class InGamePlayerResourcesLoader
     {
         public static GameObject modelObjectAsset { get; private set; }
-        
+
         public static GameObject weaponAsset { get; private set; }
         
         public static AddressableScriptable_UserSoundPack soundPack { get; private set; }
