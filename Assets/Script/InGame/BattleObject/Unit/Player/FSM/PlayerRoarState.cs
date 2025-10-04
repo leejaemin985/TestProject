@@ -31,7 +31,7 @@ namespace Unit
         [Networked] private int roarEndTick { get; set; }
 
         private EffectObjectPool effectPool;
-        private AudioClip roarSoundClip;
+        private AudioClip[] roarSoundClip;
 
         public override void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, ISoundObject soundObject, IWeapon weap)
         {
@@ -124,7 +124,7 @@ namespace Unit
         private void OnRoarEffect()
         {
             effectPool.OnPlayEffect(player.transform.position, Quaternion.identity);
-            soundObject.PlayOneShot(roarSoundClip);
+            soundObject.PlayOneShot(roarSoundClip[Random.Range(0, roarSoundClip.Length)]);
         }
     }
 }

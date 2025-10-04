@@ -1,6 +1,10 @@
 using UnityEngine;
 
 using Fusion;
+using Fusion.Addons.SimpleKCC;
+using Utility.Sound;
+using InGame.Event;
+using System.Collections.Generic;
 
 namespace Unit
 {
@@ -20,9 +24,17 @@ namespace Unit
 
         private const float WALK_RUNWEIGHT = 1;
 
+        private AudioClip[] walkStepSE;
+
         protected override void SetInfo(INetworkStruct info) => currentMoveInfo = ((StateInfo)info).moveInfo;
 
         #region FSM State
+        public override void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, ISoundObject soundObject, IWeapon weap)
+        {
+            base.Initialize(player, fsm, cc, modelAnim, latencyInterpolationAnim, soundObject, weap);
+            walkStepSE = InGamePlayerResourcesLoader.soundPack.walkStateSE;
+        }
+
         //EnterState
         protected override void EnterStateShared(int enterTick)
         {
@@ -110,6 +122,41 @@ namespace Unit
             modelAnim.SetFloat(VERTICAL, Mathf.Lerp(currentVertical, moveAnimDir.z, curvSpeed));
             modelAnim.SetFloat(RUNWEIGHT, Mathf.Lerp(currentRunWeight, runWeight, curvSpeed));
         }
+
+        protected override void OnAnimEvent(AnimationEventData data)
+        {
+            switch (data)
+            {
+                case MovementWalkStepSEAnimEvent walkStepSEData:
+                    PlayWalkStepSE(walkStepSEData);
+                    break;
+            }
+        }
         #endregion
+
+        private static readonly Dictionary<MovementWalkStepSEAnimEvent.Direction, Vector3> stepSEDirectionMap = new()
+        {
+            { MovementWalkStepSEAnimEvent.Direction.F, Vector3.forward },
+            { MovementWalkStepSEAnimEvent.Direction.B, Vector3.back },
+            { MovementWalkStepSEAnimEvent.Direction.L, Vector3.left },
+            { MovementWalkStepSEAnimEvent.Direction.R, Vector3.right },
+            { MovementWalkStepSEAnimEvent.Direction.FL, (Vector3.forward + Vector3.left).normalized },
+            { MovementWalkStepSEAnimEvent.Direction.FR, (Vector3.forward + Vector3.right).normalized },
+            { MovementWalkStepSEAnimEvent.Direction.BL, (Vector3.back + Vector3.left).normalized },
+            { MovementWalkStepSEAnimEvent.Direction.BR, (Vector3.back + Vector3.right).normalized },
+
+        };
+
+        private void PlayWalkStepSE(MovementWalkStepSEAnimEvent walkStepSEData)
+        {
+            if (moveAnimDir.sqrMagnitude < .01f) return;
+
+            const float OVER_LINE = .9f;
+
+            bool validDirection = Vector3.Dot(moveAnimDir.normalized, stepSEDirectionMap[walkStepSEData.Dir]) > OVER_LINE;
+            if (validDirection)
+                soundObject.PlayOneShot(walkStepSE[Random.Range(0, walkStepSE.Length)]);
+
+        }
     }
 }

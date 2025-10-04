@@ -1,5 +1,8 @@
 using UnityEngine;
 using Fusion;
+using Fusion.Addons.SimpleKCC;
+using Utility.Sound;
+using InGame.Event;
 
 namespace Unit
 {
@@ -19,9 +22,19 @@ namespace Unit
 
         private MoveInfo currentMoveInfo;
 
+        private AudioClip[] sprintStepSE;
+
         protected override void SetInfo(INetworkStruct info) => currentMoveInfo = ((StateInfo)info).moveInfo;
 
         #region FSM State
+
+        public override void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, ISoundObject soundObject, IWeapon weap)
+        {
+            base.Initialize(player, fsm, cc, modelAnim, latencyInterpolationAnim, soundObject, weap);
+
+            sprintStepSE = InGamePlayerResourcesLoader.soundPack.sprintStateSE;
+        }
+
         //EnterState
         protected override void EnterStateShared(int enterTick)
         {
@@ -89,6 +102,21 @@ namespace Unit
             modelAnim.SetFloat(VERTICAL, Mathf.Lerp(currentVertical, 1, ANIM_CURV_SPEED));
             modelAnim.SetFloat(RUNWEIGHT, Mathf.Lerp(currentRunWeight, runWeight, ANIM_CURV_SPEED));
         }
+
+        protected override void OnAnimEvent(AnimationEventData data)
+        {
+            switch (data)
+            {
+                case SprintStepSEAnimEvent sprintStepSEEventData:
+                    SprintStepSEAnimEvent(sprintStepSEEventData);
+                    break;
+            }
+        }
         #endregion
+
+        private void SprintStepSEAnimEvent(SprintStepSEAnimEvent stepSEData)
+        {
+            soundObject.PlayOneShot(sprintStepSE[Random.Range(0, sprintStepSE.Length)]);
+        }
     }
 }

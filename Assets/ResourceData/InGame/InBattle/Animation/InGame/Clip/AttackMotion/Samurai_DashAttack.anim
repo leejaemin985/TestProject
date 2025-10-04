@@ -69313,6 +69313,13 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
+  - time: 0.4
+    functionName: OnAnimEvent
+    data: 
+    objectReferenceParameter: {fileID: 11400000, guid: 143e5e424b9b35e409c6f29c573387b8, type: 2}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
   - time: 0.46666667
     functionName: OnAnimEvent
     data: 
