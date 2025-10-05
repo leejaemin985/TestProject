@@ -1,5 +1,8 @@
 using UnityEngine;
-using Fusion;
+using Fusion.Addons.SimpleKCC;
+
+using Utility.Sound;
+using InGame.Event;
 
 namespace Unit
 {
@@ -16,7 +19,16 @@ namespace Unit
         private int minLandingMotionEndTick;
         private int landingMotionEndTick;
 
+        private AudioClip[] landingSE;
+
         #region FSM State
+        public override void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, ISoundObject soundObject, IWeapon weap)
+        {
+            base.Initialize(player, fsm, cc, modelAnim, latencyInterpolationAnim, soundObject, weap);
+
+            landingSE = InGamePlayerResourcesLoader.soundPack.landStateSE;
+        }
+
         //EnterState
         protected override void EnterStateAuthority(int enterTick)
         {
@@ -42,6 +54,21 @@ namespace Unit
                 fsm.SetState<PlayerMovementState>();
             }
         }
+
+        protected override void OnAnimEvent(AnimationEventData data)
+        {
+            switch (data)
+            {
+                case LandingSoundEffectAnimEventData landingSEAnimData:
+                    PlayLandingSE(landingSEAnimData);
+                    break;
+            }
+        }
         #endregion
+
+        private void PlayLandingSE(LandingSoundEffectAnimEventData landingSEAnimData)
+        {
+            soundObject.PlayOneShot(landingSE[Random.Range(0, landingSE.Length)]);
+        }
     }
 }
