@@ -32,6 +32,7 @@ namespace Unit
             PlayAnim($"_Parring_{Random.Range(1, 5)}", 0.1f, enterTick);
 
             weap.SetParringEffectActive(player.transform.position + Vector3.up, Quaternion.identity);
+            weap.PlayWeapSE(InGame.Weapon.WeapSoundObject.WeapSoundType.Collision);
         }
 
         //OnState

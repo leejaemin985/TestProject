@@ -131,7 +131,7 @@ namespace Unit
             EffectObjectPool.CreatePoolInstance(
                 weapSettingInfo.slashEffect,
                 new() { count = 10, effectRoot = transform });
-            
+
             var parrignEffectPool =
                 EffectObjectPool.CreatePoolInstance(
                     weapSettingInfo.parringEffect,
@@ -144,12 +144,13 @@ namespace Unit
                 slashEffectPool, parrignEffectPool,
                 new()
                 {
-                    { WeapSoundObject.WeapSoundType.Whoosh, weapSettingInfo.whooshSoundClips.ToList() }
+                    { WeapSoundObject.WeapSoundType.Whoosh, weapSettingInfo.whooshSoundClips.ToList() },
+                    { WeapSoundObject.WeapSoundType.Collision, weapSettingInfo.collisionSoundClips.ToList() }
                 });
 
             var finalPos = weapSettingInfo.weaponLocalPos + weapSettingInfo.collisionBox.transform.localPosition;
             var finalRot = Quaternion.Euler(weapSettingInfo.weaponLocalRot) * Quaternion.Euler(weapSettingInfo.collisionBox.transform.localEulerAngles);
-            
+
             weapSettingInfo.collisionBox.transform.SetParent(latencyInterpolationWeapPos);
             weapSettingInfo.collisionBox.transform.SetLocalPositionAndRotation(finalPos, finalRot);
         }
@@ -198,12 +199,16 @@ namespace Unit
         {
             fsm?.OnHitState(hitInfo);
             OnDamaged(hitInfo.damaged);
+
+            //var hitSEArr = InGamePlayerResourcesLoader.soundPack.userHitSE;
+            //playerSoundObejct.PlayOneShot(hitSEArr[Random.Range(0, hitSEArr.Length)]);
         }
 
         public void RequestOnParringState(HitInfo hitInfo)
         {
             fsm?.OnParringState(hitInfo);
             OnDecreasePosture(hitInfo.damaged);
+
         }
 
         public void RequestOnDiedState(HitInfo hitInfo)
