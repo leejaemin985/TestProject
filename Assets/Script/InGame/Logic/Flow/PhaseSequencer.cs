@@ -27,15 +27,13 @@ namespace InGame.Logic.Flow
         [SerializeField] private InGameClientPhaseAgent phaseAgentPrefab;
         private InGameClientPhaseAgent localAgent;
 
-
-        [SerializeField] private FlowPhaseBase[] phaseArray;
-        private IFlowPhase currentFlowPhase;
-
         public override void Spawned()
         {
             if (HasStateAuthority)
             {
                 userPhases = new();
+                foreach (PlayerRef userRef in GameNetworkManager.Instance.connectedUsers) userPhases.Add(userRef, new());
+
                 currentPhase = FlowPhase.Init;
             }
 
@@ -43,34 +41,31 @@ namespace InGame.Logic.Flow
             localAgent.Initialize(RPC_ReportPhase, RPC_PhaseDone);
         }
 
+        private bool IsValidUser(PlayerRef userRef)
+        {
+            return GameNetworkManager.Instance.connectedUsers.Contains(userRef) && userPhases.ContainsKey(userRef);
+        }
+
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
         private void RPC_ReportPhase(PhaseReport reportInfo)
         {
-            if (!HasStateAuthority || GameNetworkManager.Instance.connectedUsers.Contains(reportInfo.userRef) == false) return;
-
-            if (userPhases.ContainsKey(reportInfo.userRef) == false)
-                userPhases.Add(reportInfo.userRef, new());
+            if (!HasStateAuthority || IsValidUser(reportInfo.userRef) == false) return;
 
             var phaseState = userPhases[reportInfo.userRef];
             phaseState.userRef = reportInfo.userRef;
-            phaseState.phase = reportInfo.phase;              
+            phaseState.phase = reportInfo.phase;
             phaseState.isDone = false;
 
-            Debug.Log($"PhaseSquencer - Report {reportInfo.userRef} - {reportInfo.phase}");
         }
 
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
         private void RPC_PhaseDone(PlayerRef userRef)
         {
-            if (!HasStateAuthority || GameNetworkManager.Instance.connectedUsers.Contains(userRef) == false) return;
-
-            if (userPhases.ContainsKey(userRef) == false)
-                userPhases.Add(userRef, new());
+            if (!HasStateAuthority || IsValidUser(userRef) == false) return;
 
             var phaseState = userPhases[userRef];
             phaseState.isDone = true;
 
-            Debug.Log($"PhaseSequencer - Done {userRef} - {phaseState.phase}");
             CheckCanEnterNextPhase();
         }
 

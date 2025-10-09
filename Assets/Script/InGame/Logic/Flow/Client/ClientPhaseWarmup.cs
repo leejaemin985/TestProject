@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Utility.Spinner;
 
 namespace InGame.Logic.Flow
 {
@@ -9,7 +10,7 @@ namespace InGame.Logic.Flow
     {
         public const int WARMUP_TIME = 3;
 
-        public override FlowPhase phaseType => FlowPhase.Warmup;
+        public override FlowPhase phaseType => FlowPhase.Intro;
 
         public override async Task OnEnter()
         {

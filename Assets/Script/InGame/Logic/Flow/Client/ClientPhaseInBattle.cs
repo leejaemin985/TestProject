@@ -1,6 +1,7 @@
 using InGame.Logic.Flow;
 using System.Threading.Tasks;
 using Unit;
+using Utility.Spinner;
 
 namespace InGame.Logic
 {
@@ -10,6 +11,8 @@ namespace InGame.Logic
 
         public override async Task OnEnter()
         {
+            Spinner.Instance.OffSpinner();
+
             if (Player.RegistedUsers.TryGetValue(runner.LocalPlayer, out var player))
             {
                 player.SetCanController(true);

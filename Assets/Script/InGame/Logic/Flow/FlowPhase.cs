@@ -6,14 +6,29 @@ namespace InGame.Logic.Flow
     {
         Init = 0,
 
-        SessionSpawn,
+        SessionInit,
         UnitSpawn,
-        Warmup,
+        Intro,
         InBattle,
         End,
 
         Count
     }
+
+    //public struct PhaseReport : INetworkStruct
+    //{
+    //    public PlayerRef userRef;
+    //    public FlowPhase phase;
+    //    public int tick;
+    //}
+
+    //public struct PhaseDirective : INetworkStruct
+    //{
+    //    public PlayerRef userRef;
+    //    public FlowPhase phase;
+    //    public int tick;
+    //}
+
 
     public struct PhaseReport : INetworkStruct
     {

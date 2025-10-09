@@ -112,8 +112,6 @@ namespace WaitingRoom.Logic
 
         private void CheckStartGame()
         {
-            if (runner.IsSharedModeMasterClient == false) return;
-
             bool fullUser = userStateHandler != null && opponentStateHandler != null;
 
             bool allReady =
@@ -122,8 +120,13 @@ namespace WaitingRoom.Logic
 
             if (fullUser && allReady) 
             {
-                runner.LoadScene(NetScene.InGame.sceneRef, LoadSceneMode.Single);
-                runner.SessionInfo.IsOpen = false;
+                Spinner.Instance.OnSpinner(() => false, true);
+
+                if (runner.IsSharedModeMasterClient)
+                {
+                    runner.LoadScene(NetScene.InGame.sceneRef, LoadSceneMode.Single);
+                    runner.SessionInfo.IsOpen = false;
+                }
             }
         }
 

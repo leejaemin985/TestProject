@@ -24,6 +24,11 @@ namespace Utility.Spinner
             StartCoroutine(spinnerRoutineHandle = SpinnerRoutine(until));
         }
 
+        public void OffSpinner()
+        {
+            uiHandle.SetSpinner(false, false);
+        }
+
         public void SetText(string text) => uiHandle.SetText(text);
 
         private IEnumerator SpinnerRoutine(Func<bool> until)
