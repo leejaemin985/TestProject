@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Utility.Spinner;
+using System.Threading;
 
 namespace InGame.Logic.Flow
 {
@@ -12,12 +13,21 @@ namespace InGame.Logic.Flow
 
         public override FlowPhase phaseType => FlowPhase.Intro;
 
-        public override async Task OnEnter()
+        private Task waitTask;
+        private CancellationTokenSource cts;
+
+        public override async Task<PhaseReport> OnEnter(PhaseDirective phaseDirective)
+        {
+            //if (waitTask != null && !waitTask.IsCompleted) return GetValidPhaseReport(PhaseState.Run);
+        
+        }
+
+        public override PhaseReport OnPhase()
         {
             var completeTick = (WARMUP_TIME / runner.DeltaTime) + phaseDirective.startTick;
+            if (runner.Tick < completeTick) return GetValidPhaseReport(PhaseState.Init);
 
-            while (runner.Tick < completeTick) await Task.Yield();
-            phaseDoneListener?.Invoke();
+            return GetValidPhaseReport(PhaseState.Wait);
         }
     }
 }

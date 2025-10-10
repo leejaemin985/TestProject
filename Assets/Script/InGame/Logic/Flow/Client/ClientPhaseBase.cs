@@ -1,7 +1,7 @@
-using Fusion;
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
+using Fusion;
 
 namespace InGame.Logic.Flow
 {
@@ -10,36 +10,43 @@ namespace InGame.Logic.Flow
         protected NetworkRunner runner => GameNetworkManager.Instance.runner;
 
         public abstract FlowPhase phaseType { get; }
-        protected PhaseDirective phaseDirective { get; private set; }
 
-        public virtual Task OnEnter()
+        protected PhaseReport GetValidPhaseReport(PhaseState state)
         {
-            phaseDoneListener?.Invoke();
-            return Task.CompletedTask;
+            return new()
+            {
+                userRef = runner.LocalPlayer,
+                phaseType = phaseType,
+                phaseState = state
+            };
         }
 
-        public virtual Task OnExit() => Task.CompletedTask;
+        protected PhaseReport currentPhaseReport { get; set; }
+
+        protected PhaseDirective phaseDirective { get; private set; }
+
+
+        public virtual Task<PhaseReport> OnEnter(PhaseDirective phaseDirective) => Task.FromResult(GetValidPhaseReport(PhaseState.Init));
+
+        public virtual Task<PhaseReport> OnExit() => Task.FromResult(GetValidPhaseReport(PhaseState.Exit));
+
 
         #region IClientPhase
 
         FlowPhase IClientPhase.phaseType => phaseType;
 
-        Task IClientPhase.OnEnter(PhaseDirective phaseDirective)
+        Task<PhaseReport> IClientPhase.OnEnter(PhaseDirective phaseDirective)
         {
             this.phaseDirective = phaseDirective;
-            return OnEnter();
+            return OnEnter(phaseDirective);
         }
 
-        Task IClientPhase.OnExit() => OnExit();
+        Task<PhaseReport> IClientPhase.OnExit() => OnExit();
 
         #endregion
 
 
-        protected Action phaseDoneListener { get; private set; }
+        public virtual void Initialize() { }
 
-        public void Initialize(Action phaseDoneListener)
-        {
-            this.phaseDoneListener = phaseDoneListener;
-        }
     }
 }

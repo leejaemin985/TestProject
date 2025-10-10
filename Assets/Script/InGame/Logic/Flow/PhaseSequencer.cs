@@ -10,13 +10,13 @@ namespace InGame.Logic.Flow
 {
     public class PhaseSequencer : NetworkBehaviour
     {
-        private class UserPhaseState
+        private struct UserPhaseState : INetworkStruct
         {
             public PlayerRef userRef;
 
-            public FlowPhase phase;
+            public FlowPhase phaseType;
 
-            public bool isDone;
+            public PhaseState phaseState;
         }
 
         //Net
@@ -37,37 +37,23 @@ namespace InGame.Logic.Flow
                 currentPhase = FlowPhase.Init;
             }
 
-            localAgent = Instantiate(phaseAgentPrefab);
-            localAgent.Initialize(RPC_ReportPhase, RPC_PhaseDone);
-        }
-
-        private bool IsValidUser(PlayerRef userRef)
-        {
-            return GameNetworkManager.Instance.connectedUsers.Contains(userRef) && userPhases.ContainsKey(userRef);
+            Runner.SpawnAsync(prefab: phaseAgentPrefab);
+            localAgent.Initialize(RPC_ReportPhase);
         }
 
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
         private void RPC_ReportPhase(PhaseReport reportInfo)
         {
-            if (!HasStateAuthority || IsValidUser(reportInfo.userRef) == false) return;
+            if (!HasStateAuthority || reportInfo.IsValid == false) return;
 
             var phaseState = userPhases[reportInfo.userRef];
             phaseState.userRef = reportInfo.userRef;
-            phaseState.phase = reportInfo.phase;
-            phaseState.isDone = false;
-
-        }
-
-        [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-        private void RPC_PhaseDone(PlayerRef userRef)
-        {
-            if (!HasStateAuthority || IsValidUser(userRef) == false) return;
-
-            var phaseState = userPhases[userRef];
-            phaseState.isDone = true;
+            phaseState.phaseType = reportInfo.phaseType;
+            phaseState.phaseState = reportInfo.phaseState;
 
             CheckCanEnterNextPhase();
         }
+
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
         private void RPC_ApplyPhase(PhaseDirective directiveInfo)
@@ -82,7 +68,7 @@ namespace InGame.Logic.Flow
 
             foreach (var phaseState in userPhases.Values)
             {
-                if (currentPhase != phaseState.phase || phaseState.isDone == false) return;
+                if (currentPhase != phaseState.phaseType || phaseState.phaseState == PhaseState.Wait) return;
             }
 
             if (currentPhase < FlowPhase.End)
@@ -90,7 +76,7 @@ namespace InGame.Logic.Flow
                 currentPhase = currentPhase + 1;
                 RPC_ApplyPhase(new()
                 {
-                    phase = currentPhase,
+                    phaseType = currentPhase,
                     startTick = Runner.Tick
                 });
             }

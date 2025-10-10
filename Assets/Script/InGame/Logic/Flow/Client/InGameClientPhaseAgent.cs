@@ -8,49 +8,36 @@ using Fusion;
 
 namespace InGame.Logic.Flow
 {
-    public class InGameClientPhaseAgent : MonoBehaviour
+    public class InGameClientPhaseAgent : NetworkBehaviour
     {
-        private NetworkRunner runner => GameNetworkManager.Instance.runner;
-
         [SerializeField] private ClientPhaseBase[] clientPhaseList;
+
         private Dictionary<FlowPhase, IClientPhase> phaseMap;
         private IClientPhase currentPhase;
 
         private Action<PhaseReport> phaseReportAction;
-        private Action<PlayerRef> phaseDoneAction;
 
-        public async void Initialize(Action<PhaseReport> phaseReportAction, Action<PlayerRef> phaseDoneListener)
+        public async void Initialize(Action<PhaseReport> phaseReportAction)
         {
             this.phaseReportAction = phaseReportAction;
-            this.phaseDoneAction = phaseDoneListener;
 
             phaseMap = new();
             foreach (ClientPhaseBase phase in clientPhaseList)
             {
-                phase.Initialize(UserPhaseDone);
+                phase.Initialize();
                 phaseMap.Add(phase.phaseType, phase);
             }
 
-            await SetPhase(new() { phase = FlowPhase.Init });
+            await SetPhase(new() { phaseType = FlowPhase.Init });
         }
 
         private async Task SetPhase(PhaseDirective phaseDirective)
         {
-            await (currentPhase?.OnExit() ?? Task.CompletedTask);
+            var exitReport = await (currentPhase?.OnExit() ?? ClientPhaseNone.Instance.OnExit());
+            phaseReportAction?.Invoke(exitReport);
 
-            currentPhase = phaseMap[phaseDirective.phase];
-            phaseReportAction?.Invoke(new()
-            {
-                userRef = runner.LocalPlayer,
-                phase = phaseDirective.phase
-            });
-
-            await (currentPhase?.OnEnter(phaseDirective) ?? Task.CompletedTask);
-        }
-
-        private void UserPhaseDone()
-        {
-            phaseDoneAction?.Invoke(runner.LocalPlayer);
+            currentPhase = phaseMap[phaseDirective.phaseType] ?? ClientPhaseNone.Instance;
+            phaseReportAction?.Invoke(await currentPhase.OnEnter(phaseDirective));
         }
 
         public async void ApplyPhase(PhaseDirective directiveInfo)

@@ -9,7 +9,7 @@ namespace InGame.Logic
     {
         public override FlowPhase phaseType => FlowPhase.InBattle;
 
-        public override async Task OnEnter()
+        public override async Task<PhaseReport> OnEnter(PhaseDirective phaseDirective)
         {
             Spinner.Instance.OffSpinner();
 
@@ -33,8 +33,11 @@ namespace InGame.Logic
 
                 await Task.Delay(CHECK_DELAY_MS);
             }
+        }
 
-            phaseDoneListener?.Invoke();
+        public override PhaseReport OnPhase()
+        {
+
         }
     }
 }

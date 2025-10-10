@@ -1,9 +1,13 @@
-using System.Collections.Generic;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+
 using UnityEngine;
+
 using Fusion;
+
 using Unit;
-using Addressable;
 
 namespace InGame.Logic.Flow
 {
@@ -15,15 +19,35 @@ namespace InGame.Logic.Flow
         [SerializeField] private UnitStat unitStatPrefab;
         [SerializeField] private Player playerPrefab;
 
-        public override async Task OnEnter()
-        {
-            if (runner.IsSharedModeMasterClient) await SpawnUnitStat();
-            
-            await SpawnPlayer();
+        private Task spawnTask;
+        //private CancellationTokenSource cts;
 
-            phaseDoneListener?.Invoke();
+        public override async Task<PhaseReport> OnEnter(PhaseDirective phaseDirective)
+        {
+            if (spawnTask != null && !spawnTask.IsCompleted) return GetValidPhaseReport(PhaseState.Run);
+
+            //cts?.Cancel();
+            //cts = new CancellationTokenSource();
+
+            spawnTask = OnSpawnInGameObject();
+
+            try
+            {
+                await spawnTask;
+                return GetValidPhaseReport(PhaseState.Wait);
+            }
+            catch(Exception e)
+            {
+                Debug.LogError(e);
+                return GetValidPhaseReport(PhaseState.Error);
+            }
         }
 
+        private async Task OnSpawnInGameObject()
+        {
+            if (runner.IsSharedModeMasterClient) await SpawnUnitStat();
+            await SpawnPlayer();
+        }
 
         #region MasterClient
 

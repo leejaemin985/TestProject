@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using Fusion;
+using System.Linq;
 
 public class GameNetworkManager : MonoSingleton<GameNetworkManager>
 {
@@ -40,7 +41,7 @@ public class GameNetworkManager : MonoSingleton<GameNetworkManager>
     public async Task Connect(Action completeAction = null, Action failedAction = null)
     {
         Clear();
-
+        
         if (runner != null)
         {
             await runner.Shutdown();

@@ -14,7 +14,7 @@ namespace InGame.Logic
             if (Player.RegistedUsers.TryGetValue(runner.LocalPlayer, out var user))
                 runner.Despawn(user.Object);
 
-            phaseDoneListener?.Invoke();
+            onPhaseReport?.Invoke();
             await Task.CompletedTask;
         }
     }

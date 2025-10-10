@@ -7,8 +7,9 @@ namespace InGame.Logic.Flow
     {
         public FlowPhase phaseType { get; }
 
-        public Task OnEnter(PhaseDirective phaseDirective);
+        public Task<PhaseReport> OnEnter(PhaseDirective phaseDirective);
 
-        public Task OnExit();
+        public Task<PhaseReport> OnExit();
+
     }
 }
