@@ -19,34 +19,42 @@ namespace InGame.Logic.Flow
         [SerializeField] private UnitStat unitStatPrefab;
         [SerializeField] private Player playerPrefab;
 
-        private Task spawnTask;
-        //private CancellationTokenSource cts;
+        private bool spawnedComplete = false;
+        private bool spawnedError = false;
 
-        public override async Task<PhaseReport> OnEnter(PhaseDirective phaseDirective)
+        protected override Task<PhaseReport> OnEnter(PhaseDirective phaseDirective)
         {
-            if (spawnTask != null && !spawnTask.IsCompleted) return GetValidPhaseReport(PhaseState.Run);
+            SpawnedTask();
 
-            //cts?.Cancel();
-            //cts = new CancellationTokenSource();
+            return Task.FromResult(CreatePhaseReport(PhaseState.Init));
+        }
 
-            spawnTask = OnSpawnInGameObject();
+        protected override PhaseState OnTick(float deltaTime)
+        {
+            if (spawnedError) return PhaseState.Error;
 
+            PhaseState phaseState = spawnedComplete ? PhaseState.Run : PhaseState.Wait;
+            return phaseState;
+        }
+
+        private async void SpawnedTask()
+        {
             try
             {
-                await spawnTask;
-                return GetValidPhaseReport(PhaseState.Wait);
+                if (runner.IsSharedModeMasterClient) await SpawnUnitStat();
+                await SpawnPlayer();
+
+                //Task statSpawnTask = runner.IsSharedModeMasterClient ? SpawnUnitStat() : Task.CompletedTask;
+                //Task playerSpawnTask = SpawnPlayer();
+                //
+                //await Task.WhenAll(statSpawnTask, playerSpawnTask);
+                spawnedComplete = true;
             }
             catch(Exception e)
             {
                 Debug.LogError(e);
-                return GetValidPhaseReport(PhaseState.Error);
+                spawnedError = true;
             }
-        }
-
-        private async Task OnSpawnInGameObject()
-        {
-            if (runner.IsSharedModeMasterClient) await SpawnUnitStat();
-            await SpawnPlayer();
         }
 
         #region MasterClient

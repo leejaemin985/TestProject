@@ -11,7 +11,7 @@ namespace InGame.Logic.Flow
 
         public abstract FlowPhase phaseType { get; }
 
-        protected PhaseReport GetValidPhaseReport(PhaseState state)
+        protected PhaseReport CreatePhaseReport(PhaseState state)
         {
             return new()
             {
@@ -26,10 +26,11 @@ namespace InGame.Logic.Flow
         protected PhaseDirective phaseDirective { get; private set; }
 
 
-        public virtual Task<PhaseReport> OnEnter(PhaseDirective phaseDirective) => Task.FromResult(GetValidPhaseReport(PhaseState.Init));
+        protected virtual Task<PhaseReport> OnEnter(PhaseDirective phaseDirective) => Task.FromResult(CreatePhaseReport(PhaseState.Init));
 
-        public virtual Task<PhaseReport> OnExit() => Task.FromResult(GetValidPhaseReport(PhaseState.Exit));
+        protected virtual Task<PhaseReport> OnExit() => Task.FromResult(CreatePhaseReport(PhaseState.Exit));
 
+        protected virtual PhaseState OnTick(float deltaTime) => PhaseState.Wait;
 
         #region IClientPhase
 
@@ -42,6 +43,8 @@ namespace InGame.Logic.Flow
         }
 
         Task<PhaseReport> IClientPhase.OnExit() => OnExit();
+
+        PhaseState IClientPhase.OnTick(float deltaTime) => OnTick(deltaTime);
 
         #endregion
 

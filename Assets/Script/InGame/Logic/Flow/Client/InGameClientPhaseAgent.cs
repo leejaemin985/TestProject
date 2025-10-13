@@ -44,5 +44,10 @@ namespace InGame.Logic.Flow
         {
             await SetPhase(directiveInfo);
         }
+
+        public override void FixedUpdateNetwork()
+        {
+            phaseReportAction?.Invoke();
+        }
     }
 }

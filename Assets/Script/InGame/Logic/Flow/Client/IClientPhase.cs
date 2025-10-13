@@ -11,5 +11,6 @@ namespace InGame.Logic.Flow
 
         public Task<PhaseReport> OnExit();
 
+        public PhaseState OnTick(float deltaTime);
     }
 }

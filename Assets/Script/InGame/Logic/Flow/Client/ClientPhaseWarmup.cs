@@ -10,24 +10,23 @@ namespace InGame.Logic.Flow
     public class ClientPhaseWarmup : ClientPhaseBase
     {
         public const int WARMUP_TIME = 3;
+        private float startTick;
 
         public override FlowPhase phaseType => FlowPhase.Intro;
 
-        private Task waitTask;
-        private CancellationTokenSource cts;
 
-        public override async Task<PhaseReport> OnEnter(PhaseDirective phaseDirective)
+        protected override Task<PhaseReport> OnEnter(PhaseDirective phaseDirective)
         {
-            //if (waitTask != null && !waitTask.IsCompleted) return GetValidPhaseReport(PhaseState.Run);
-        
+            startTick = phaseDirective.startTick;
+            return Task.FromResult(CreatePhaseReport(PhaseState.Init));
         }
 
-        public override PhaseReport OnPhase()
+        protected override PhaseState OnTick(float deltaTime)
         {
-            var completeTick = (WARMUP_TIME / runner.DeltaTime) + phaseDirective.startTick;
-            if (runner.Tick < completeTick) return GetValidPhaseReport(PhaseState.Init);
+            var completeTick = (WARMUP_TIME / runner.DeltaTime) + startTick;
+            PhaseState phaseState = runner.Tick < completeTick ? PhaseState.Run : PhaseState.Wait;
 
-            return GetValidPhaseReport(PhaseState.Wait);
+            return phaseState;
         }
     }
 }

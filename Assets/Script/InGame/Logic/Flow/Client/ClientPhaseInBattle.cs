@@ -9,35 +9,30 @@ namespace InGame.Logic
     {
         public override FlowPhase phaseType => FlowPhase.InBattle;
 
-        public override async Task<PhaseReport> OnEnter(PhaseDirective phaseDirective)
+        protected override Task<PhaseReport> OnEnter(PhaseDirective phaseDirective)
         {
             Spinner.Instance.OffSpinner();
 
             if (Player.RegistedUsers.TryGetValue(runner.LocalPlayer, out var player))
-            {
                 player.SetCanController(true);
-            }
 
-            const int CHECK_DELAY_MS = 500;
-            bool allUserAlive = true;
-            while (allUserAlive)
-            {
-                foreach (var user in Player.RegistedUsers.Values)
-                {
-                    if (user.isAlive() == false)
-                    {
-                        allUserAlive = false;
-                        break;
-                    }
-                }
-
-                await Task.Delay(CHECK_DELAY_MS);
-            }
+            return Task.FromResult(CreatePhaseReport(PhaseState.Init));
         }
 
-        public override PhaseReport OnPhase()
+        protected override PhaseState OnTick(float deltaTime)
         {
+            bool aliveAllUser = true;
+            foreach (var user in Player.RegistedUsers.Values)
+            {
+                if (user.isAlive() == false)
+                {
+                    aliveAllUser = false;
+                    break;
+                }
+            }
 
+            return aliveAllUser ? PhaseState.Run : PhaseState.Wait;
         }
+
     }
 }
