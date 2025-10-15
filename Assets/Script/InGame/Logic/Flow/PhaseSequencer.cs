@@ -27,29 +27,35 @@ namespace InGame.Logic.Flow
         [SerializeField] private InGameClientPhaseAgent phaseAgentPrefab;
         private InGameClientPhaseAgent localAgent;
 
-        public override void Spawned()
+        public async override void Spawned()
         {
             if (HasStateAuthority)
             {
                 userPhases = new();
-                foreach (PlayerRef userRef in GameNetworkManager.Instance.connectedUsers) userPhases.Add(userRef, new());
+                foreach (PlayerRef userRef in GameNetworkManager.Instance.connectedUsers) userPhases.Add(userRef, new() { phaseType = FlowPhase.None });
 
                 currentPhase = FlowPhase.Init;
             }
 
-            Runner.SpawnAsync(prefab: phaseAgentPrefab);
+            var localAgentOb = await Runner.SpawnAsync(prefab: phaseAgentPrefab);
+            localAgent = localAgentOb.GetComponent<InGameClientPhaseAgent>();
             localAgent.Initialize(RPC_ReportPhase);
         }
 
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
         private void RPC_ReportPhase(PhaseReport reportInfo)
         {
+            if (reportInfo.phaseState != PhaseState.Wait || reportInfo.phaseState != PhaseState.Run)
+                Debug.Log($"Test - Reporting - userRef: {reportInfo.userRef} // phase: {reportInfo.phaseType} // state: {reportInfo.phaseState}");
+
             if (!HasStateAuthority || reportInfo.IsValid == false) return;
 
             var phaseState = userPhases[reportInfo.userRef];
             phaseState.userRef = reportInfo.userRef;
             phaseState.phaseType = reportInfo.phaseType;
             phaseState.phaseState = reportInfo.phaseState;
+
+            userPhases[reportInfo.userRef] = phaseState;
 
             CheckCanEnterNextPhase();
         }
@@ -68,8 +74,10 @@ namespace InGame.Logic.Flow
 
             foreach (var phaseState in userPhases.Values)
             {
-                if (currentPhase != phaseState.phaseType || phaseState.phaseState == PhaseState.Wait) return;
+                if (currentPhase != phaseState.phaseType || phaseState.phaseState != PhaseState.Wait) return;
             }
+
+            Debug.Log($"Test - Set Next FlowPhase");
 
             if (currentPhase < FlowPhase.End)
             {

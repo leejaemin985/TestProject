@@ -33,8 +33,10 @@ namespace InGame.Logic.Flow
         {
             if (spawnedError) return PhaseState.Error;
 
-            PhaseState phaseState = spawnedComplete ? PhaseState.Run : PhaseState.Wait;
-            return phaseState;
+            if (!spawnedComplete) 
+                return PhaseState.Run;
+            else 
+                return PhaseState.Wait;
         }
 
         private async void SpawnedTask()

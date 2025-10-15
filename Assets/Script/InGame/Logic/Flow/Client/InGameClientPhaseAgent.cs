@@ -13,9 +13,11 @@ namespace InGame.Logic.Flow
         [SerializeField] private ClientPhaseBase[] clientPhaseList;
 
         private Dictionary<FlowPhase, IClientPhase> phaseMap;
-        private IClientPhase currentPhase;
+        private IClientPhase currentPhase = ClientPhaseNone.Instance;
 
         private Action<PhaseReport> phaseReportAction;
+
+        bool isTransition = false;
 
         public async void Initialize(Action<PhaseReport> phaseReportAction)
         {
@@ -29,15 +31,21 @@ namespace InGame.Logic.Flow
             }
 
             await SetPhase(new() { phaseType = FlowPhase.Init });
+
+            Test();
         }
 
         private async Task SetPhase(PhaseDirective phaseDirective)
         {
+            isTransition = true;
+
             var exitReport = await (currentPhase?.OnExit() ?? ClientPhaseNone.Instance.OnExit());
             phaseReportAction?.Invoke(exitReport);
 
             currentPhase = phaseMap[phaseDirective.phaseType] ?? ClientPhaseNone.Instance;
             phaseReportAction?.Invoke(await currentPhase.OnEnter(phaseDirective));
+
+            isTransition = false;
         }
 
         public async void ApplyPhase(PhaseDirective directiveInfo)
@@ -45,9 +53,33 @@ namespace InGame.Logic.Flow
             await SetPhase(directiveInfo);
         }
 
+        private async void Test()
+        {
+            while (true)
+            {
+                await Task.Delay(500);
+
+                if (isTransition) return;
+
+                phaseReportAction?.Invoke(new()
+                {
+                    userRef = Runner.LocalPlayer,
+                    phaseType = currentPhase.phaseType,
+                    phaseState = currentPhase.OnTick(Runner.DeltaTime)
+                });
+            }
+        }
+
         public override void FixedUpdateNetwork()
         {
-            phaseReportAction?.Invoke();
+            //if (isTransition) return;
+            //
+            //phaseReportAction?.Invoke(new()
+            //{
+            //    userRef = Runner.LocalPlayer,
+            //    phaseType = currentPhase.phaseType,
+            //    phaseState = currentPhase.OnTick(Runner.DeltaTime)
+            //});
         }
     }
 }

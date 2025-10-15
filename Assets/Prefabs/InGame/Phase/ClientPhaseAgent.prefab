@@ -181,6 +181,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4836646902510033174}
   - component: {fileID: 5704679412097646457}
+  - component: {fileID: -8390177338333502341}
   m_Layer: 0
   m_Name: ClientPhaseAgent
   m_TagString: Untagged
@@ -223,6 +224,25 @@ MonoBehaviour:
   - {fileID: 7577361696849758400}
   - {fileID: 4871096713343939366}
   - {fileID: 592385958524315782}
+--- !u!114 &-8390177338333502341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7348553702369449585}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SortKey: 4034124260
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 5704679412097646457}
+  ForceRemoteRenderTimeframe: 0
 --- !u!1 &7590170227877987137
 GameObject:
   m_ObjectHideFlags: 0

@@ -3,24 +3,18 @@ using System.Threading.Tasks;
 
 namespace InGame.Logic.Flow
 {
-    public sealed class ClientPhaseNone : IClientPhase
+    public sealed class ClientPhaseNone : ClientPhaseBase
     {
-        private static PhaseReport InValidPhaseReport = new()
-        {
-            userRef = PlayerRef.None,
-            phaseType = FlowPhase.None,
-            phaseState = PhaseState.None
-        };
+        public static IClientPhase Instance { get; private set; } = new ClientPhaseNone();
 
-        public static ClientPhaseNone Instance { get; private set; } = new();
+        public override FlowPhase phaseType => FlowPhase.None;
 
-
-        public FlowPhase phaseType => FlowPhase.None;
-
-        public Task<PhaseReport> OnEnter(PhaseDirective phaseDirective) => Task.FromResult(InValidPhaseReport);
-
-        public Task<PhaseReport> OnExit() => Task.FromResult(InValidPhaseReport);
-
-        public PhaseReport OnPhase() => InValidPhaseReport;
+        //public FlowPhase phaseType => FlowPhase.None;
+        //
+        //public Task<PhaseReport> OnEnter(PhaseDirective phaseDirective) => Task.FromResult(InValidPhaseReport);
+        //
+        //public Task<PhaseReport> OnExit() => Task.FromResult(InValidPhaseReport);
+        //
+        //public PhaseState OnTick(float deltaTime) => PhaseState.None;
     }
 }

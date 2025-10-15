@@ -33,10 +33,10 @@ namespace InGame.Logic.Flow
         public FlowPhase phaseType;
         public PhaseState phaseState;
 
-        public bool IsValid =>
-            !userRef.IsNone &&
-            phaseType != FlowPhase.None &&
-            phaseState != PhaseState.None;
+        public bool IsValid => phaseType != FlowPhase.None;
+            //!userRef.IsNone &&
+            //phaseType != FlowPhase.None &&
+            //phaseState != PhaseState.None;
     }
 
     public struct PhaseDirective : INetworkStruct

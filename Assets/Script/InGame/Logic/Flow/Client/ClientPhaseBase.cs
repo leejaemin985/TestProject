@@ -7,7 +7,7 @@ namespace InGame.Logic.Flow
 {
     public abstract class ClientPhaseBase : MonoBehaviour, IClientPhase
     {
-        protected NetworkRunner runner => GameNetworkManager.Instance.runner;
+        protected static NetworkRunner runner => GameNetworkManager.Instance.runner;
 
         public abstract FlowPhase phaseType { get; }
 
