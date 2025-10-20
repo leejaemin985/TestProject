@@ -17,69 +17,46 @@ namespace InGame.Logic.Flow
 
         private Action<PhaseReport> phaseReportAction;
 
-        bool isTransition = false;
+        private void ReportFromPhase(FlowPhase phaseType, PhaseState state)
+        {
+            phaseReportAction?.Invoke(new()
+            {
+                userRef = Runner.LocalPlayer,
+                phaseType = phaseType,
+                phaseState = state
+            });
+        }
 
-        public async void Initialize(Action<PhaseReport> phaseReportAction)
+        public async Task Initialize(Action<PhaseReport> phaseReportAction)
         {
             this.phaseReportAction = phaseReportAction;
 
             phaseMap = new();
             foreach (ClientPhaseBase phase in clientPhaseList)
             {
-                phase.Initialize();
+                phase.Initialize(state => ReportFromPhase(phase.phaseType, state));
                 phaseMap.Add(phase.phaseType, phase);
             }
 
             await SetPhase(new() { phaseType = FlowPhase.Init });
-
-            Test();
         }
 
         private async Task SetPhase(PhaseDirective phaseDirective)
         {
-            isTransition = true;
+            var exitPhase = currentPhase ?? ClientPhaseNone.Instance;
+            var exitState = await exitPhase.OnExit();
+            ReportFromPhase(exitPhase.phaseType, exitState);
 
-            var exitReport = await (currentPhase?.OnExit() ?? ClientPhaseNone.Instance.OnExit());
-            phaseReportAction?.Invoke(exitReport);
 
-            currentPhase = phaseMap[phaseDirective.phaseType] ?? ClientPhaseNone.Instance;
-            phaseReportAction?.Invoke(await currentPhase.OnEnter(phaseDirective));
+            if (phaseMap.TryGetValue(phaseDirective.phaseType, out IClientPhase targetPhase))
+                currentPhase = targetPhase;
+            else
+                currentPhase = ClientPhaseNone.Instance;
 
-            isTransition = false;
+            var enterState = await currentPhase.OnEnter(phaseDirective);
+            ReportFromPhase(currentPhase.phaseType, enterState);
         }
 
-        public async void ApplyPhase(PhaseDirective directiveInfo)
-        {
-            await SetPhase(directiveInfo);
-        }
-
-        private async void Test()
-        {
-            while (true)
-            {
-                await Task.Delay(500);
-
-                if (isTransition) return;
-
-                phaseReportAction?.Invoke(new()
-                {
-                    userRef = Runner.LocalPlayer,
-                    phaseType = currentPhase.phaseType,
-                    phaseState = currentPhase.OnTick(Runner.DeltaTime)
-                });
-            }
-        }
-
-        public override void FixedUpdateNetwork()
-        {
-            //if (isTransition) return;
-            //
-            //phaseReportAction?.Invoke(new()
-            //{
-            //    userRef = Runner.LocalPlayer,
-            //    phaseType = currentPhase.phaseType,
-            //    phaseState = currentPhase.OnTick(Runner.DeltaTime)
-            //});
-        }
+        public Task ApplyPhase(PhaseDirective directiveInfo) => SetPhase(directiveInfo);
     }
 }

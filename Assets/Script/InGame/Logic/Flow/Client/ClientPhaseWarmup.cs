@@ -15,18 +15,28 @@ namespace InGame.Logic.Flow
         public override FlowPhase phaseType => FlowPhase.Intro;
 
 
-        protected override Task<PhaseReport> OnEnter(PhaseDirective phaseDirective)
+        protected override Task<PhaseState> OnEnter(PhaseDirective phaseDirective)
         {
             startTick = phaseDirective.startTick;
-            return Task.FromResult(CreatePhaseReport(PhaseState.Init));
+
+            CheckWarmup();
+
+            return Task.FromResult(PhaseState.Init);
         }
 
-        protected override PhaseState OnTick(float deltaTime)
+        private async void CheckWarmup()
         {
-            var completeTick = (WARMUP_TIME / runner.DeltaTime) + startTick;
-            PhaseState phaseState = runner.Tick < completeTick ? PhaseState.Run : PhaseState.Wait;
+            bool isWarmUp = true;
+            while (isWarmUp)
+            {
+                isWarmUp = runner.Tick < (WARMUP_TIME / runner.DeltaTime) + startTick;
 
-            return phaseState;
+                reportPhase?.Invoke(PhaseState.Run);
+
+                await Task.Delay(100);
+            }
+
+            reportPhase?.Invoke(PhaseState.Wait);
         }
     }
 }

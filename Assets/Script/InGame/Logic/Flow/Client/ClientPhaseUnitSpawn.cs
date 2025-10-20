@@ -19,24 +19,13 @@ namespace InGame.Logic.Flow
         [SerializeField] private UnitStat unitStatPrefab;
         [SerializeField] private Player playerPrefab;
 
-        private bool spawnedComplete = false;
-        private bool spawnedError = false;
+        private CancellationTokenSource cts;
+        private Task spawnTask;
 
-        protected override Task<PhaseReport> OnEnter(PhaseDirective phaseDirective)
+        protected override Task<PhaseState> OnEnter(PhaseDirective phaseDirective)
         {
             SpawnedTask();
-
-            return Task.FromResult(CreatePhaseReport(PhaseState.Init));
-        }
-
-        protected override PhaseState OnTick(float deltaTime)
-        {
-            if (spawnedError) return PhaseState.Error;
-
-            if (!spawnedComplete) 
-                return PhaseState.Run;
-            else 
-                return PhaseState.Wait;
+            return Task.FromResult(PhaseState.Init);
         }
 
         private async void SpawnedTask()
@@ -46,16 +35,16 @@ namespace InGame.Logic.Flow
                 if (runner.IsSharedModeMasterClient) await SpawnUnitStat();
                 await SpawnPlayer();
 
+                reportPhase?.Invoke(PhaseState.Wait);
                 //Task statSpawnTask = runner.IsSharedModeMasterClient ? SpawnUnitStat() : Task.CompletedTask;
                 //Task playerSpawnTask = SpawnPlayer();
                 //
                 //await Task.WhenAll(statSpawnTask, playerSpawnTask);
-                spawnedComplete = true;
             }
             catch(Exception e)
             {
                 Debug.LogError(e);
-                spawnedError = true;
+                reportPhase?.Invoke(PhaseState.Error);
             }
         }
 

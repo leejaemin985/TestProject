@@ -9,12 +9,12 @@ namespace InGame.Logic
     {
         public override FlowPhase phaseType => FlowPhase.End;
 
-        protected override Task<PhaseReport> OnEnter(PhaseDirective phaseDirective)
+        protected override Task<PhaseState> OnEnter(PhaseDirective phaseDirective)
         {
             if (Player.RegistedUsers.TryGetValue(runner.LocalPlayer, out var user))
                 runner.Despawn(user.Object);
 
-            return Task.FromResult(CreatePhaseReport(PhaseState.Init));
+            return Task.FromResult(PhaseState.Wait);
         }
     }
 }

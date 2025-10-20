@@ -39,7 +39,7 @@ namespace InGame.Logic.Flow
 
             var localAgentOb = await Runner.SpawnAsync(prefab: phaseAgentPrefab);
             localAgent = localAgentOb.GetComponent<InGameClientPhaseAgent>();
-            localAgent.Initialize(RPC_ReportPhase);
+            await localAgent.Initialize(RPC_ReportPhase);
         }
 
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]

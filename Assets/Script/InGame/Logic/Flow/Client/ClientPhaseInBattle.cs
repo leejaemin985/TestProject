@@ -1,6 +1,9 @@
 using InGame.Logic.Flow;
+using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Unit;
+using UnityEngine;
 using Utility.Spinner;
 
 namespace InGame.Logic
@@ -9,29 +12,49 @@ namespace InGame.Logic
     {
         public override FlowPhase phaseType => FlowPhase.InBattle;
 
-        protected override Task<PhaseReport> OnEnter(PhaseDirective phaseDirective)
+        protected override Task<PhaseState> OnEnter(PhaseDirective phaseDirective)
         {
             Spinner.Instance.OffSpinner();
 
             if (Player.RegistedUsers.TryGetValue(runner.LocalPlayer, out var player))
                 player.SetCanController(true);
 
-            return Task.FromResult(CreatePhaseReport(PhaseState.Init));
+            InBattle();
+
+            return Task.FromResult(PhaseState.Init);
         }
 
-        protected override PhaseState OnTick(float deltaTime)
+        private async void InBattle()
         {
             bool aliveAllUser = true;
-            foreach (var user in Player.RegistedUsers.Values)
+            const int CHECK_DELAY = 1000;
+
+            while (aliveAllUser)
             {
-                if (user.isAlive() == false)
+                try
                 {
-                    aliveAllUser = false;
-                    break;
+                    foreach (var user in Player.RegistedUsers.Values)
+                    {
+                        if (user.isAlive() == false)
+                        {
+                            aliveAllUser = false;
+                            break;
+                        }
+                    }
+
+                    reportPhase?.Invoke(PhaseState.Run);
                 }
+                catch (Exception e)
+                {
+                    Debug.LogError(e);
+                    reportPhase?.Invoke(PhaseState.Error);
+                }
+
+                await Task.Delay(CHECK_DELAY);
             }
 
-            return aliveAllUser ? PhaseState.Run : PhaseState.Wait;
+
+            reportPhase?.Invoke(PhaseState.Wait);
         }
 
     }
