@@ -26,6 +26,7 @@ namespace InGame.Logic.Flow
         {
             SpawnedTask();
             return Task.FromResult(PhaseState.Init);
+            SpawnedTask 먼저 도는 경우가 있음. OnTick처럼 매 프레임 도는건 아니지만 한번 실행한 Task정도는 필요.
         }
 
         private async void SpawnedTask()
