@@ -40,10 +40,19 @@ namespace Unit
         private Vector3 currentHitMove;
         private float hitMoveSpeed = 120f;
 
+        private int hitLookAtEndTick = 0;
+        private const float HIT_LOOKAT_TIME = .15f;
+        private const float CURV_SPEED = 10;
+
         protected override void SetInfo(INetworkStruct info) => currentHitInfo = ((StateInfo)info).hitInfo;
 
         #region FSM State
         //EnterState
+        protected override void EnterStateAuthority(int enterTick)
+        {
+            hitLookAtEndTick = Runner.Tick + Mathf.RoundToInt(HIT_LOOKAT_TIME * Runner.TickRate);
+        }
+
         protected override void EnterStateShared(int enterTick)
         {
             HitMotionInfo currentMotionInfo = null;
@@ -79,6 +88,12 @@ namespace Unit
             {
                 fsm.SetState<PlayerMovementState>(default, TransitionType.System);
                 return;
+            }
+
+            if (Runner.Tick < hitLookAtEndTick)
+            {
+                Vector3 dir = (currentHitInfo.attackerPos - player.transform.position).normalized;
+                SetLookRotation(Quaternion.Slerp(player.transform.rotation, Quaternion.LookRotation(dir), CURV_SPEED * Runner.DeltaTime));
             }
 
             Move(currentHitMove * hitMoveSpeed * Runner.DeltaTime);

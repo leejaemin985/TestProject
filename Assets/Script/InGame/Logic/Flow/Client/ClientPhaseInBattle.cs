@@ -51,7 +51,7 @@ namespace InGame.Logic
 
             }
 
-            return PhaseState.Wait;
+            return PhaseState.Complete;
         }
 
     }

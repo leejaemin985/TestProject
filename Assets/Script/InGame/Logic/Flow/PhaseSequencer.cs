@@ -19,6 +19,16 @@ namespace InGame.Logic.Flow
             public PhaseState phaseState;
         }
 
+        private IReadOnlyList<FlowPhase> InGameFlowPhase = new List<FlowPhase>()
+        {
+            //FlowPhase.Init,
+            FlowPhase.SessionInit,
+            FlowPhase.UnitSpawn,
+            FlowPhase.InBattle,
+            FlowPhase.End
+        };
+        private int currentPhaseIndex;
+
         //Net
         private Dictionary<PlayerRef, UserPhaseState> userPhases;
         [Networked] private FlowPhase currentPhase { get; set; }
@@ -45,9 +55,6 @@ namespace InGame.Logic.Flow
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
         private void RPC_ReportPhase(PhaseReport reportInfo)
         {
-            if (reportInfo.phaseState != PhaseState.Wait || reportInfo.phaseState != PhaseState.Run)
-                Debug.Log($"Test - Reporting - userRef: {reportInfo.userRef} // phase: {reportInfo.phaseType} // state: {reportInfo.phaseState}");
-
             if (!HasStateAuthority || reportInfo.IsValid == false) return;
 
             var phaseState = userPhases[reportInfo.userRef];
@@ -74,14 +81,12 @@ namespace InGame.Logic.Flow
 
             foreach (var phaseState in userPhases.Values)
             {
-                if (currentPhase != phaseState.phaseType || phaseState.phaseState != PhaseState.Wait) return;
+                if (currentPhase != phaseState.phaseType || phaseState.phaseState != PhaseState.Complete) return;
             }
-
-            Debug.Log($"Test - Set Next FlowPhase");
 
             if (currentPhase < FlowPhase.End)
             {
-                currentPhase = currentPhase + 1;
+                currentPhase = InGameFlowPhase[currentPhaseIndex + 1];
                 RPC_ApplyPhase(new()
                 {
                     phaseType = currentPhase,

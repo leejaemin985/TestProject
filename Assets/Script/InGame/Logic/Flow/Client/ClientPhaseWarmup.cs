@@ -27,7 +27,7 @@ namespace InGame.Logic.Flow
                     await Task.Delay(100);
                 }
 
-                return PhaseState.Wait;
+                return PhaseState.Complete;
             }
             catch (Exception e)
             {

@@ -29,7 +29,7 @@ namespace InGame.Logic.Flow
                 if (runner.IsSharedModeMasterClient) await SpawnUnitStat();
                 await SpawnPlayer();
 
-                return PhaseState.Wait;
+                return PhaseState.Complete;
             }
             catch (Exception e)
             {

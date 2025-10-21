@@ -18,7 +18,7 @@ namespace InGame.Logic.Flow
 
         protected virtual Task<PhaseState> OnExit() => Task.FromResult(PhaseState.Exit);
 
-        protected virtual Task<PhaseState> OnPhase() => Task.FromResult(PhaseState.Wait);
+        protected virtual Task<PhaseState> OnPhase() => Task.FromResult(PhaseState.Complete);
 
         #region IClientPhase
         FlowPhase IClientPhase.phaseType => phaseType;

@@ -21,8 +21,7 @@ namespace InGame.Logic.Flow
         None = -1,
 
         Init,
-        Run,
-        Wait,
+        Complete,
         Exit,
         Error
     }
