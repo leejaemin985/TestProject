@@ -14,7 +14,7 @@ namespace InGame.Logic
             if (Player.RegistedUsers.TryGetValue(runner.LocalPlayer, out var user))
                 runner.Despawn(user.Object);
 
-            return Task.FromResult(PhaseState.Wait);
+            return Task.FromResult(PhaseState.Init);
         }
     }
 }

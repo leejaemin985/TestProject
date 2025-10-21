@@ -34,7 +34,7 @@ namespace InGame.Logic.Flow
             phaseMap = new();
             foreach (ClientPhaseBase phase in clientPhaseList)
             {
-                phase.Initialize(state => ReportFromPhase(phase.phaseType, state));
+                phase.Initialize();
                 phaseMap.Add(phase.phaseType, phase);
             }
 
@@ -43,9 +43,9 @@ namespace InGame.Logic.Flow
 
         private async Task SetPhase(PhaseDirective phaseDirective)
         {
+            //Exit Phase
             var exitPhase = currentPhase ?? ClientPhaseNone.Instance;
-            var exitState = await exitPhase.OnExit();
-            ReportFromPhase(exitPhase.phaseType, exitState);
+            ReportFromPhase(exitPhase.phaseType, await exitPhase.OnExit());
 
 
             if (phaseMap.TryGetValue(phaseDirective.phaseType, out IClientPhase targetPhase))
@@ -53,8 +53,11 @@ namespace InGame.Logic.Flow
             else
                 currentPhase = ClientPhaseNone.Instance;
 
-            var enterState = await currentPhase.OnEnter(phaseDirective);
-            ReportFromPhase(currentPhase.phaseType, enterState);
+            //Enter Phase
+            ReportFromPhase(currentPhase.phaseType, await currentPhase.OnEnter(phaseDirective));
+
+            //OnPhase
+            ReportFromPhase(currentPhase.phaseType, await currentPhase.OnPhase());
         }
 
         public Task ApplyPhase(PhaseDirective directiveInfo) => SetPhase(directiveInfo);

@@ -11,15 +11,14 @@ namespace InGame.Logic.Flow
 
         public abstract FlowPhase phaseType { get; }
 
-        protected Action<PhaseState> reportPhase { get; private set; }
-
         protected PhaseDirective phaseDirective { get; private set; }
 
 
-        protected virtual Task<PhaseState> OnEnter(PhaseDirective phaseDirective) => Task.FromResult(PhaseState.Wait);
+        protected virtual Task<PhaseState> OnEnter(PhaseDirective phaseDirective) => Task.FromResult(PhaseState.Init);
 
         protected virtual Task<PhaseState> OnExit() => Task.FromResult(PhaseState.Exit);
 
+        protected virtual Task<PhaseState> OnPhase() => Task.FromResult(PhaseState.Wait);
 
         #region IClientPhase
         FlowPhase IClientPhase.phaseType => phaseType;
@@ -31,13 +30,13 @@ namespace InGame.Logic.Flow
         }
 
         Task<PhaseState> IClientPhase.OnExit() => OnExit();
+
+        Task<PhaseState> IClientPhase.OnPhase() => OnPhase();
+
         #endregion
 
 
-        public virtual void Initialize(Action<PhaseState> reportAction)
-        {
-            this.reportPhase = reportAction;
-        }
+        public virtual void Initialize() { }
 
     }
 }

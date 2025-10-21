@@ -22,30 +22,20 @@ namespace InGame.Logic.Flow
         private CancellationTokenSource cts;
         private Task spawnTask;
 
-        protected override Task<PhaseState> OnEnter(PhaseDirective phaseDirective)
-        {
-            SpawnedTask();
-            return Task.FromResult(PhaseState.Init);
-            SpawnedTask 먼저 도는 경우가 있음. OnTick처럼 매 프레임 도는건 아니지만 한번 실행한 Task정도는 필요.
-        }
-
-        private async void SpawnedTask()
+        protected async override Task<PhaseState> OnPhase()
         {
             try
             {
                 if (runner.IsSharedModeMasterClient) await SpawnUnitStat();
                 await SpawnPlayer();
 
-                reportPhase?.Invoke(PhaseState.Wait);
-                //Task statSpawnTask = runner.IsSharedModeMasterClient ? SpawnUnitStat() : Task.CompletedTask;
-                //Task playerSpawnTask = SpawnPlayer();
-                //
-                //await Task.WhenAll(statSpawnTask, playerSpawnTask);
+                return PhaseState.Wait;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Debug.LogError(e);
-                reportPhase?.Invoke(PhaseState.Error);
+
+                return PhaseState.Error;
             }
         }
 

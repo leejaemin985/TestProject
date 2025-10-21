@@ -1,9 +1,6 @@
+using System;
 using System.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using Utility.Spinner;
-using System.Threading;
 
 namespace InGame.Logic.Flow
 {
@@ -18,25 +15,25 @@ namespace InGame.Logic.Flow
         protected override Task<PhaseState> OnEnter(PhaseDirective phaseDirective)
         {
             startTick = phaseDirective.startTick;
-
-            CheckWarmup();
-
             return Task.FromResult(PhaseState.Init);
         }
 
-        private async void CheckWarmup()
+        protected async override Task<PhaseState> OnPhase()
         {
-            bool isWarmUp = true;
-            while (isWarmUp)
+            try
             {
-                isWarmUp = runner.Tick < (WARMUP_TIME / runner.DeltaTime) + startTick;
+                while (runner.Tick < (WARMUP_TIME / runner.DeltaTime) + startTick)
+                {
+                    await Task.Delay(100);
+                }
 
-                reportPhase?.Invoke(PhaseState.Run);
-
-                await Task.Delay(100);
+                return PhaseState.Wait;
             }
-
-            reportPhase?.Invoke(PhaseState.Wait);
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+                return PhaseState.Error;
+            }
         }
     }
 }

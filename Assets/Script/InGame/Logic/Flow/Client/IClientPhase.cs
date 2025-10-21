@@ -10,5 +10,7 @@ namespace InGame.Logic.Flow
         public Task<PhaseState> OnEnter(PhaseDirective phaseDirective);
 
         public Task<PhaseState> OnExit();
+
+        public Task<PhaseState> OnPhase();
     }
 }
