@@ -4,12 +4,17 @@ using Fusion;
 
 public struct InputData : INetworkInput
 {
+    // InGame
     public Vector2 moveDir;
     public bool dash;
     public bool jump;
     public bool attack;
     public bool defense;
     public bool skill;
+
+    //Util
+    public bool escape;
+
 
     public bool IsInputEmpty()
     {

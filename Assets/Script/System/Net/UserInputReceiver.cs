@@ -5,8 +5,9 @@ public class UserInputReceiver : RunnerCallbacksBase
 {
     protected override void OnInput(NetworkRunner runner, NetworkInput input)
     {
-        InputData data = new();
 
+        InputData data = new();
+        /*
         data.moveDir = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
 
         if (Input.GetKey(KeyCode.LeftShift)) data.dash = true;
@@ -19,6 +20,8 @@ public class UserInputReceiver : RunnerCallbacksBase
 
         if (Input.GetKey(KeyCode.E)) data.skill = true;
 
+        if (Input.GetKey(KeyCode.Escape)) data.escape = true;
+        */
         input.Set(data);
     }
 }
