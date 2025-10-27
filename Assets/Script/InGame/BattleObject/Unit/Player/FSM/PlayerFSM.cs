@@ -10,6 +10,7 @@ using static Unit.PlayerStateBase;
 using System.Linq;
 using InGame.Event;
 using Utility.Sound;
+using UnityEngine.InputSystem;
 
 namespace Unit
 {
@@ -197,7 +198,7 @@ namespace Unit
         private bool isTest = false;
         public void Update()
         {
-            if (Input.GetKeyDown(KeyCode.M)) isTest = !isTest;
+            if (/*Input.GetKeyDown(KeyCode.M)*/Keyboard.current.mKey.wasPressedThisFrame) isTest = !isTest;
         }
 
         private bool test_attackInput = false;

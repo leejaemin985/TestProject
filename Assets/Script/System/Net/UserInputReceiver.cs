@@ -1,27 +1,59 @@
 using Fusion;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class UserInputReceiver : RunnerCallbacksBase
 {
+    private Vector2 moveDir;
+    private bool dash;
+    private bool jump;
+    private bool attack;
+    private bool defense;
+    private bool skill;
+
+
     protected override void OnInput(NetworkRunner runner, NetworkInput input)
     {
-
         InputData data = new();
-        /*
-        data.moveDir = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
 
-        if (Input.GetKey(KeyCode.LeftShift)) data.dash = true;
+        data.moveDir = moveDir;
+        data.dash = dash;
+        data.jump = jump;
+        data.attack = attack;
+        data.defense = defense;
+        data.skill = skill;
 
-        if (Input.GetKey(KeyCode.Space)) data.jump = true;
-
-        if (Input.GetKey(KeyCode.Mouse0)) data.attack = true;
-
-        if (Input.GetKey(KeyCode.Mouse1)) data.defense = true;
-
-        if (Input.GetKey(KeyCode.E)) data.skill = true;
-
-        if (Input.GetKey(KeyCode.Escape)) data.escape = true;
-        */
         input.Set(data);
     }
+
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        moveDir = context.ReadValue<Vector2>();
+    }
+
+    public void OnDash(InputAction.CallbackContext context)
+    {
+        dash = context.ReadValue<float>() > 0;
+    }
+
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        jump = context.ReadValue<float>() > 0;
+    }
+
+    public void OnAttack(InputAction.CallbackContext context)
+    {
+        attack = context.ReadValue<float>() > 0;
+    }
+
+    public void OnDefense(InputAction.CallbackContext context)
+    {
+        defense = context.ReadValue<float>() > 0;
+    }
+
+    public void OnSkill(InputAction.CallbackContext context)
+    {
+        skill = context.ReadValue<float>() > 0;
+    }
+
 }
