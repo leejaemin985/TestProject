@@ -1,22 +1,22 @@
+using System;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 
 namespace GameOption
 {
     public class InputSystemSettings : MonoSingleton<InputSystemSettings>
     {
-        [SerializeField] private InputActionAsset inputActions;
-        private List<KeyBindingInfo> keyBindingInfos;
+        private const string DEFAULT_ASSET_PATH = "InputSystem/GameInputActions";
 
         private const string KEY_INFO_BASE_PATH = "KeyInfos.json";
-        private string KeyInfoPath => Path.Combine(Application.persistentDataPath, KEY_INFO_BASE_PATH);
+        private static string KeyInfoPath => Path.Combine(Application.persistentDataPath, KEY_INFO_BASE_PATH);
 
-        /*
-        public void LoadKeyInfoFile(InputActionAsset inputAction, Action completeAction = null)
+        private static void LoadKeyInfoFile(InputActionAsset inputAction)
         {
             if (File.Exists(KeyInfoPath) == false)
             {
@@ -33,36 +33,26 @@ namespace GameOption
             {
                 Debug.LogError(e);
             }
-            finally
-            {
-                completeAction?.Invoke();
-            }
         }
 
-        public void SaveKeyInfoFile(InputActionAsset inputAction, Action completeAction = null)
+        private static void SaveKeyInfoFile(InputActionAsset inputAction)
         {
             try
             {
                 string keyInfoJson = inputAction.SaveBindingOverridesAsJson();
                 File.WriteAllText(KeyInfoPath, keyInfoJson);
-
             }
             catch(Exception e)
             {
                 Debug.LogError(e);
             }
-            finally
-            {
-                completeAction?.Invoke();
-            }
         }
-        */
-
+        
         #region TestCode
 
         private void Start()
         {
-            Initialize(inputActions);
+            Initialize();
         }
 
         private void Update()
@@ -89,9 +79,20 @@ namespace GameOption
 
         #endregion
 
-        public void Initialize(InputActionAsset inputActions)
+        private InputActionAsset inputActions;
+        private List<KeyBindingInfo> keyBindingInfos;
+
+        public void Initialize()
         {
-            if (inputActions == null) return;
+            inputActions = Resources.Load<InputActionAsset>(DEFAULT_ASSET_PATH);
+            if (inputActions == null)
+            {
+                Debug.LogError($"Not Found InputActionAsset");
+                return;
+            }
+
+            //Load InputAction Overriding
+            LoadKeyInfoFile(inputActions);
 
             keyBindingInfos = new();
             foreach(var action in inputActions)
@@ -113,18 +114,15 @@ namespace GameOption
 
         public void SetKeyBinding(List<KeyBindingData> bindingDatas)
         {
-            //bool modified = false;
-
             foreach (var requestBind in bindingDatas)
             {
                 if (requestBind.IsModified == false) continue;
 
-                //modified |=
                 keyBindingInfos.Find(x => x.DisplayName.Equals(requestBind.DisPlayName)).TryChangeKeyPath(requestBind);
             }
-            Debug.Log($"Test - SetKeyBinding Done");
-            //if (modified == false) return;
-        }
 
+            //Save InputActionAsset Overrding
+            SaveKeyInfoFile(inputActions);
+        }
     }
 }

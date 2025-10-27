@@ -33,9 +33,18 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Skill",
+                    "type": "Button",
+                    "id": "ed8a499f-9c35-4984-aa53-b611cf7c5529",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Attack",
                     "type": "Button",
-                    "id": "892e5b99-1939-46ab-9f7d-8ae2d9062668",
+                    "id": "46c2e175-8bcb-4147-b5cf-e1e80e630fb3",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -44,16 +53,7 @@
                 {
                     "name": "Defense",
                     "type": "Button",
-                    "id": "5b942c8c-d5fb-4edd-b23e-3daff3e46430",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Skill",
-                    "type": "Button",
-                    "id": "ed8a499f-9c35-4984-aa53-b611cf7c5529",
+                    "id": "e7993dc8-8a39-4b2a-acdb-4545dc4f1d04",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -140,7 +140,18 @@
                 },
                 {
                     "name": "",
-                    "id": "f61409df-149b-4234-9401-c110e2349edf",
+                    "id": "b81da242-5da0-4957-8e08-b36810c59004",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";PC",
+                    "action": "Skill",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "26b4e795-575b-47d6-9612-b70d41799de4",
                     "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
@@ -151,23 +162,12 @@
                 },
                 {
                     "name": "",
-                    "id": "34e3cd7b-47bd-4461-9073-04ad5ff83ca5",
-                    "path": "<Mouse>/rightButton",
+                    "id": "c4f72b2b-8e06-42f3-b378-04f306336d25",
+                    "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": ";PC",
                     "action": "Defense",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "b81da242-5da0-4957-8e08-b36810c59004",
-                    "path": "<Keyboard>/e",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";PC",
-                    "action": "Skill",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
