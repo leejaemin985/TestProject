@@ -1,15 +1,15 @@
 using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System.Collections;
+
 
 namespace GameOption
 {
-    public class InputSystemSettings : MonoSingleton<InputSystemSettings>
+    public class InputSystemSettings
     {
         private const string DEFAULT_ASSET_PATH = "InputSystem/GameInputActions";
 
@@ -47,15 +47,7 @@ namespace GameOption
                 Debug.LogError(e);
             }
         }
-        
-        #region TestCode
 
-        private void Start()
-        {
-            Initialize();
-        }
-
-        #endregion
 
         private InputActionAsset inputActions;
         private List<KeyBindingInfo> keyBindingInfos;

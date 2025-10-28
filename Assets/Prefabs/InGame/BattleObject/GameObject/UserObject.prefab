@@ -794,6 +794,7 @@ GameObject:
   - component: {fileID: 4839910391055227505}
   - component: {fileID: 7155033822045964745}
   - component: {fileID: 8327480783071105727}
+  - component: {fileID: 2537491511412232446}
   m_Layer: 0
   m_Name: CamManager
   m_TagString: Untagged
@@ -938,6 +939,22 @@ MonoBehaviour:
   - {fileID: 267004013038020107}
   - {fileID: 5546865585210329098}
   - {fileID: 5241006244981467884}
+--- !u!114 &2537491511412232446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4899177330932549992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb7194dc27b9df64c8beca7482ee8e0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlayerIndex: -1
+  AutoEnableInputs: 1
+  XYAxis: {fileID: -5630151704836100654, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  ZAxis: {fileID: 0}
 --- !u!1 &5375295102482115916
 GameObject:
   m_ObjectHideFlags: 3

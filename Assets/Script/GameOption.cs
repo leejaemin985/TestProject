@@ -1,18 +1,22 @@
+using UnityEngine;
 using Utility.Sound;
 
 namespace GameOption
 {
     public class GameOption : MonoSingleton<GameOption>
     {
+        [SerializeField] private GameOptionUI optionUI;
 
 
-        public float GetBGMSoundVolume() => GameAudioMixerController.Instance.GetBGMVolume();
+        private float mouseSensitive;
 
-        public float GetEffectSoundVolume() => GameAudioMixerController.Instance.GetEffectVolume();
+        private InputSystemSettings inputSystemSetter;
 
-        public void SetBGMSoundVolume(float targetVolume) => GameAudioMixerController.Instance.SetBGMVolume(targetVolume);
+        private GameAudioMixerController audioMixerController => GameAudioMixerController.Instance;
 
-        public void SetEffectSoundVolume(float targetVolume) => GameAudioMixerController.Instance.SetEffectVolume(targetVolume);
-
+        //public float GetBGMSoundVolume() => GameAudioMixerController.Instance.GetBGMVolume();
+        //public float GetEffectSoundVolume() => GameAudioMixerController.Instance.GetEffectVolume();
+        //public void SetBGMSoundVolume(float targetVolume) => GameAudioMixerController.Instance.SetBGMVolume(targetVolume);
+        //public void SetEffectSoundVolume(float targetVolume) => GameAudioMixerController.Instance.SetEffectVolume(targetVolume);
     }
 }
