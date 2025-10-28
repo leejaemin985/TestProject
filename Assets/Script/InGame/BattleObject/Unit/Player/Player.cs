@@ -115,6 +115,8 @@ namespace Unit
             modelAnim = modelObject.GetComponent<Animator>();
             modelAnim.runtimeAnimatorController = latencyInterpolationAnim.runtimeAnimatorController;
             animEventer = modelObject.AddComponent<PlayerAnimEventer>();
+
+            await Task.CompletedTask;
         }
 
         private async Task WeaponAssetSetting()
@@ -153,6 +155,8 @@ namespace Unit
 
             weapSettingInfo.collisionBox.transform.SetParent(latencyInterpolationWeapPos);
             weapSettingInfo.collisionBox.transform.SetLocalPositionAndRotation(finalPos, finalRot);
+
+            await Task.CompletedTask;
         }
 
 

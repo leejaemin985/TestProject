@@ -242,19 +242,67 @@ MonoBehaviour:
     m_ActionId: 8dcb596b-9d2a-476f-90d2-a02fb7140182
     m_ActionName: PlayerActions/Dash[/Keyboard/leftShift]
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 8389750529646163420}
+        m_TargetAssemblyTypeName: UserInputReceiver, Assembly-CSharp
+        m_MethodName: OnJump
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 65e0ec06-9813-4687-a987-907d5fd66e2d
     m_ActionName: PlayerActions/Jump[/Keyboard/space]
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 8389750529646163420}
+        m_TargetAssemblyTypeName: UserInputReceiver, Assembly-CSharp
+        m_MethodName: OnSkill
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: ed8a499f-9c35-4984-aa53-b611cf7c5529
     m_ActionName: PlayerActions/Skill[/Keyboard/e]
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 8389750529646163420}
+        m_TargetAssemblyTypeName: UserInputReceiver, Assembly-CSharp
+        m_MethodName: OnAttack
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 46c2e175-8bcb-4147-b5cf-e1e80e630fb3
     m_ActionName: PlayerActions/Attack[/Mouse/leftButton]
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 8389750529646163420}
+        m_TargetAssemblyTypeName: UserInputReceiver, Assembly-CSharp
+        m_MethodName: OnDefense
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: e7993dc8-8a39-4b2a-acdb-4545dc4f1d04
     m_ActionName: PlayerActions/Defense[/Mouse/rightButton]
   m_NeverAutoSwitchControlSchemes: 0

@@ -21,7 +21,7 @@ namespace InGame.Logic.Flow
 
         private IReadOnlyList<FlowPhase> InGameFlowPhase = new List<FlowPhase>()
         {
-            //FlowPhase.Init,
+            FlowPhase.Init,
             FlowPhase.SessionInit,
             FlowPhase.UnitSpawn,
             FlowPhase.InBattle,
@@ -55,6 +55,8 @@ namespace InGame.Logic.Flow
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
         private void RPC_ReportPhase(PhaseReport reportInfo)
         {
+            Debug.Log($"Test - report // userRef:{reportInfo.userRef} type: {reportInfo.phaseType} state: {reportInfo.phaseState}");
+
             if (!HasStateAuthority || reportInfo.IsValid == false) return;
 
             var phaseState = userPhases[reportInfo.userRef];
@@ -86,7 +88,10 @@ namespace InGame.Logic.Flow
 
             if (currentPhase < FlowPhase.End)
             {
-                currentPhase = InGameFlowPhase[currentPhaseIndex + 1];
+                currentPhase = InGameFlowPhase[++currentPhaseIndex];
+
+                Debug.Log($"Test - Set NextPhase : {currentPhase}");
+
                 RPC_ApplyPhase(new()
                 {
                     phaseType = currentPhase,

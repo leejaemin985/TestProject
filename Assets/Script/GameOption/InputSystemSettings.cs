@@ -55,28 +55,6 @@ namespace GameOption
             Initialize();
         }
 
-        private void Update()
-        {
-            if (Keyboard.current.digit0Key.wasPressedThisFrame)
-            {
-                foreach (var binding in inputActions.bindings)
-                {
-                    if (binding.isComposite) continue;
-
-                    string name = string.IsNullOrEmpty(binding.name) ? binding.action : binding.name;
-                    Debug.Log($"[{name}] - path: {binding.path} // {binding.overridePath}");
-                }
-            }
-
-            if (Keyboard.current.digit1Key.wasPressedThisFrame)
-            {
-                var dataList = GetKeyBindingInfos();
-                dataList[0].CurrentKeyPath = "<Keyboard>/p";
-
-                SetKeyBinding(dataList);
-            }
-        }
-
         #endregion
 
         private InputActionAsset inputActions;
