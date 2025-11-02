@@ -14,8 +14,6 @@ namespace GameOption
             get { return modifiedKeyPath; }
             set
             {
-                if (OriginalKeyPath.Equals(value)) return;
-
                 IsModified = true;
                 modifiedKeyPath = value;
             }

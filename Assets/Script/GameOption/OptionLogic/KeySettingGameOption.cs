@@ -1,6 +1,8 @@
 using UnityEngine;
 using EnhancedUI.EnhancedScroller;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine.InputSystem;
 
 namespace GameOption
 {
@@ -28,6 +30,9 @@ namespace GameOption
             inputSystemSetter = new();
             inputSystemSetter.Initialize();
             scroller.Delegate = this;
+
+            //TestCode
+            SetActive(true);
         }
 
         protected override void SetActive(bool set)
@@ -63,9 +68,11 @@ namespace GameOption
             }
         }
 
-        private void ShowKeyList()
+        private void ShowKeyList(KeySettingScrollCellItem item)
         {
             Debug.Log($"Test - CallShow Key List");
+
+
         }
 
         public EnhancedScrollerCellView GetCellView(EnhancedScroller scroller, int dataIndex, int cellIndex)

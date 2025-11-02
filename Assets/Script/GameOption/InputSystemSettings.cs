@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 
 namespace GameOption
@@ -79,7 +80,13 @@ namespace GameOption
 
         public List<KeyBindingData> GetKeyBindingInfos()
         {
-            return keyBindingInfos.Select(info => new KeyBindingData(info)).ToList();
+            var ret = new List<KeyBindingData>();
+            foreach (var info in keyBindingInfos)
+            {
+                ret.Add(new KeyBindingData(info));
+            }
+
+            return ret;
         }
 
         public void SetKeyBinding(List<KeyBindingData> bindingDatas)

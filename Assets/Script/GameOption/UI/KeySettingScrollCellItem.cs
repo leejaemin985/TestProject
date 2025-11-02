@@ -8,20 +8,38 @@ namespace GameOption
 {
     public class KeySettingScrollCellItem : MonoBehaviour
     {
+        [SerializeField] private RectTransform keySettingRect;
         [SerializeField] private TMP_Text actionText;
-        [SerializeField] private TMP_InputField inputField;
+        [SerializeField] private TMP_Text keySettingText;
+
+        public RectTransform KeySettingRect => keySettingRect;
 
         private KeyBindingData keyBindingData;
 
-        private Action onShowKeyListEvent;
+        private Action<KeySettingScrollCellItem> onShowKeyListEvent;
 
-        public void Initialize(KeyBindingData keyBindingData, Action showKeyListEvent)
+        public void Initialize(KeyBindingData keyBindingData, Action<KeySettingScrollCellItem> showKeyListEvent)
         {
-            this.keyBindingData = keyBindingData;
+            BindingData(keyBindingData);
             onShowKeyListEvent = showKeyListEvent;
 
             SetListener();
         }
+
+        public void SetActive(bool set)
+        {
+            gameObject.SetActive(set);
+        }
+
+        private void BindingData(KeyBindingData data)
+        {
+            this.keyBindingData = data;
+
+            actionText.text = data.DisPlayName;
+            string path = string.IsNullOrEmpty(data.CurrentKeyPath) ? null : data.CurrentKeyPath.Substring(data.CurrentKeyPath.IndexOf('/') + 1);
+            keySettingText.text = path;
+        }
+
 
         private void SetListener()
         {
@@ -32,7 +50,7 @@ namespace GameOption
 
         public void OnClickKeySettingEvent()
         {
-
+            onShowKeyListEvent?.Invoke(this);
         }
     }
 }

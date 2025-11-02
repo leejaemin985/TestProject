@@ -9,7 +9,6 @@ namespace GameOption
 
         [SerializeField] private GameOptionSetterBase[] setterBases;
 
-
         public void Initialize()
         {
             foreach (var setter in setterBases)
@@ -18,9 +17,5 @@ namespace GameOption
             }
         }
 
-
-        //private float mouseSensitive;
-        //private InputSystemSettings inputSystemSetter;
-        //private GameAudioMixerController audioMixerController => GameAudioMixerController.Instance;
     }
 }

@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 using Utility.Spinner;
 using Utility.CommonPopup;
 
-using Addressable;
+using GameOption;
 
 namespace Localinitialize
 {
@@ -19,6 +19,8 @@ namespace Localinitialize
             await introDownload.DownloadAddressables();
 
             JoinLobby();
+
+            GameOption.GameOption.Instance.Initialize();
         }
 
         private async void JoinLobby()
