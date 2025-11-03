@@ -21,5 +21,16 @@ namespace GameOption
         }
 
         private void InputFieldDeselectEvent(string text) => inputFieldDeselectListener?.Invoke(text);
+
+        public void SetKeyListActive(bool set)
+        {
+            keyListInputField.gameObject.SetActive(set);
+            keyListInputField.Select();
+        }
+
+        public void SetPosition(KeySettingScrollCellItem item)
+        {
+            keyListInputField.GetComponent<RectTransform>().anchoredPosition = item.KeySettingRect.anchoredPosition;
+        }
     }
 }

@@ -72,7 +72,14 @@ namespace GameOption
         {
             Debug.Log($"Test - CallShow Key List");
 
+            keySettingUI.SetKeyListActive(true);
+            keySettingUI.SetPosition(item);
 
+            //var keyList = Keyboard.current.allKeys;
+            //foreach (var key in keyList)
+            //{
+            //    Debug.Log(key);
+            //}
         }
 
         public EnhancedScrollerCellView GetCellView(EnhancedScroller scroller, int dataIndex, int cellIndex)
