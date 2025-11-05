@@ -21,7 +21,7 @@ namespace GameOption
 
         private InputSystemSettings inputSystemSetter;
 
-        private List<List<KeyBindingData>> keyBindingDatas = new();
+        private List<List<KeyBindingInfo>> keyBindingDatas = new();
 
         protected override void Initialize()
         {
@@ -56,7 +56,7 @@ namespace GameOption
             for (int i = 0; i < infos.Count; i += 2)
             {
 
-                var pair = new List<KeyBindingData>(2)
+                var pair = new List<KeyBindingInfo>(2)
                 {
                     infos[i]
                 };
@@ -68,18 +68,10 @@ namespace GameOption
             }
         }
 
-        private void ShowKeyList(KeySettingScrollCellItem item)
+        private void ShowKeyList(KeyBindingInfo info)
         {
             Debug.Log($"Test - CallShow Key List");
 
-            keySettingUI.SetKeyListActive(true);
-            keySettingUI.SetPosition(item);
-
-            //var keyList = Keyboard.current.allKeys;
-            //foreach (var key in keyList)
-            //{
-            //    Debug.Log(key);
-            //}
         }
 
         public EnhancedScrollerCellView GetCellView(EnhancedScroller scroller, int dataIndex, int cellIndex)

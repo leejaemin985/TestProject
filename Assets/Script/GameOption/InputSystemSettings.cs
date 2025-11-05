@@ -78,28 +78,9 @@ namespace GameOption
             }
         }
 
-        public List<KeyBindingData> GetKeyBindingInfos()
+        public List<KeyBindingInfo> GetKeyBindingInfos()
         {
-            var ret = new List<KeyBindingData>();
-            foreach (var info in keyBindingInfos)
-            {
-                ret.Add(new KeyBindingData(info));
-            }
-
-            return ret;
-        }
-
-        public void SetKeyBinding(List<KeyBindingData> bindingDatas)
-        {
-            foreach (var requestBind in bindingDatas)
-            {
-                if (requestBind.IsModified == false) continue;
-
-                keyBindingInfos.Find(x => x.DisplayName.Equals(requestBind.DisPlayName)).TryChangeKeyPath(requestBind);
-            }
-
-            //Save InputActionAsset Overrding
-            SaveKeyInfoFile(inputActions);
+            return keyBindingInfos;
         }
     }
 }

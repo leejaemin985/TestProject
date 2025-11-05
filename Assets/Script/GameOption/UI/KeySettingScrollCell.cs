@@ -10,12 +10,12 @@ namespace GameOption
     {
         [SerializeField] private KeySettingScrollCellItem[] items;
 
-        public void Initialize(List<KeyBindingData> bindingDatas, Action<KeySettingScrollCellItem> showKeyListEvent)
+        public void Initialize(List<KeyBindingInfo> bindingDatas, Action<KeyBindingInfo> cellSelectEvent)
         {
             int index = 0;
             for (; index < bindingDatas.Count; ++index)
             {
-                items[index].Initialize(bindingDatas[index], showKeyListEvent);
+                items[index].Initialize(bindingDatas[index], cellSelectEvent);
                 items[index].SetActive(true);
             }
             for (; index < items.Length; ++index) items[index].SetActive(false);
