@@ -68,10 +68,19 @@ namespace GameOption
             }
         }
 
-        private void ShowKeyList(KeyBindingInfo info)
+        private void ShowKeyList(KeySettingScrollCellItem cell)
         {
-            Debug.Log($"Test - CallShow Key List");
+            var info = cell.keyBindingInfo;
+            var action = info.inputAction;
 
+            cell.SetAssignText();
+
+            if (action.enabled) action.Disable();
+            var op = action.PerformInteractiveRebinding(info.bindingIndex)
+                .OnComplete(operation => cell.Refresh());
+
+            op.Start();
+            action.Enable();
         }
 
         public EnhancedScrollerCellView GetCellView(EnhancedScroller scroller, int dataIndex, int cellIndex)

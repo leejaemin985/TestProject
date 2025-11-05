@@ -73,7 +73,7 @@ namespace GameOption
                     var binding = action.bindings[index];
                     if (binding.isComposite) continue;
 
-                    keyBindingInfos.Add(new(binding, action, index));
+                    keyBindingInfos.Add(new(action, index));
                 }
             }
         }

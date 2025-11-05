@@ -5,26 +5,19 @@ namespace GameOption
 {
     public class KeyBindingInfo
     {
-        private InputAction inputAction;
-        private int bindingIndex;
+        public readonly InputAction inputAction;
+        public readonly int bindingIndex;
 
-        public InputBinding inputBinding { get; private set; }
+        public InputBinding inputBinding => inputAction.bindings[bindingIndex];
 
-        public KeyBindingInfo(InputBinding sourceBinding, InputAction sourceAction, int index)
+        public KeyBindingInfo(InputAction sourceAction, int index)
         {
-            if (sourceBinding.isComposite)
-            {
-                Debug.LogError("InputBinding.IsComposite cannot be assigned to KeyBindingInfo.");
-                return;
-            }
-
             inputAction = sourceAction;
             bindingIndex = index;
-            inputBinding = sourceBinding;
-            CurrentKeyPath = string.IsNullOrEmpty(inputBinding.overridePath) ? inputBinding.path : inputBinding.overridePath;
             DisplayName = string.IsNullOrEmpty(inputBinding.name) ? inputBinding.action : inputBinding.name;
         }
-        public string CurrentKeyPath { get; private set; }
+
+        public string CurrentKeyPath => string.IsNullOrEmpty(inputBinding.overridePath) ? inputBinding.path : inputBinding.overridePath;
         public readonly string DisplayName;
     }
 

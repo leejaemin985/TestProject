@@ -10,7 +10,7 @@ namespace GameOption
     {
         [SerializeField] private KeySettingScrollCellItem[] items;
 
-        public void Initialize(List<KeyBindingInfo> bindingDatas, Action<KeyBindingInfo> cellSelectEvent)
+        public void Initialize(List<KeyBindingInfo> bindingDatas, Action<KeySettingScrollCellItem> cellSelectEvent)
         {
             int index = 0;
             for (; index < bindingDatas.Count; ++index)

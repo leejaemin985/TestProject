@@ -1,6 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace GameOption
 {
@@ -12,12 +13,12 @@ namespace GameOption
 
         public RectTransform KeySettingRect => keySettingRect;
 
-        private KeyBindingInfo keyBindingInfo;
+        public KeyBindingInfo keyBindingInfo { get; private set; }
 
-        private Action<KeyBindingInfo> keyResettingEvent;
+        private Action<KeySettingScrollCellItem> keyResettingEvent;
 
 
-        public void Initialize(KeyBindingInfo keyBindingInfo, Action<KeyBindingInfo> keySettingEventListener)
+        public void Initialize(KeyBindingInfo keyBindingInfo, Action<KeySettingScrollCellItem> keySettingEventListener)
         {
             BindingData(keyBindingInfo);
             this.keyResettingEvent = keySettingEventListener;
@@ -35,11 +36,23 @@ namespace GameOption
             actionText.text = info.DisplayName;
             string path = string.IsNullOrEmpty(info.CurrentKeyPath) ? null : info.CurrentKeyPath.Substring(info.CurrentKeyPath.IndexOf('/') + 1);
             keySettingText.text = path;
+            keySettingText.color = Color.white;
         }
 
         public void OnClickKeySettingEvent()
         {
-            keyResettingEvent?.Invoke(keyBindingInfo);
+            keyResettingEvent?.Invoke(this);
+        }
+
+        public void Refresh()
+        {
+            BindingData(keyBindingInfo);
+        }
+
+        public void SetAssignText()
+        {
+            keySettingText.text = "Press a key to assign.";
+            keySettingText.color = Color.white * .5f;
         }
     }
 }
