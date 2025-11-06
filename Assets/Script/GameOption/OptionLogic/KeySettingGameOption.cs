@@ -77,7 +77,11 @@ namespace GameOption
 
             if (action.enabled) action.Disable();
             var op = action.PerformInteractiveRebinding(info.bindingIndex)
-                .OnComplete(operation => cell.Refresh());
+                .OnComplete(operation =>
+                {
+                    cell.Refresh();
+                    inputSystemSetter.SaveKeySettings();
+                });
 
             op.Start();
             action.Enable();

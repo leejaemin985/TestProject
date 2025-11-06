@@ -82,5 +82,10 @@ namespace GameOption
         {
             return keyBindingInfos;
         }
+
+        public void SaveKeySettings()
+        {
+            SaveKeyInfoFile(inputActions);
+        }
     }
 }
