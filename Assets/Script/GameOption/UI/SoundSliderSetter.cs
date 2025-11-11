@@ -7,7 +7,7 @@ namespace GameOption
 {
     public class SoundSliderSetter : MonoBehaviour
     {
-        [SerializeField] private Slider bgmVolumeSlider;
+        [SerializeField] private Slider volumeSlider;
         [SerializeField] private TMP_Text volumeText;
 
         private Func<float> getVolume;
@@ -15,7 +15,23 @@ namespace GameOption
 
         public void Initialize(Func<float> getVolume,Action<float> setVolumeListener)
         {
-            dfjkabsfhkabehjgkbakjlfbalhkbglk
+            this.getVolume = getVolume;
+            this.setVolumeListener = setVolumeListener;
+
+            volumeSlider.onValueChanged.AddListener(SetVolume);
+        }
+
+        public void SetActive(bool set)
+        {
+            if (set == false) return;
+            volumeSlider.value = getVolume == null ? 0 : getVolume();
+
+        }
+
+        private void SetVolume(float value)
+        {
+            setVolumeListener?.Invoke(value);
+            volumeText.text = Mathf.RoundToInt(value * 100).ToString();
         }
 
     }
