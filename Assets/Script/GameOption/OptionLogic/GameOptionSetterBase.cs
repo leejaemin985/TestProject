@@ -4,17 +4,22 @@ namespace GameOption
 {
     public abstract class GameOptionSetterBase : MonoBehaviour, IGameOptionSetter
     {
-        protected abstract string OptionName { get; }
+        public enum GameOptionType
+        {
+            KeySetting,
+            Audio
+        }
 
         protected bool wasModified;
 
+        protected abstract GameOptionType OptionType { get; }
 
         protected virtual void Initialize() { }
 
         protected virtual void SetActive(bool set) { }
 
+        GameOptionType IGameOptionSetter.GameOptionType => OptionType;
 
-        string IGameOptionSetter.OptionName => OptionName;
 
         bool IGameOptionSetter.Modified => wasModified;
 

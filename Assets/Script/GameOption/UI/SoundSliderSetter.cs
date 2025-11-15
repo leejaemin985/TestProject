@@ -19,6 +19,11 @@ namespace GameOption
             this.setVolumeListener = setVolumeListener;
 
             volumeSlider.onValueChanged.AddListener(SetVolume);
+
+            float currentVolume = getVolume == null ? 0 : getVolume();
+
+            volumeSlider.value = currentVolume;
+            volumeText.text = Mathf.RoundToInt(currentVolume * 100).ToString();
         }
 
         public void SetActive(bool set)

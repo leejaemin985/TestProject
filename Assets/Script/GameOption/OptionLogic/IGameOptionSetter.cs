@@ -2,9 +2,9 @@ namespace GameOption
 {
     interface IGameOptionSetter
     {
-        void Initialize();
+        GameOptionSetterBase.GameOptionType GameOptionType { get; }
 
-        string OptionName { get; }
+        void Initialize();
 
         bool Modified { get; }
 

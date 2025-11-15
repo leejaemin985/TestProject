@@ -8,7 +8,6 @@ namespace GameOption
 {
     public class KeySettingGameOption : GameOptionSetterBase, IEnhancedScrollerDelegate
     {
-        protected override string OptionName => "KeySetting";
 
         [SerializeField] private KeySettingGameOptionUI keySettingUI;
         [SerializeField] private KeySettingScroller scroller;
@@ -16,6 +15,7 @@ namespace GameOption
 
         private const float CELL_HEIGHT = 200;
 
+        protected override GameOptionType OptionType => GameOptionType.KeySetting;
 
         private float mouseSensitive { get; set; }
 
@@ -38,6 +38,7 @@ namespace GameOption
         protected override void SetActive(bool set)
         {
             if (set) UpdateKeySettings();
+            keySettingUI.PanelSetActive(set);
             //else 
         }
 

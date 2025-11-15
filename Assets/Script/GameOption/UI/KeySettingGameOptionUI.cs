@@ -6,15 +6,9 @@ namespace GameOption
 {
     public class KeySettingGameOptionUI : MonoBehaviour
     {
-        public void Initialize()
-        {
-            SetListener();
-        }
+        [SerializeField] private GameObject uiObject;
 
-        private void SetListener()
-        {
 
-        }
-
+        public void PanelSetActive(bool set) => uiObject.SetActive(set);
     }
 }

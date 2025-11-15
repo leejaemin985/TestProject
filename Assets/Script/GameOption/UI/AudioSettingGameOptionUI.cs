@@ -16,6 +16,7 @@ namespace GameOption
             effectVolumeSetter.Initialize(getEffectVolume, onEffectVolumeChangedListener);
         }
 
+        public void PanelSetActive(bool set) => gameObject.SetActive(set);
 
     }
 }

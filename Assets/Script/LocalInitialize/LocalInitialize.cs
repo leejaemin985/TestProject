@@ -7,6 +7,7 @@ using Utility.Spinner;
 using Utility.CommonPopup;
 
 using GameOption;
+using UnityEngine.InputSystem;
 
 namespace Localinitialize
 {
@@ -61,6 +62,5 @@ namespace Localinitialize
             CommonPopup.Instance.OnPopup(popupPolicy);
             while (waitInput) await Task.Yield();
         }
-
     }
 }
