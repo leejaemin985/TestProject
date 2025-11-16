@@ -34,7 +34,7 @@ namespace InGame
 
         private void SetCamState(CamActionState state)
         {
-            freeLookCam.LookAt = false&&state == CamActionState.None ? noneStateTransform : motionStateTransform;
+            freeLookCam.LookAt = true || state == CamActionState.None ? noneStateTransform : motionStateTransform;
         }
 
         public void ChangeUserStateListener(PlayerStateBase.StateType stateType)

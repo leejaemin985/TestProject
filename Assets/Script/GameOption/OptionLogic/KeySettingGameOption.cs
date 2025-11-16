@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using EnhancedUI.EnhancedScroller;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace GameOption
 
         protected override GameOptionType OptionType => GameOptionType.KeySetting;
 
-        private float mouseSensitive { get; set; }
+        private float mouseSensitive;// { get; set; }
 
         private InputSystemSettings inputSystemSetter;
 
@@ -31,15 +32,20 @@ namespace GameOption
             inputSystemSetter.Initialize();
             scroller.Delegate = this;
 
-            //TestCode
-            SetActive(true);
+            keySettingUI.Initialize(() => mouseSensitive, SetMouseSensitive);
+
+            //SetActive(true);
         }
 
         protected override void SetActive(bool set)
         {
             if (set) UpdateKeySettings();
             keySettingUI.PanelSetActive(set);
-            //else 
+        }
+
+        private void SetMouseSensitive(float value)
+        {
+            mouseSensitive = value;
         }
 
         private void UpdateKeySettings()
