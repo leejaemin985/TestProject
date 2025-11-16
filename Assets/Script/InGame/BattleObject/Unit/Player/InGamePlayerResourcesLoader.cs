@@ -12,12 +12,15 @@ namespace Unit
         
         public static AddressableScriptable_UserSoundPack soundPack { get; private set; }
 
+        public static AddressableObject_UserStateEffect userStateEffectAsset { get; private set; }
+
         public static async Task LoadAssets()
         {
             await Task.WhenAll(
                 LoadModel(),
                 LoadWeapon(),
-                LoadSoundPack());
+                LoadSoundPack(),
+                LoadUserStateEffectAsset());
         }
 
         private static async Task LoadModel()
@@ -36,6 +39,15 @@ namespace Unit
         {
             if (soundPack == null)
                 soundPack = await AddressableManager.LoadAsset<AddressableScriptable_UserSoundPack>(AddressableKey.PK_UserSoundPack);
+        }
+
+        private static async Task LoadUserStateEffectAsset()
+        {
+            if (userStateEffectAsset == null)
+            {
+                var ob = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_UserStateEffectGroup);
+                userStateEffectAsset = ob.GetComponent<AddressableObject_UserStateEffect>();
+            }
         }
 
         public static void Dispose()

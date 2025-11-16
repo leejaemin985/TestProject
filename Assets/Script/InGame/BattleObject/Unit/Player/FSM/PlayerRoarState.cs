@@ -42,11 +42,9 @@ namespace Unit
             physicsRange.AddIgnoreUid(player.playerHitBox);
         }
 
-        private async void LoadEffect()
+        private void LoadEffect()
         {
-            var ob = await AddressableManager.LoadAsset<GameObject>(AddressableKey.PK_UserStateEffectGroup);
-            var effectGroup = ob.GetComponent<AddressableObject_UserStateEffect>();
-            effectPool = EffectObjectPool.CreatePoolInstance<RoarStateEffect>((RoarStateEffect)effectGroup.roarStateEffect, new() { count = 2, effectRoot = null });
+            effectPool = EffectObjectPool.CreatePoolInstance<RoarStateEffect>((RoarStateEffect)InGamePlayerResourcesLoader.userStateEffectAsset.roarStateEffect, new() { count = 2, effectRoot = null });
             roarSoundClip = InGamePlayerResourcesLoader.soundPack.roarStateSE;
         }
 

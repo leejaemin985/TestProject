@@ -5,6 +5,10 @@ using UnityEngine;
 
 using Fusion;
 using InGame.Event;
+using Fusion.Addons.SimpleKCC;
+using Utility.Sound;
+using Addressable;
+using Utility.EffectObject;
 
 namespace Unit
 {
@@ -44,9 +48,19 @@ namespace Unit
         private const float HIT_LOOKAT_TIME = .15f;
         private const float CURV_SPEED = 10;
 
+        private EffectObjectPool hitSparkEffectPool;
+        private AudioClip[] hitSparkSE;
+
         protected override void SetInfo(INetworkStruct info) => currentHitInfo = ((StateInfo)info).hitInfo;
 
         #region FSM State
+        public override void Initialize(Player player, PlayerFSM fsm, SimpleKCC cc, Animator modelAnim, Animator latencyInterpolationAnim, ISoundObject soundObject, IWeapon weap)
+        {
+            base.Initialize(player, fsm, cc, modelAnim, latencyInterpolationAnim, soundObject, weap);
+
+            LoadEffect();
+        }
+
         //EnterState
         protected override void EnterStateAuthority(int enterTick)
         {
@@ -71,6 +85,12 @@ namespace Unit
             hitEndTick = Runner.Tick + Mathf.RoundToInt(hitMotionDuration * Runner.TickRate);
             
             PlayAnim(currentMotionInfo.motionName, 0, enterTick);
+
+            hitSparkEffectPool.OnPlayEffect(
+                player.transform.position + Vector3.up, 
+                Quaternion.LookRotation((player.transform.position - currentHitInfo.attackerPos).normalized));
+
+            soundObject.PlayOneShot(hitSparkSE[UnityEngine.Random.Range(0, hitSparkSE.Length)]);
         }
 
         //OnState
@@ -110,6 +130,16 @@ namespace Unit
             }
         }
         #endregion
+
+        private void LoadEffect()
+        {
+            hitSparkEffectPool =
+                EffectObjectPool.CreatePoolInstance<HitStateSparkEffect>(
+                    (HitStateSparkEffect)InGamePlayerResourcesLoader.userStateEffectAsset.hitStateSparkEffect,
+                    new() { count = 10, effectRoot = null });
+
+            hitSparkSE = InGamePlayerResourcesLoader.soundPack.userHitSE;
+        }
 
         private void OnHitMove(PlayerMoveAnimEventData moveData)
         {
