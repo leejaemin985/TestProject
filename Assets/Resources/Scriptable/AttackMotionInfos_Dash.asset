@@ -20,6 +20,7 @@ MonoBehaviour:
     damage: 15
     weight: 1
     attackType: 0
+    hitBehaviorType: 1
     attackTimings:
     - startTick: 10
       endTick: 17

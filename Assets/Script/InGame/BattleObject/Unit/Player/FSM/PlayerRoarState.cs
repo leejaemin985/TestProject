@@ -24,6 +24,7 @@ namespace Unit
         [SerializeField] private float damage;
         [SerializeField] private float weight;
         [SerializeField] private AttackType attackType;
+        [SerializeField] private HitBehaviorType hitBehaviorType;
 
         private const float roarMotionDuration = .8f;
 
@@ -110,6 +111,7 @@ namespace Unit
                 damaged = damage,
                 weight = weight,
                 attackType = attackType,
+                hitBehaviorType = hitBehaviorType,
                 attackerPos = player.transform.position
             };
 

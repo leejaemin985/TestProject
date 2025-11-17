@@ -24,6 +24,7 @@ namespace Unit
         public float damage;
         public float weight;
         public AttackType attackType;
+        public HitBehaviorType hitBehaviorType;
 
         public List<AttackTiming> attackTimings;
     }

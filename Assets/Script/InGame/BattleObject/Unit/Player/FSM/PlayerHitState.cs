@@ -86,11 +86,7 @@ namespace Unit
             
             PlayAnim(currentMotionInfo.motionName, 0, enterTick);
 
-            hitSparkEffectPool.OnPlayEffect(
-                player.transform.position + Vector3.up, 
-                Quaternion.LookRotation((player.transform.position - currentHitInfo.attackerPos).normalized));
-
-            soundObject.PlayOneShot(hitSparkSE[UnityEngine.Random.Range(0, hitSparkSE.Length)]);
+            OnHitEffect(currentHitInfo);
         }
 
         //OnState
@@ -159,6 +155,19 @@ namespace Unit
 
             hitMoveSpeed = moveData.MoveSpeed;
             currentHitMove = worldMoveDir;
+        }
+
+        private void OnHitEffect(HitInfo hitInfo)
+        {
+            if (hitInfo.attackType == AttackType.Physical)
+            {
+                hitSparkEffectPool.OnPlayEffect(
+                player.transform.position + Vector3.up,
+                Quaternion.LookRotation((player.transform.position - currentHitInfo.attackerPos).normalized));
+
+                soundObject.PlayOneShot(hitSparkSE[UnityEngine.Random.Range(0, hitSparkSE.Length)]);
+            }
+
         }
     }
 }

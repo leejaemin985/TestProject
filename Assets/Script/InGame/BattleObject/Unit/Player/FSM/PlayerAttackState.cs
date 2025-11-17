@@ -142,6 +142,7 @@ namespace Unit
                             damaged = currentMotion.damage,
                             weight = currentMotion.weight,
                             attackType = currentMotion.attackType,
+                            hitBehaviorType = currentMotion.hitBehaviorType,
                             attackerPos = player.transform.position
                         });
                     }

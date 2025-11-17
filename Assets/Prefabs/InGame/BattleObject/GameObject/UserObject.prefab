@@ -1333,6 +1333,7 @@ MonoBehaviour:
   damage: 10
   weight: 1
   attackType: 1
+  hitBehaviorType: 2
 --- !u!1 &6614317249968705175
 GameObject:
   m_ObjectHideFlags: 0
