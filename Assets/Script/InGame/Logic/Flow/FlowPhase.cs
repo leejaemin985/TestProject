@@ -11,6 +11,7 @@ namespace InGame.Logic.Flow
         UnitSpawn,
         Intro,
         InBattle,
+        DeathScene,
         End,
 
         Count

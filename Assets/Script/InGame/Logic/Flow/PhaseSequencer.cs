@@ -25,6 +25,7 @@ namespace InGame.Logic.Flow
             FlowPhase.SessionInit,
             FlowPhase.UnitSpawn,
             FlowPhase.InBattle,
+            FlowPhase.DeathScene,
             FlowPhase.End
         };
         private int currentPhaseIndex;

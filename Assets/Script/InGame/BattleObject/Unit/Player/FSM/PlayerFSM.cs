@@ -1,16 +1,18 @@
+using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 using Fusion;
 using Fusion.Addons.SimpleKCC;
-using System;
-using static Unit.PlayerStateBase;
-using System.Linq;
-using InGame.Event;
+
 using Utility.Sound;
-using UnityEngine.InputSystem;
+using InGame.Event;
+
+using static Unit.PlayerStateBase;
 
 namespace Unit
 {
