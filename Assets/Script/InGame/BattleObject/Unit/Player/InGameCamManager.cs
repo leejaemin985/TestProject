@@ -24,6 +24,8 @@ namespace InGame
             freeLookCam.enabled = true;
             freeLookCam.Follow = player;
 
+            transform.SetParent(null);
+
             this.noneStateTransform = noneStateTransform;
             this.motionStateTransform = motionStateTransform;
             SetCamState(CamActionState.None);

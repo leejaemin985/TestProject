@@ -1,4 +1,9 @@
 
+using System.Collections.Generic;
+
+using UnityEditor.SearchService;
+using UnityEngine;
+
 namespace SceneType
 {
     public class SceneType
@@ -6,19 +11,29 @@ namespace SceneType
         public int id { get; private set; }
         public string name { get; private set; }
 
-        private SceneType(int id, string name)
+        public bool useCursor { get; private set; }
+        private SceneType(int id, string name, bool useCursor)
         {
             this.id = id;
             this.name = name;
+            this.useCursor = useCursor;
         }
 
-        public static SceneType Localinitialize { get; private set; } = new(0, "Localinitialize");
-        
-        public static SceneType Lobby { get; private set; } = new(1, "Lobby");
+        private static readonly Dictionary<string, SceneType> mapBySceneName = new()
+        {
+            { Localinitialize.name, Localinitialize },
+            { Lobby.name, Lobby },
+            { WaitingRoom.name, WaitingRoom },
+            { InGame.name, InGame }
+        };
 
-        public static SceneType WaitingRoom { get; private set; } = new(2, "WaitingRoom");
+        public static SceneType Localinitialize { get; private set; } = new(0, "Localinitialize", false);
 
-        public static SceneType InGame { get; private set; } = new(3, "InGame");
-         
+        public static SceneType Lobby { get; private set; } = new(1, "Lobby", true);
+
+        public static SceneType WaitingRoom { get; private set; } = new(2, "WaitingRoom", true);
+
+        public static SceneType InGame { get; private set; } = new(3, "InGame", false);
+
     }
 }
