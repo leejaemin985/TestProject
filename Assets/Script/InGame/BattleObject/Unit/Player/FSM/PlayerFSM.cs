@@ -125,7 +125,7 @@ namespace Unit
 
         public void OnDiedState(HitInfo hitInfo)
         {
-            SetState<PlayerDiedState>(default, TransitionType.System, false);
+            SetState<PlayerDiedState>(new StateInfo() { hitInfo = hitInfo }, TransitionType.System, false);
         }
 
 

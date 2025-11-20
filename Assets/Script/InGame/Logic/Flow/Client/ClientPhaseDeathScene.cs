@@ -1,4 +1,7 @@
 using InGame.Logic.Flow;
+using System.Threading.Tasks;
+using Unity.VisualScripting;
+using UnityEngine;
 
 namespace InGame.Logic
 {
@@ -6,7 +9,13 @@ namespace InGame.Logic
     {
         public override FlowPhase phaseType => FlowPhase.DeathScene;
 
-        jfngkjlsdfnblnsdfgkljbnkfgjls
+        protected async override Task<PhaseState> OnPhase()
+        {
+            await Task.Delay(5000);
+
+            Time.timeScale = 1;
+            return PhaseState.Complete;
+        }
 
     }
 }

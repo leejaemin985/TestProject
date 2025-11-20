@@ -50,7 +50,7 @@ namespace InGame.Logic
                 }
 
             }
-
+            Time.timeScale = .3f;
             return PhaseState.Complete;
         }
 
