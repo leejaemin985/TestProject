@@ -33,5 +33,7 @@ namespace SceneType
             { WaitingRoom.name, WaitingRoom },
             { InGame.name, InGame }
         };
+
+        public static IReadOnlyDictionary<string, SceneType> iMapBySceneName => mapBySceneName;
     }
 }

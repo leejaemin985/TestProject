@@ -29,9 +29,6 @@ namespace InGame
             this.noneStateTransform = noneStateTransform;
             this.motionStateTransform = motionStateTransform;
             SetCamState(CamActionState.None);
-
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
         }
 
         private void SetCamState(CamActionState state)

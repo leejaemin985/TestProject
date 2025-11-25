@@ -1,3 +1,4 @@
+using Input;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -52,9 +53,11 @@ namespace GameOption
 
         private void Update()
         {
-            if (Keyboard.current.escapeKey.wasPressedThisFrame)
+            //if (Keyboard.current.escapeKey.wasPressedThisFrame)
+            if (Keyboard.current.tabKey.wasPressedThisFrame)
             {
-                optionUI.SetActive(!optionUI.GetActive());
+                bool targetActive = !optionUI.GetActive();
+                optionUI.SetActive(targetActive);
             }
         }
 

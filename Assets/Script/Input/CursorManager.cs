@@ -20,7 +20,38 @@ namespace Input
 
         private void SceneLoadedListener(Scene scene, LoadSceneMode mode)
         {
-            
+            if (SceneType.iMapBySceneName.TryGetValue(scene.name, out SceneType value) == false) return;
+
+            currentSceneType = value;
+            CheckCursorValidable();
+        }
+
+        private void CheckCursorValidable()
+        {
+            bool sceneSetting = currentSceneType == null ? true : currentSceneType.useCursor;
+            bool uiOverlay = uiOverlayCount > 0;
+
+            if (sceneSetting || uiOverlay)
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
+            else
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+        }
+
+        public void OpenCursorUsableUI()
+        {
+            ++uiOverlayCount;
+            CheckCursorValidable();
+        }
+        public void CloseCursorUsableUI()
+        {
+            --uiOverlayCount;
+            CheckCursorValidable();
         }
 
     }

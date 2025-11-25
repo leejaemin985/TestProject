@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using Input;
 
 namespace Utility.CommonPopup
 {
@@ -73,23 +74,28 @@ namespace Utility.CommonPopup
             subButtonText.text = popupPolicy.SubButtonText;
             onClickedMainButtonListener = popupPolicy.MainButtonEvent;
             onClickedSubButtonListener = popupPolicy.SubButtonEvent;
+
+            CursorManager.Instance.OpenCursorUsableUI();
         }
 
         public void OffPopup()
         {
             rect.gameObject.SetActive(false);
+            CursorManager.Instance.CloseCursorUsableUI();
         }
 
         public void OnClickedMainButtonEvent()
         {
             rect.gameObject.SetActive(false);
             onClickedMainButtonListener?.Invoke();
+            CursorManager.Instance.CloseCursorUsableUI();
         }
 
         public void OnClickedSubButtonEvent()
         {
             rect.gameObject.SetActive(false);
             onClickedSubButtonListener?.Invoke();
+            CursorManager.Instance.CloseCursorUsableUI();
         }
     }
 }

@@ -47,9 +47,6 @@ namespace InGame.Logic
         private void OnDestroy()
         {
             GameNetworkManager.Instance.RemoveLeftUserEventListener(UserLeftSession);
-
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
         }
     }
 }

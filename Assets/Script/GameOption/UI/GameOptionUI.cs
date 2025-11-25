@@ -1,3 +1,4 @@
+using Input;
 using System;
 using UnityEngine;
 
@@ -22,5 +23,17 @@ namespace GameOption
         {
             onClickAudioSettingPanelListener?.Invoke();
         }
+
+        private void OnEnable()
+        {
+            CursorManager.Instance.OpenCursorUsableUI();
+        }
+
+        private void OnDisable()
+        {
+            CursorManager.Instance.CloseCursorUsableUI();
+        }
+
+
     }
 }
