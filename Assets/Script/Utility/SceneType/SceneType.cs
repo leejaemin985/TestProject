@@ -1,7 +1,5 @@
 
 using System.Collections.Generic;
-
-using UnityEditor.SearchService;
 using UnityEngine;
 
 namespace SceneType
@@ -19,14 +17,6 @@ namespace SceneType
             this.useCursor = useCursor;
         }
 
-        private static readonly Dictionary<string, SceneType> mapBySceneName = new()
-        {
-            { Localinitialize.name, Localinitialize },
-            { Lobby.name, Lobby },
-            { WaitingRoom.name, WaitingRoom },
-            { InGame.name, InGame }
-        };
-
         public static SceneType Localinitialize { get; private set; } = new(0, "Localinitialize", false);
 
         public static SceneType Lobby { get; private set; } = new(1, "Lobby", true);
@@ -34,6 +24,14 @@ namespace SceneType
         public static SceneType WaitingRoom { get; private set; } = new(2, "WaitingRoom", true);
 
         public static SceneType InGame { get; private set; } = new(3, "InGame", false);
+        
 
+        private static readonly Dictionary<string, SceneType> mapBySceneName = new()
+        {
+            { Localinitialize.name, Localinitialize },
+            { Lobby.name, Lobby },
+            { WaitingRoom.name, WaitingRoom },
+            { InGame.name, InGame }
+        };
     }
 }
