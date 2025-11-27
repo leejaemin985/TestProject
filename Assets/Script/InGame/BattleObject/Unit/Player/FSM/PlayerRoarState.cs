@@ -50,6 +50,12 @@ namespace Unit
         }
 
         #region FSM State
+        //Can Enter
+        protected override bool CanEnter()
+        {
+            return false;
+        }
+
         //EnterState
         protected override void EnterStateAuthority(int enterTick)
         {

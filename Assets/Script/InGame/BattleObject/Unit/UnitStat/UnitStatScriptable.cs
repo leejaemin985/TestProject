@@ -20,5 +20,8 @@ namespace Unit
         public float maxHp;
 
         public float maxPosture;
+
+        // TODO: Implement skill cost logic here.
+        public float skillCoolTime;
     }
 }

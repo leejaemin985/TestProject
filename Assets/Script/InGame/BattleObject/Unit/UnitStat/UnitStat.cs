@@ -61,6 +61,9 @@ namespace Unit
         [Networked, OnChangedRender(nameof(OnChangedPosture))] public float posture { get; protected set; }
 
         [Networked, OnChangedRender(nameof(OnChangedSuperArmor))] public bool superArmor { get; protected set; }
+ 
+        [Networked] public float skillTempTime { get; protected set; }
+        [Networked] public float skillCoolTime { get; private set; }
 
         private Dictionary<StatId, Action> onStatEventListeners;
         private Dictionary<StatId, IEnumerator> statCoroutineHandlers;

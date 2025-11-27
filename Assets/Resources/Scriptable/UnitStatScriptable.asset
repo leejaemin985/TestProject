@@ -16,3 +16,4 @@ MonoBehaviour:
   - unitType: 0
     maxHp: 200
     maxPosture: 100
+    skillCoolTime: 10

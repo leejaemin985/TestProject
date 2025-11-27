@@ -113,7 +113,7 @@ namespace Unit
                 SetState<PlayerHitState>(new StateInfo() { hitInfo = hitInfo }, TransitionType.System, false);
             else
             {
-                // È÷Æ® »óÅÂ¸¦ ¹«½ÃÇÏ´õ¶óµµ ½ÃÄö½º´Â Áõ°¡ÇØ¾ßÇÔ.
+                // ï¿½ï¿½Æ® ï¿½ï¿½ï¿½Â¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ï¿½ï¿½.
                 systemSeq++;
             }
         }
@@ -132,9 +132,12 @@ namespace Unit
         public bool CanSetState(StateTransitionData transitionData)
         {
             if (transitionData.transitionType == TransitionType.System) return systemSeq < transitionData.systemSeq;
-            
+
             IState state = stateMap[transitionData.stateType];
-            return CurrentState.priority <= state.priority;
+
+            bool checkPriority = CurrentState.priority <= state.priority;
+            bool canEntering = state.CanEnter();
+            return checkPriority && canEntering;
         }
 
 #nullable enable
@@ -200,7 +203,7 @@ namespace Unit
         private bool isTest = false;
         public void Update()
         {
-            if (/*Input.GetKeyDown(KeyCode.M)*/Keyboard.current.mKey.wasPressedThisFrame) isTest = !isTest;
+            if (Keyboard.current.mKey.wasPressedThisFrame) isTest = !isTest;
         }
 
         private bool test_attackInput = false;

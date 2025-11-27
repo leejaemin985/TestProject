@@ -92,6 +92,7 @@ namespace Unit
 
         protected virtual void SetInfo(INetworkStruct info) { }
 
+        protected virtual bool CanEnter() => true;
 
         protected virtual void EnterStateAuthority(int enterTick) { }
 
@@ -135,6 +136,8 @@ namespace Unit
         StatePriorityType IState.priority => Priority;
 
         void IState.SetInfo(StateInfo info) => SetInfo(info);
+
+        bool IState.CanEnter() => CanEnter();
 
         void IState.EnterState(int enterTick) => EnterState(enterTick);
 

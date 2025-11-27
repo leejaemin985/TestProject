@@ -17,6 +17,8 @@ namespace Unit
 
         void SetInfo(StateInfo info);
 
+        bool CanEnter();
+
         void EnterState(int enterTick);
 
         void OnState();
