@@ -18,10 +18,12 @@ namespace Unit
     public enum StatId : byte
     {
         hp,
-        maxHp, 
+        maxHp,
         posture,
         maxPosture,
-        superArmor
+        superArmor,
+        skillTempTime,
+        skillCoolTime
     }
 
     public abstract class UnitStat : NetworkBehaviour
@@ -61,9 +63,12 @@ namespace Unit
         [Networked, OnChangedRender(nameof(OnChangedPosture))] public float posture { get; protected set; }
 
         [Networked, OnChangedRender(nameof(OnChangedSuperArmor))] public bool superArmor { get; protected set; }
- 
-        [Networked] public float skillTempTime { get; protected set; }
-        [Networked] public float skillCoolTime { get; private set; }
+
+        public bool cachedHasSkill { get; private set; } = true;
+        [Networked, OnChangedRender(nameof(OnChangedSkillTempTime))] public float skillTempTime { get; protected set; }
+        [Networked, OnChangedRender(nameof(OnChangedSkillCoolTime))] public float skillCoolTime { get; private set; }
+
+        private IEnumerator skillCoolTimeCoHandle;
 
         private Dictionary<StatId, Action> onStatEventListeners;
         private Dictionary<StatId, IEnumerator> statCoroutineHandlers;
@@ -106,6 +111,8 @@ namespace Unit
 
             maxPosture = initData.maxPosture;
             posture = maxPosture;
+
+            skillCoolTime = initData.skillCoolTime;
         }
 
         #region Changed Value EventListener 
@@ -126,6 +133,8 @@ namespace Unit
         private void OnChangedMaxPosture() => onStatEventListeners[StatId.maxPosture]?.Invoke();
         private void OnChangedPosture() => onStatEventListeners[StatId.posture]?.Invoke();
         private void OnChangedSuperArmor() => onStatEventListeners[StatId.superArmor]?.Invoke();
+        private void OnChangedSkillTempTime() => onStatEventListeners[StatId.skillTempTime]?.Invoke();
+        private void OnChangedSkillCoolTime() => onStatEventListeners[StatId.skillCoolTime]?.Invoke();
 
         public void AddStatEventListener(StatId statId, Action eventListener)
         {
@@ -149,6 +158,39 @@ namespace Unit
             if (HasStateAuthority == false) return;
 
             posture = Mathf.Clamp(value, 0, maxPosture);
+        }
+
+        public void RunSkillCoolTime()
+        {
+            if (cachedHasSkill == false) return;
+
+            cachedHasSkill = false;
+            RPC_RequestRunSkillCoolTime();
+        }
+        
+        [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+        private void RPC_RequestRunSkillCoolTime()
+        {
+            skillTempTime = skillCoolTime;
+            if (skillCoolTimeCoHandle != null) StopCoroutine(skillCoolTimeCoHandle);
+            StartCoroutine(skillCoolTimeCoHandle = SkillCoolTimeCo());
+        }
+
+        private IEnumerator SkillCoolTimeCo()
+        {
+            while (skillTempTime > 0)
+            {
+                yield return null;
+                skillTempTime -= Time.deltaTime;
+            }
+            skillTempTime = 0;
+            RPC_RequestHasSkill(true);
+        }
+
+        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        private void RPC_RequestHasSkill(bool set)
+        {
+            cachedHasSkill = set;
         }
 
         public void OnSuperArmor(int untilTick)

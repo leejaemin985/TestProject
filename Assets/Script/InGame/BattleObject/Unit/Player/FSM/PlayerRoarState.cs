@@ -53,13 +53,15 @@ namespace Unit
         //Can Enter
         protected override bool CanEnter()
         {
-            return false;
+            Debug.Log($"Test - called roar Can Enter: {player.UnitStat.cachedHasSkill} // {player.UnitStat.skillTempTime <= 0}");
+            return player.UnitStat.cachedHasSkill && (player.UnitStat.skillTempTime <= 0);
         }
 
         //EnterState
         protected override void EnterStateAuthority(int enterTick)
         {
             roarEndTick = Runner.Tick + Mathf.RoundToInt(roarMotionDuration * Runner.TickRate);
+            player.UnitStat.RunSkillCoolTime();
         }
 
         protected override void EnterStateShared(int enterTick)
