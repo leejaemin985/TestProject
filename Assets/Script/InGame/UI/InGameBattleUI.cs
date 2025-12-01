@@ -16,6 +16,7 @@ namespace InGame.UI
 
         [Header("User")]
         [SerializeField] private Image userHpBar;
+        [SerializeField] private Image skillTempFilled;
 
         [Header("Opponent")]
         [SerializeField] private Image opponentHpBar;
@@ -31,7 +32,10 @@ namespace InGame.UI
         private void BindStatUI(UnitStat unitStat)
         {
             if (unitStat.userRef == runner.LocalPlayer)
+            {
                 unitStat.AddStatEventListener(StatId.hp, () => SetUserHpBar(unitStat.hp, unitStat.maxHp));
+                unitStat.AddStatEventListener(StatId.skillTempTime, () => SetSkillTempTime(unitStat.skillTempTime, unitStat.skillCoolTime));
+            }
             else
                 unitStat.AddStatEventListener(StatId.hp, () => SetOpponentHpBar(unitStat.hp, unitStat.maxHp));
         }
@@ -44,6 +48,11 @@ namespace InGame.UI
         private void SetOpponentHpBar(float currentHp, float maxHp)
         {
             opponentHpBar.fillAmount = currentHp / maxHp;
+        }
+
+        private void SetSkillTempTime(float temp, float max)
+        {
+            skillTempFilled.fillAmount = temp / max;
         }
     }
 }

@@ -51,15 +51,8 @@ namespace GameOption
             optionsMap[GameOptionSetterBase.GameOptionType.Audio].SetActive(true);
         }
 
-        private void Update()
-        {
-            //if (Keyboard.current.escapeKey.wasPressedThisFrame)
-            if (Keyboard.current.tabKey.wasPressedThisFrame)
-            {
-                bool targetActive = !optionUI.GetActive();
-                optionUI.SetActive(targetActive);
-            }
-        }
+        public bool GetPanelActive() => optionUI.GetActive();
 
+        public void SetPanelActive(bool set) => optionUI.SetActive(set);
     }
 }

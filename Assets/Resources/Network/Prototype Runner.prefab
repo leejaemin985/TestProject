@@ -305,6 +305,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: e7993dc8-8a39-4b2a-acdb-4545dc4f1d04
     m_ActionName: PlayerActions/Defense[/Mouse/rightButton]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8389750529646163420}
+        m_TargetAssemblyTypeName: UserInputReceiver, Assembly-CSharp
+        m_MethodName: OnEscape
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 68f95854-b4ad-4cdf-ac26-ce3c55ce0477
+    m_ActionName: PlayerActions/Escape[/Keyboard/escape]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: PC
   m_DefaultActionMap: PlayerActions

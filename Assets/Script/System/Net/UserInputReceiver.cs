@@ -56,4 +56,9 @@ public class UserInputReceiver : RunnerCallbacksBase
         skill = context.ReadValue<float>() > 0;
     }
 
+    public void OnEscape(InputAction.CallbackContext context)
+    {
+        bool targetActive = !GameOption.GameOption.Instance.GetPanelActive();
+        GameOption.GameOption.Instance.SetPanelActive(targetActive);
+    }
 }
