@@ -76,8 +76,9 @@ namespace Unit
             CurrentState = stateMap[PlayerStateBase.StateType.Move];
 
             isInitialized = true;
-
+#if UNITY_EDITOR
             StartTest();
+#endif
         }
 
         public void AddChangeStateListener(Action<PlayerStateBase.StateType> changeStateTypeListener)
@@ -198,8 +199,7 @@ namespace Unit
             if (Runner.IsSharedModeMasterClient) CurrentState?.OnMasterTick();
         }
 
-        #region Test
-
+#if UNITY_EDITOR
         private bool isTest = false;
         public void Update()
         {
@@ -239,8 +239,7 @@ namespace Unit
                 yield return null;
             }
         }
-
-        #endregion
+#endif
 
         public override void FixedUpdateNetwork()
         {
@@ -248,7 +247,7 @@ namespace Unit
 
             if (GetInput<InputData>(out var newInput) == false) return;
 
-            #region Test
+#if UNITY_EDITOR
             if (isTest)
             {
                 if (CurrentState.GetStateType() == StateType.Hit && test_hasRoar && false) 
@@ -261,7 +260,7 @@ namespace Unit
                     newInput.attack = test_attackInput;
                 }
             }
-            #endregion
+#endif
             input.Update(newInput);
 
             CurrentState?.OnState();

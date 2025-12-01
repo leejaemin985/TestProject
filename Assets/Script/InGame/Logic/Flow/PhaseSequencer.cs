@@ -56,7 +56,7 @@ namespace InGame.Logic.Flow
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
         private void RPC_ReportPhase(PhaseReport reportInfo)
         {
-            Debug.Log($"Test - report // userRef:{reportInfo.userRef} type: {reportInfo.phaseType} state: {reportInfo.phaseState}");
+            //Debug.Log($"Test - report // userRef:{reportInfo.userRef} type: {reportInfo.phaseType} state: {reportInfo.phaseState}");
 
             if (!HasStateAuthority || reportInfo.IsValid == false) return;
 
