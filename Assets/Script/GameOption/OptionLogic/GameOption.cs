@@ -2,6 +2,7 @@ using Input;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Utility.CommonPopup;
 using Utility.Sound;
 
 namespace GameOption
@@ -54,5 +55,19 @@ namespace GameOption
         public bool GetPanelActive() => optionUI.GetActive();
 
         public void SetPanelActive(bool set) => optionUI.SetActive(set);
+
+        public void OnExitPopup()
+        {
+            CommonPopup.Instance.OnPopup(new
+            (
+                popupKind: CommonPopup.PopupPolicy.PopupKind.YesNo,
+                title: "Exit the game",
+                description: null,
+                mainButtonText: "Yes",
+                subButtonText: "No",
+                mainButtonEvent: Application.Quit,
+                subButtonEvent: null
+            ));
+        }
     }
 }
