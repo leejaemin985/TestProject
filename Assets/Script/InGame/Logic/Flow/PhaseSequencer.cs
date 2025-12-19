@@ -91,7 +91,7 @@ namespace InGame.Logic.Flow
             {
                 currentPhase = InGameFlowPhase[++currentPhaseIndex];
 
-                Debug.Log($"Test - Set NextPhase : {currentPhase}");
+                //Debug.Log($"Test - Set NextPhase : {currentPhase}");
 
                 RPC_ApplyPhase(new()
                 {

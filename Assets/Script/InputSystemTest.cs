@@ -15,7 +15,7 @@ public class InputSystemTest : MonoBehaviour
         var moveDir = context.ReadValue<Vector2>();
         if (moveDir == null) return;
 
-        Debug.Log($"Test - moveDir: {moveDir}");
+        //Debug.Log($"Test - moveDir: {moveDir}");
     }
 
 

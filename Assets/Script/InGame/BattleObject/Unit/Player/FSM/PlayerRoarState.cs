@@ -53,7 +53,6 @@ namespace Unit
         //Can Enter
         protected override bool CanEnter()
         {
-            Debug.Log($"Test - called roar Can Enter: {player.UnitStat.cachedHasSkill} // {player.UnitStat.skillTempTime <= 0}");
             return player.UnitStat.cachedHasSkill && (player.UnitStat.skillTempTime <= 0);
         }
 
